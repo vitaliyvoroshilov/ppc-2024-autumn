@@ -1,5 +1,5 @@
-[![Build application](https://github.com/learning-process/parallel_programming_course/actions/workflows/main.yml/badge.svg)](https://github.com/learning-process/parallel_programming_course/actions/workflows/main.yml)
-[![codecov](https://codecov.io/gh/learning-process/parallel_programming_course/graph/badge.svg?token=qCOtqeFyIz)](https://codecov.io/gh/learning-process/parallel_programming_course)
+[![Build application](https://github.com/learning-process/ppc-2024-autumn/actions/workflows/main.yml/badge.svg)](https://github.com/learning-process/ppc-2024-autumn/actions/workflows/main.yml)
+[![codecov](https://codecov.io/gh/learning-process/ppc-2024-autumn/graph/badge.svg?token=qCOtqeFyIz)](https://codecov.io/gh/learning-process/ppc-2024-autumn)
 
 # Parallel Programming Course
 
