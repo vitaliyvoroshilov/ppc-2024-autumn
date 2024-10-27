@@ -27,8 +27,9 @@ TEST(voroshilov_v_num_of_alphabetic_chars_mpi_perf, test_pipeline_run_mpi) {
   // Create TaskData
   std::shared_ptr<ppc::core::TaskData> taskDataPar = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
-    for (size_t i = 0; i < global_vec.size(); i++)
+    for (size_t i = 0; i < global_vec.size(); i++) {
       global_vec[i] = str[i];
+    }
     taskDataPar->inputs.emplace_back(reinterpret_cast<uint8_t*>(global_vec.data()));
     taskDataPar->inputs_count.emplace_back(global_vec.size());
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(global_num.data()));
@@ -80,8 +81,9 @@ TEST(voroshilov_v_num_of_alphabetic_chars_mpi_perf, test_task_run_mpi) {
   // Create TaskData
   std::shared_ptr<ppc::core::TaskData> taskDataPar = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
-    for (size_t i = 0; i < global_vec.size(); i++)
+    for (size_t i = 0; i < global_vec.size(); i++) {
       global_vec[i] = str[i];
+    }
     taskDataPar->inputs.emplace_back(reinterpret_cast<uint8_t*>(global_vec.data()));
     taskDataPar->inputs_count.emplace_back(global_vec.size());
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(global_num.data()));
