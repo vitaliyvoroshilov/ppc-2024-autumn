@@ -36,7 +36,8 @@ TEST(voroshilov_v_num_of_alphabetic_chars_mpi_perf, test_pipeline_run_mpi) {
     taskDataPar->outputs_count.emplace_back(global_num.size());
   }
 
-  auto alphabetCharsTaskParallel = std::make_shared<voroshilov_v_num_of_alphabetic_chars_mpi::AlphabetCharsTaskParallel>(taskDataPar);
+  auto alphabetCharsTaskParallel =
+      std::make_shared<voroshilov_v_num_of_alphabetic_chars_mpi::AlphabetCharsTaskParallel>(taskDataPar);
   ASSERT_EQ(alphabetCharsTaskParallel->validation(), true);
   alphabetCharsTaskParallel->pre_processing();
   alphabetCharsTaskParallel->run();
@@ -90,7 +91,8 @@ TEST(voroshilov_v_num_of_alphabetic_chars_mpi_perf, test_task_run_mpi) {
     taskDataPar->outputs_count.emplace_back(global_num.size());
   }
 
-  auto alphabetCharsTaskParallel = std::make_shared<voroshilov_v_num_of_alphabetic_chars_mpi::AlphabetCharsTaskParallel>(taskDataPar);
+  auto alphabetCharsTaskParallel =
+      std::make_shared<voroshilov_v_num_of_alphabetic_chars_mpi::AlphabetCharsTaskParallel>(taskDataPar);
   ASSERT_EQ(alphabetCharsTaskParallel->validation(), true);
   alphabetCharsTaskParallel->pre_processing();
   alphabetCharsTaskParallel->run();
