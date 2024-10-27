@@ -74,7 +74,7 @@ TEST(voroshilov_v_num_of_alphabetic_chars_mpi_perf, test_task_run_mpi) {
 
   int initial_num = 0;
   int expected_num = 40000;
-  
+
   boost::mpi::communicator world;
   std::vector<char> global_vec(str.length());
   std::vector<int32_t> global_num(1, initial_num);
