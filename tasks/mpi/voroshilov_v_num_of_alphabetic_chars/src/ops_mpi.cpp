@@ -44,8 +44,6 @@ bool voroshilov_v_num_of_alphabetic_chars_mpi::AlphabetCharsTaskSequential::post
   return true;
 }
 
-
-
 bool voroshilov_v_num_of_alphabetic_chars_mpi::AlphabetCharsTaskParallel::validation() {
   internal_order_test();
   if (world.rank() == 0) {

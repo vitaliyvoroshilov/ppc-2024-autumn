@@ -10,7 +10,7 @@ TEST(voroshilov_v_num_of_alphabetic_chars_mpi_func, test_without_alphabetic_char
   std::string str = "123456789-+*/=<>";
   int initial_num = 0;
   int expected_num = 0;
-    
+
   boost::mpi::communicator world;
   std::vector<char> global_vec(str.length());
   std::vector<int32_t> global_num(1, initial_num);
@@ -62,7 +62,7 @@ TEST(voroshilov_v_num_of_alphabetic_chars_mpi_func, test_with_lowercase_alphabet
   std::string str = "123456789-+*/=<>aaabbcxyyzzz";
   int initial_num = 0;
   int expected_num = 12;
-    
+
   boost::mpi::communicator world;
   std::vector<char> global_vec(str.length());
   std::vector<int32_t> global_num(1, initial_num);
@@ -115,7 +115,7 @@ TEST(voroshilov_v_num_of_alphabetic_chars_mpi_func, test_with_uppercase_alphabet
   std::string str = "123456789-+*/=<>AAABBCXYYZZZ";
   int initial_num = 0;
   int expected_num = 12;
-    
+
   boost::mpi::communicator world;
   std::vector<char> global_vec(str.length());
   std::vector<int32_t> global_num(1, initial_num);
@@ -168,7 +168,7 @@ TEST(voroshilov_v_num_of_alphabetic_chars_mpi_func, test_with_anycase_alphabetic
   std::string str = "123456789-+*/=<>aaabbcxyyzzzAAABBCXYYZZZ";
   int initial_num = 0;
   int expected_num = 24;
-    
+  
   boost::mpi::communicator world;
   std::vector<char> global_vec(str.length());
   std::vector<int32_t> global_num(1, initial_num);
