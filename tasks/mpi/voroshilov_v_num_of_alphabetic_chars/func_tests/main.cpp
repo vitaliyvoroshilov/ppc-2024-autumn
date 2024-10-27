@@ -2,7 +2,6 @@
 
 #include <boost/mpi/communicator.hpp>
 #include <boost/mpi/environment.hpp>
-
 #include <vector>
 
 #include "mpi/voroshilov_v_num_of_alphabetic_chars/include/ops_mpi.hpp"
