@@ -26,7 +26,7 @@ bool voroshilov_v_num_of_alphabetic_chars_seq::AlphabetCharsTaskSequential::run(
   internal_order_test();
   for (size_t i = 0; i < input_.size(); i++) {
     int code = input_[i];
-    if (((code >= 65) && (code <= 90)) || ((code >= 97) && (code <= 122))) { //ASCII codes of english alphabet
+    if (((code >= 65) && (code <= 90)) || ((code >= 97) && (code <= 122))) {  // ASCII codes of english alphabet
       res_++;
     }
   }
