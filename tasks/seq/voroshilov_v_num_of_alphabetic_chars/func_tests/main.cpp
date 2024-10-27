@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "seq/voroshilov_v_num_of_alphabetic_chars/include/ops_seq.hpp"
 

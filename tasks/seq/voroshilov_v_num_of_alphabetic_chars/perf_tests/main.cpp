@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "core/perf/include/perf.hpp"
 #include "seq/voroshilov_v_num_of_alphabetic_chars/include/ops_seq.hpp"
@@ -35,7 +35,8 @@ TEST(voroshilov_v_num_of_alphabetic_chars_seq_perf, test_pipeline_run_seq) {
   taskDataSeq->outputs_count.emplace_back(out.size());
 
   // Create Task
-  auto alphabetCharsTaskSequential = std::make_shared<voroshilov_v_num_of_alphabetic_chars_seq::AlphabetCharsTaskSequential>(taskDataSeq);
+  auto alphabetCharsTaskSequential =
+      std::make_shared<voroshilov_v_num_of_alphabetic_chars_seq::AlphabetCharsTaskSequential>(taskDataSeq);
 
   // Create Perf attributes
   auto perfAttr = std::make_shared<ppc::core::PerfAttr>();
@@ -86,7 +87,8 @@ TEST(voroshilov_v_num_of_alphabetic_chars_seq_perf, test_task_run_seq) {
   taskDataSeq->outputs_count.emplace_back(out.size());
 
   // Create Task
-  auto alphabetCharsTaskSequential = std::make_shared<voroshilov_v_num_of_alphabetic_chars_seq::AlphabetCharsTaskSequential>(taskDataSeq);
+  auto alphabetCharsTaskSequential =
+      std::make_shared<voroshilov_v_num_of_alphabetic_chars_seq::AlphabetCharsTaskSequential>(taskDataSeq);
 
   // Create Perf attributes
   auto perfAttr = std::make_shared<ppc::core::PerfAttr>();

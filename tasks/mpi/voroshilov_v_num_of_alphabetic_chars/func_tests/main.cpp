@@ -55,7 +55,7 @@ TEST(voroshilov_v_num_of_alphabetic_chars_mpi_func, test_without_alphabetic_char
     alphabetCharsTaskSequential.post_processing();
 
     ASSERT_EQ(reference_sum[0], global_num[0]);
- 	}
+  }
 }
 
 TEST(voroshilov_v_num_of_alphabetic_chars_mpi_func, test_with_lowercase_alphabetic_chars_mpi) {
@@ -73,7 +73,7 @@ TEST(voroshilov_v_num_of_alphabetic_chars_mpi_func, test_with_lowercase_alphabet
   if (world.rank() == 0) {
     for (size_t i = 0; i < global_vec.size(); i++) {
    	  global_vec[i] = str[i];
-  	}
+    }
     taskDataPar->inputs.emplace_back(reinterpret_cast<uint8_t*>(global_vec.data()));
     taskDataPar->inputs_count.emplace_back(global_vec.size());
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(global_num.data()));
