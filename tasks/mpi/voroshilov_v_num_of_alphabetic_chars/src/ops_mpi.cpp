@@ -55,13 +55,13 @@ bool voroshilov_v_num_of_alphabetic_chars_mpi::AlphabetCharsTaskParallel::valida
 bool voroshilov_v_num_of_alphabetic_chars_mpi::AlphabetCharsTaskParallel::pre_processing() {
   internal_order_test();
   size_t part = 0;
-  size_t part_last = 0;
+  size_t remainder = 0;
   if (world.rank() == 0) {
     part = taskData->inputs_count[0] / world.size();
-    part_last = taskData->inputs_count[0] - part * (world.size() - 1);
-    world.send(world.size() - 1, 1, &part_last, 1);
+    remainder = taskData->inputs_count[0] % world.size();
   }
   boost::mpi::broadcast(world, part, 0);
+  boost::mpi::broadcast(world, remainder, 0);
 
   if (world.rank() == 0) {
     // Init vectors
@@ -70,19 +70,13 @@ bool voroshilov_v_num_of_alphabetic_chars_mpi::AlphabetCharsTaskParallel::pre_pr
     for (size_t i = 0; i < taskData->inputs_count[0]; i++) {
       input_[i] = ptr[i];
     }
-    for (int proc = 1; proc < world.size() - 1; proc++) {
-      world.send(proc, 0, input_.data() + proc * part, part);
+    for (int proc = 1; proc < world.size(); proc++) {
+      world.send(proc, 0, input_.data() + remainder + proc * part, part);
     }
-    world.send(world.size() - 1, 0, input_.data() + (world.size() - 1) * part, part_last);
   }
   local_input_ = std::vector<char>(part);
-
   if (world.rank() == 0) {
-    local_input_ = std::vector<char>(input_.begin(), input_.begin() + part);
-  } else if (world.rank() == world.size() - 1) {
-    world.recv(0, 1, &part_last, 1);
-    local_input_.resize(part_last);
-    world.recv(0, 0, local_input_.data(), part_last);
+    local_input_ = std::vector<char>(input_.begin(), input_.begin() + remainder + part);
   } else {
     world.recv(0, 0, local_input_.data(), part);
   }
