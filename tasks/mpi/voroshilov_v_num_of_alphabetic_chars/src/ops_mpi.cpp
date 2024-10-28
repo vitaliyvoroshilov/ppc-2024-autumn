@@ -30,8 +30,7 @@ bool voroshilov_v_num_of_alphabetic_chars_mpi::AlphabetCharsTaskSequential::pre_
 bool voroshilov_v_num_of_alphabetic_chars_mpi::AlphabetCharsTaskSequential::run() {
   internal_order_test();
   for (size_t i = 0; i < input_.size(); i++) {
-    int code = input_[i];
-    if (((code >= 65) && (code <= 90)) || ((code >= 97) && (code <= 122))) {  // ASCII codes of english alphabet
+    if (std::isalpha(input_[i])) {  // Check if it is alphabetic character
       res_++;
     }
   }
@@ -56,8 +55,11 @@ bool voroshilov_v_num_of_alphabetic_chars_mpi::AlphabetCharsTaskParallel::valida
 bool voroshilov_v_num_of_alphabetic_chars_mpi::AlphabetCharsTaskParallel::pre_processing() {
   internal_order_test();
   size_t part = 0;
+  size_t part_last = 0;
   if (world.rank() == 0) {
     part = taskData->inputs_count[0] / world.size();
+    part_last = taskData->inputs_count[0] - part * (world.size() - 1);
+    world.send(world.size() - 1, 0, &part_last, 1);
   }
   boost::mpi::broadcast(world, part, 0);
 
@@ -68,13 +70,19 @@ bool voroshilov_v_num_of_alphabetic_chars_mpi::AlphabetCharsTaskParallel::pre_pr
     for (size_t i = 0; i < taskData->inputs_count[0]; i++) {
       input_[i] = ptr[i];
     }
-    for (int proc = 1; proc < world.size(); proc++) {
+    for (int proc = 1; proc < world.size() - 1; proc++) {
       world.send(proc, 0, input_.data() + proc * part, part);
     }
+    world.send(world.size() - 1, 0, input_.data() + (world.size() - 1) * part, part_last);
   }
   local_input_ = std::vector<char>(part);
+  
   if (world.rank() == 0) {
     local_input_ = std::vector<char>(input_.begin(), input_.begin() + part);
+  } else if (world.rank() == world.size() - 1) {
+    world.recv(0, 0, &part_last, 1);
+    local_input_.resize(part_last);
+    world.recv(0, 0, local_input_.data(), part_last);
   } else {
     world.recv(0, 0, local_input_.data(), part);
   }
@@ -87,8 +95,7 @@ bool voroshilov_v_num_of_alphabetic_chars_mpi::AlphabetCharsTaskParallel::run() 
   internal_order_test();
   int local_res = 0;
   for (size_t i = 0; i < local_input_.size(); i++) {
-    int code = local_input_[i];
-    if (((code >= 65) && (code <= 90)) || ((code >= 97) && (code <= 122))) {  // ASCII codes of english alphabet
+    if (std::isalpha(local_input_[i])) {  // Check if it is alphabetic character
       local_res++;
     }
   }
