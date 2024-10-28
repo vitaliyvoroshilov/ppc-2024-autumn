@@ -30,7 +30,7 @@ bool voroshilov_v_num_of_alphabetic_chars_mpi::AlphabetCharsTaskSequential::pre_
 bool voroshilov_v_num_of_alphabetic_chars_mpi::AlphabetCharsTaskSequential::run() {
   internal_order_test();
   for (size_t i = 0; i < input_.size(); i++) {
-    if (std::isalpha(input_[i])) {  // Check if it is alphabetic character
+    if (std::isalpha(input_[i]) != 0) {  // Check if it is alphabetic character
       res_++;
     }
   }
@@ -59,7 +59,7 @@ bool voroshilov_v_num_of_alphabetic_chars_mpi::AlphabetCharsTaskParallel::pre_pr
   if (world.rank() == 0) {
     part = taskData->inputs_count[0] / world.size();
     part_last = taskData->inputs_count[0] - part * (world.size() - 1);
-    world.send(world.size() - 1, 0, &part_last, 1);
+    world.send(world.size() - 1, 1, &part_last, 1);
   }
   boost::mpi::broadcast(world, part, 0);
 
@@ -76,11 +76,11 @@ bool voroshilov_v_num_of_alphabetic_chars_mpi::AlphabetCharsTaskParallel::pre_pr
     world.send(world.size() - 1, 0, input_.data() + (world.size() - 1) * part, part_last);
   }
   local_input_ = std::vector<char>(part);
-  
+
   if (world.rank() == 0) {
     local_input_ = std::vector<char>(input_.begin(), input_.begin() + part);
   } else if (world.rank() == world.size() - 1) {
-    world.recv(0, 0, &part_last, 1);
+    world.recv(0, 1, &part_last, 1);
     local_input_.resize(part_last);
     world.recv(0, 0, local_input_.data(), part_last);
   } else {
@@ -95,7 +95,7 @@ bool voroshilov_v_num_of_alphabetic_chars_mpi::AlphabetCharsTaskParallel::run() 
   internal_order_test();
   int local_res = 0;
   for (size_t i = 0; i < local_input_.size(); i++) {
-    if (std::isalpha(local_input_[i])) {  // Check if it is alphabetic character
+    if (std::isalpha(local_input_[i]) != 0) {  // Check if it is alphabetic character
       local_res++;
     }
   }

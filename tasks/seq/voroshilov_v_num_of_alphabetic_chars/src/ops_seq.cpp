@@ -25,7 +25,7 @@ bool voroshilov_v_num_of_alphabetic_chars_seq::AlphabetCharsTaskSequential::pre_
 bool voroshilov_v_num_of_alphabetic_chars_seq::AlphabetCharsTaskSequential::run() {
   internal_order_test();
   for (size_t i = 0; i < input_.size(); i++) {
-    if (std::isalpha(input_[i])) {  // Check if it is alphabetic character
+    if (std::isalpha(input_[i]) != 0) {  // Check if it is alphabetic character
       res_++;
     }
   }
