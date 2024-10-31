@@ -57,6 +57,15 @@ bool voroshilov_v_num_of_alphabetic_chars_mpi::AlphabetCharsTaskParallel::pre_pr
   std::vector<char> input_;
   size_t part = 0;
   size_t remainder = 0;
+  
+  // Init value for output
+  res_ = 0;
+  return true;
+}
+
+bool voroshilov_v_num_of_alphabetic_chars_mpi::AlphabetCharsTaskParallel::run() {
+  internal_order_test();
+
   if (world.rank() == 0) {
     part = taskData->inputs_count[0] / world.size();
     remainder = taskData->inputs_count[0] % world.size();
@@ -75,19 +84,14 @@ bool voroshilov_v_num_of_alphabetic_chars_mpi::AlphabetCharsTaskParallel::pre_pr
       world.send(proc, 0, input_.data() + remainder + proc * part, part);
     }
   }
+
   local_input_ = std::vector<char>(part);
   if (world.rank() == 0) {
     local_input_ = std::vector<char>(input_.begin(), input_.begin() + remainder + part);
   } else {
     world.recv(0, 0, local_input_.data(), part);
   }
-  // Init value for output
-  res_ = 0;
-  return true;
-}
 
-bool voroshilov_v_num_of_alphabetic_chars_mpi::AlphabetCharsTaskParallel::run() {
-  internal_order_test();
   int local_res = 0;
   for (size_t i = 0; i < local_input_.size(); i++) {
     if (std::isalpha(local_input_[i]) != 0) {  // Check if it is alphabetic character
