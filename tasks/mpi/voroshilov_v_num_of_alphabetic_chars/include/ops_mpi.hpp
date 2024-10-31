@@ -36,7 +36,7 @@ class AlphabetCharsTaskParallel : public ppc::core::Task {
   bool post_processing() override;
 
  private:
-  std::vector<char> input_, local_input_;
+  std::vector<char> local_input_;
   int res_;
   boost::mpi::communicator world;
 };

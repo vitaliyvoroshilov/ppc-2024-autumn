@@ -54,6 +54,7 @@ bool voroshilov_v_num_of_alphabetic_chars_mpi::AlphabetCharsTaskParallel::valida
 
 bool voroshilov_v_num_of_alphabetic_chars_mpi::AlphabetCharsTaskParallel::pre_processing() {
   internal_order_test();
+  std::vector<char> input_;
   size_t part = 0;
   size_t remainder = 0;
   if (world.rank() == 0) {
