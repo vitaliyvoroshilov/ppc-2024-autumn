@@ -115,7 +115,8 @@ TEST(voroshilov_v_num_of_alphabetic_chars_seq_func, test_with_random_generated_v
   size_t vec_size = 100;
 
   // Create data
-  std::vector<char> in = voroshilov_v_num_of_alphabetic_chars_seq::genVecWithFixedAlphabeticsCount(expected_num, vec_size);
+  std::vector<char> in =
+      voroshilov_v_num_of_alphabetic_chars_seq::genVecWithFixedAlphabeticsCount(expected_num, vec_size);
   std::vector<int> out(1, initial_num);
 
   // Create TaskData

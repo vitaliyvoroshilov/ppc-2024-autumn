@@ -4,7 +4,8 @@
 
 using namespace std::chrono_literals;
 
-std::vector<char> voroshilov_v_num_of_alphabetic_chars_seq::genVecWithFixedAlphabeticsCount(int alphCount, size_t size) {
+std::vector<char> voroshilov_v_num_of_alphabetic_chars_seq::genVecWithFixedAlphabeticsCount(int alphCount,
+                                                                                            size_t size) {
   std::random_device dev;
   std::mt19937 gen(dev());
   std::vector<char> vector(size);
