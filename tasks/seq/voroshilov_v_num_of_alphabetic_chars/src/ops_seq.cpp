@@ -15,9 +15,7 @@ bool voroshilov_v_num_of_alphabetic_chars_seq::AlphabetCharsTaskSequential::pre_
   // Init value for input and output
   input_ = std::vector<char>(taskData->inputs_count[0]);
   char* ptr = reinterpret_cast<char*>(taskData->inputs[0]);
-  for (size_t i = 0; i < taskData->inputs_count[0]; i++) {
-    input_[i] = ptr[i];
-  }
+  std::copy(ptr, ptr + taskData->inputs_count[0], input_.begin());
   res_ = 0;
   return true;
 }

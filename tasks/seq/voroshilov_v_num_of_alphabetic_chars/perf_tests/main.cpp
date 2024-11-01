@@ -22,9 +22,7 @@ TEST(voroshilov_v_num_of_alphabetic_chars_seq_perf, test_pipeline_run_seq) {
 
   // Create data
   std::vector<char> in(str.length());
-  for (size_t i = 0; i < in.size(); i++) {
-    in[i] = str[i];
-  }
+  std::copy(str.begin(), str.end(), in.begin());
   std::vector<int> out(1, initial_num);
 
   // Create TaskData
@@ -74,9 +72,7 @@ TEST(voroshilov_v_num_of_alphabetic_chars_seq_perf, test_task_run_seq) {
 
   // Create data
   std::vector<char> in(str.length());
-  for (size_t i = 0; i < in.size(); i++) {
-    in[i] = str[i];
-  }
+  std::copy(str.begin(), str.end(), in.begin());
   std::vector<int> out(1, initial_num);
 
   // Create TaskData

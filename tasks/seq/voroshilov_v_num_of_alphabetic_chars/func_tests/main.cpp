@@ -12,9 +12,7 @@ TEST(voroshilov_v_num_of_alphabetic_chars_seq_func, test_without_alphabetic_char
 
   // Create data
   std::vector<char> in(str.length());
-  for (size_t i = 0; i < in.size(); i++) {
-    in[i] = str[i];
-  }
+  std::copy(str.begin(), str.end(), in.begin());
   std::vector<int> out(1, initial_num);
 
   // Create TaskData
@@ -40,9 +38,7 @@ TEST(voroshilov_v_num_of_alphabetic_chars_seq_func, test_with_lowercase_alphabet
 
   // Create data
   std::vector<char> in(str.length());
-  for (size_t i = 0; i < in.size(); i++) {
-    in[i] = str[i];
-  }
+  std::copy(str.begin(), str.end(), in.begin());
   std::vector<int> out(1, initial_num);
 
   // Create TaskData
@@ -68,9 +64,7 @@ TEST(voroshilov_v_num_of_alphabetic_chars_seq_func, test_with_uppercase_alphabet
 
   // Create data
   std::vector<char> in(str.length());
-  for (size_t i = 0; i < in.size(); i++) {
-    in[i] = str[i];
-  }
+  std::copy(str.begin(), str.end(), in.begin());
   std::vector<int> out(1, initial_num);
 
   // Create TaskData
@@ -96,9 +90,7 @@ TEST(voroshilov_v_num_of_alphabetic_chars_seq_func, test_with_anycase_alphabetic
 
   // Create data
   std::vector<char> in(str.length());
-  for (size_t i = 0; i < in.size(); i++) {
-    in[i] = str[i];
-  }
+  std::copy(str.begin(), str.end(), in.begin());
   std::vector<int> out(1, initial_num);
 
   // Create TaskData

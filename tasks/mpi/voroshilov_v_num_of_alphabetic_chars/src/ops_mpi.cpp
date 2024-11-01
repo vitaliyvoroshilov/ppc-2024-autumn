@@ -20,9 +20,7 @@ bool voroshilov_v_num_of_alphabetic_chars_mpi::AlphabetCharsTaskSequential::pre_
   // Init value for input and output
   input_ = std::vector<char>(taskData->inputs_count[0]);
   char* ptr = reinterpret_cast<char*>(taskData->inputs[0]);
-  for (size_t i = 0; i < taskData->inputs_count[0]; i++) {
-    input_[i] = ptr[i];
-  }
+  std::copy(ptr, ptr + taskData->inputs_count[0], input_.begin());
   res_ = 0;
   return true;
 }
@@ -54,10 +52,6 @@ bool voroshilov_v_num_of_alphabetic_chars_mpi::AlphabetCharsTaskParallel::valida
 
 bool voroshilov_v_num_of_alphabetic_chars_mpi::AlphabetCharsTaskParallel::pre_processing() {
   internal_order_test();
-  std::vector<char> input_;
-  size_t part = 0;
-  size_t remainder = 0;
-  
   // Init value for output
   res_ = 0;
   return true;
@@ -65,6 +59,10 @@ bool voroshilov_v_num_of_alphabetic_chars_mpi::AlphabetCharsTaskParallel::pre_pr
 
 bool voroshilov_v_num_of_alphabetic_chars_mpi::AlphabetCharsTaskParallel::run() {
   internal_order_test();
+
+  std::vector<char> input_;
+  size_t part = 0;
+  size_t remainder = 0;
 
   if (world.rank() == 0) {
     part = taskData->inputs_count[0] / world.size();
@@ -77,9 +75,7 @@ bool voroshilov_v_num_of_alphabetic_chars_mpi::AlphabetCharsTaskParallel::run() 
     // Init vectors
     input_ = std::vector<char>(taskData->inputs_count[0]);
     char* ptr = reinterpret_cast<char*>(taskData->inputs[0]);
-    for (size_t i = 0; i < taskData->inputs_count[0]; i++) {
-      input_[i] = ptr[i];
-    }
+    std::copy(ptr, ptr + taskData->inputs_count[0], input_.begin());
     for (int proc = 1; proc < world.size(); proc++) {
       world.send(proc, 0, input_.data() + remainder + proc * part, part);
     }
