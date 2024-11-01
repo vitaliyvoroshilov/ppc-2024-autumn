@@ -7,27 +7,18 @@
 #include "mpi/voroshilov_v_num_of_alphabetic_chars/include/ops_mpi.hpp"
 
 TEST(voroshilov_v_num_of_alphabetic_chars_mpi_perf, test_pipeline_run_mpi) {
-  std::string str_0(10000, '0');
-  std::string str_1(10000, '1');
-  std::string str_2(10000, '2');
-  std::string str_plus(10000, '+');
-  std::string str_a(10000, 'a');
-  std::string str_B(10000, 'A');
-  std::string str_y(10000, 'y');
-  std::string str_Z(10000, 'Z');
-  std::string str = str_0 + str_1 + str_2 + str_plus + str_a + str_B + str_y + str_Z;
-
   int initial_num = 0;
-  int expected_num = 40000;
+  int expected_num = 5000;
+  size_t vec_size = 10000;
 
   boost::mpi::communicator world;
-  std::vector<char> global_vec(str.length());
+  std::vector<char> global_vec(vec_size);
   std::vector<int32_t> global_num(1, initial_num);
 
   // Create TaskData
   std::shared_ptr<ppc::core::TaskData> taskDataPar = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
-    std::copy(str.begin(), str.end(), global_vec.begin());
+    global_vec = voroshilov_v_num_of_alphabetic_chars_mpi::genVecWithFixedAlphabeticsCount(expected_num, vec_size);
     taskDataPar->inputs.emplace_back(reinterpret_cast<uint8_t*>(global_vec.data()));
     taskDataPar->inputs_count.emplace_back(global_vec.size());
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(global_num.data()));
@@ -60,27 +51,18 @@ TEST(voroshilov_v_num_of_alphabetic_chars_mpi_perf, test_pipeline_run_mpi) {
 }
 
 TEST(voroshilov_v_num_of_alphabetic_chars_mpi_perf, test_task_run_mpi) {
-  std::string str_0(10000, '0');
-  std::string str_1(10000, '1');
-  std::string str_2(10000, '2');
-  std::string str_plus(10000, '+');
-  std::string str_a(10000, 'a');
-  std::string str_B(10000, 'A');
-  std::string str_y(10000, 'y');
-  std::string str_Z(10000, 'Z');
-  std::string str = str_0 + str_1 + str_2 + str_plus + str_a + str_B + str_y + str_Z;
-
   int initial_num = 0;
-  int expected_num = 40000;
+  int expected_num = 5000;
+  size_t vec_size = 10000;
 
   boost::mpi::communicator world;
-  std::vector<char> global_vec(str.length());
+  std::vector<char> global_vec(vec_size);
   std::vector<int32_t> global_num(1, initial_num);
 
   // Create TaskData
   std::shared_ptr<ppc::core::TaskData> taskDataPar = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
-    std::copy(str.begin(), str.end(), global_vec.begin());
+    global_vec = voroshilov_v_num_of_alphabetic_chars_mpi::genVecWithFixedAlphabeticsCount(expected_num, vec_size);
     taskDataPar->inputs.emplace_back(reinterpret_cast<uint8_t*>(global_vec.data()));
     taskDataPar->inputs_count.emplace_back(global_vec.size());
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(global_num.data()));

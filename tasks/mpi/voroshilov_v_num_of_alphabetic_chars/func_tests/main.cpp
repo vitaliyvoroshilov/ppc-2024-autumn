@@ -208,3 +208,54 @@ TEST(voroshilov_v_num_of_alphabetic_chars_mpi_func, test_with_anycase_alphabetic
     ASSERT_EQ(reference_sum[0], global_num[0]);
   }
 }
+
+TEST(voroshilov_v_num_of_alphabetic_chars_mpi_func, test_with_random_generated_vector_mpi) {
+  int initial_num = 0;
+  int expected_num = 50;
+  size_t vec_size = 100;
+
+  boost::mpi::communicator world;
+  std::vector<char> global_vec(vec_size);
+  std::vector<int32_t> global_num(1, initial_num);
+
+  // Create TaskData
+  std::shared_ptr<ppc::core::TaskData> taskDataPar = std::make_shared<ppc::core::TaskData>();
+
+  if (world.rank() == 0) {
+    global_vec = voroshilov_v_num_of_alphabetic_chars_mpi::genVecWithFixedAlphabeticsCount(expected_num, vec_size);
+    taskDataPar->inputs.emplace_back(reinterpret_cast<uint8_t*>(global_vec.data()));
+    taskDataPar->inputs_count.emplace_back(global_vec.size());
+    taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(global_num.data()));
+    taskDataPar->outputs_count.emplace_back(global_num.size());
+  }
+
+  voroshilov_v_num_of_alphabetic_chars_mpi::AlphabetCharsTaskParallel alphabetCharsTaskParallel(taskDataPar);
+  ASSERT_EQ(alphabetCharsTaskParallel.validation(), true);
+  alphabetCharsTaskParallel.pre_processing();
+  alphabetCharsTaskParallel.run();
+  alphabetCharsTaskParallel.post_processing();
+
+  if (world.rank() == 0) {
+    // Check if global_num is right
+    ASSERT_EQ(expected_num, global_num[0]);
+
+    // Create data
+    std::vector<int32_t> reference_sum(1, initial_num);
+
+    // Create TaskData
+    std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
+    taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t*>(global_vec.data()));
+    taskDataSeq->inputs_count.emplace_back(global_vec.size());
+    taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t*>(reference_sum.data()));
+    taskDataSeq->outputs_count.emplace_back(reference_sum.size());
+
+    // Create Task
+    voroshilov_v_num_of_alphabetic_chars_mpi::AlphabetCharsTaskSequential alphabetCharsTaskSequential(taskDataSeq);
+    ASSERT_EQ(alphabetCharsTaskSequential.validation(), true);
+    alphabetCharsTaskSequential.pre_processing();
+    alphabetCharsTaskSequential.run();
+    alphabetCharsTaskSequential.post_processing();
+
+    ASSERT_EQ(reference_sum[0], global_num[0]);
+  }
+}

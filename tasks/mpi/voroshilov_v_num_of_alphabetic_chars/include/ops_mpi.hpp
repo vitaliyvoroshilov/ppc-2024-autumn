@@ -14,6 +14,8 @@
 
 namespace voroshilov_v_num_of_alphabetic_chars_mpi {
 
+std::vector<char> genVecWithFixedAlphabeticsCount(int alphCount, size_t size);
+
 class AlphabetCharsTaskSequential : public ppc::core::Task {
  public:
   explicit AlphabetCharsTaskSequential(std::shared_ptr<ppc::core::TaskData> taskData_) : Task(std::move(taskData_)) {}

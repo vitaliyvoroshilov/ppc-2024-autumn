@@ -7,22 +7,12 @@
 #include "seq/voroshilov_v_num_of_alphabetic_chars/include/ops_seq.hpp"
 
 TEST(voroshilov_v_num_of_alphabetic_chars_seq_perf, test_pipeline_run_seq) {
-  std::string str_0(10000, '0');
-  std::string str_1(10000, '1');
-  std::string str_2(10000, '2');
-  std::string str_plus(10000, '+');
-  std::string str_a(10000, 'a');
-  std::string str_B(10000, 'A');
-  std::string str_y(10000, 'y');
-  std::string str_Z(10000, 'Z');
-  std::string str = str_0 + str_1 + str_2 + str_plus + str_a + str_B + str_y + str_Z;
-
   int initial_num = 0;
-  int expected_num = 40000;
+  int expected_num = 5000;
+  size_t vec_size = 10000;
 
   // Create data
-  std::vector<char> in(str.length());
-  std::copy(str.begin(), str.end(), in.begin());
+  std::vector<char> in = voroshilov_v_num_of_alphabetic_chars_seq::genVecWithFixedAlphabeticsCount(expected_num, vec_size);
   std::vector<int> out(1, initial_num);
 
   // Create TaskData
@@ -57,22 +47,12 @@ TEST(voroshilov_v_num_of_alphabetic_chars_seq_perf, test_pipeline_run_seq) {
 }
 
 TEST(voroshilov_v_num_of_alphabetic_chars_seq_perf, test_task_run_seq) {
-  std::string str_0(10000, '0');
-  std::string str_1(10000, '1');
-  std::string str_2(10000, '2');
-  std::string str_plus(10000, '+');
-  std::string str_a(10000, 'a');
-  std::string str_B(10000, 'A');
-  std::string str_y(10000, 'y');
-  std::string str_Z(10000, 'Z');
-  std::string str = str_0 + str_1 + str_2 + str_plus + str_a + str_B + str_y + str_Z;
-
   int initial_num = 0;
-  int expected_num = 40000;
+  int expected_num = 5000;
+  size_t vec_size = 10000;
 
   // Create data
-  std::vector<char> in(str.length());
-  std::copy(str.begin(), str.end(), in.begin());
+  std::vector<char> in = voroshilov_v_num_of_alphabetic_chars_seq::genVecWithFixedAlphabeticsCount(expected_num, vec_size);
   std::vector<int> out(1, initial_num);
 
   // Create TaskData

@@ -108,3 +108,28 @@ TEST(voroshilov_v_num_of_alphabetic_chars_seq_func, test_with_anycase_alphabetic
   alphabetCharsTaskSequential.post_processing();
   ASSERT_EQ(expected_num, out[0]);
 }
+
+TEST(voroshilov_v_num_of_alphabetic_chars_seq_func, test_with_random_generated_vector_seq) {
+  int initial_num = 0;
+  int expected_num = 50;
+  size_t vec_size = 100;
+
+  // Create data
+  std::vector<char> in = voroshilov_v_num_of_alphabetic_chars_seq::genVecWithFixedAlphabeticsCount(expected_num, vec_size);
+  std::vector<int> out(1, initial_num);
+
+  // Create TaskData
+  std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
+  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  taskDataSeq->inputs_count.emplace_back(in.size());
+  taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  taskDataSeq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  voroshilov_v_num_of_alphabetic_chars_seq::AlphabetCharsTaskSequential alphabetCharsTaskSequential(taskDataSeq);
+  ASSERT_EQ(alphabetCharsTaskSequential.validation(), true);
+  alphabetCharsTaskSequential.pre_processing();
+  alphabetCharsTaskSequential.run();
+  alphabetCharsTaskSequential.post_processing();
+  ASSERT_EQ(expected_num, out[0]);
+}
