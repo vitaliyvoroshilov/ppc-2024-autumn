@@ -2,52 +2,11 @@
 
 #include <algorithm>
 #include <functional>
-#include <random>
 #include <string>
 #include <thread>
 #include <vector>
 
 using namespace std::chrono_literals;
-
-std::vector<char> voroshilov_v_num_of_alphabetic_chars_mpi::genVecWithFixedAlphabeticsCount(int alphCount,
-                                                                                            size_t size) {
-  std::random_device dev;
-  std::mt19937 gen(dev());
-  std::vector<char> vector(size);
-  int curCount = 0;
-
-  std::string charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%&(){}[]*+-/";
-  int charset_alphabet_size = 52;
-
-  // Generate with absolutely random alphabetics count:
-  for (size_t i = 0; i < vector.size(); i++) {
-    int number = gen() % charset.length();
-    vector[i] = charset[number];
-    if (std::isalpha(vector[i]) != 0) {
-      curCount++;
-    }
-  }
-
-  // Change non-alphabetics to alphabetics to complete missing quantity
-  for (size_t i = 0; curCount < alphCount; i++) {
-    if (std::isalpha(vector[i]) == 0) {
-      int number = gen() % charset_alphabet_size;
-      vector[i] = charset[number];
-      curCount++;
-    }
-  }
-
-  // Change alphabetics to non-alphabetics if there is an oversupply
-  for (size_t i = 0; curCount > alphCount; i++) {
-    if (std::isalpha(vector[i]) != 0) {
-      int number = gen() % (charset.length() - charset_alphabet_size) + charset_alphabet_size;
-      vector[i] = charset[number];
-      curCount--;
-    }
-  }
-
-  return vector;
-}
 
 bool voroshilov_v_num_of_alphabetic_chars_mpi::AlphabetCharsTaskSequential::validation() {
   internal_order_test();

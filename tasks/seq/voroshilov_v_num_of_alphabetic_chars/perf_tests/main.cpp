@@ -1,10 +1,52 @@
 #include <gtest/gtest.h>
 
+#include <random>
 #include <string>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
 #include "seq/voroshilov_v_num_of_alphabetic_chars/include/ops_seq.hpp"
+
+std::vector<char> genVecWithFixedAlphabeticsCount(int alphCount, size_t size) {
+  std::random_device dev;
+  std::mt19937 gen(dev());
+  std::vector<char> vector(size);
+  int curCount = 0;
+
+  std::string charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%&(){}[]*+-/";
+  int charset_alphabet_size = 52;
+
+  // Generate with absolutely random alphabetics count:
+  for (size_t i = 0; i < vector.size(); i++) {
+    int number = gen() % charset.length();
+    vector[i] = charset[number];
+    if (std::isalpha(vector[i]) != 0) {
+      curCount++;
+    }
+  }
+
+  if (curCount < alphCount) {
+    // Change non-alphabetics to alphabetics to complete missing quantity
+    for (size_t i = 0; curCount < alphCount; i++) {
+      if (std::isalpha(vector[i]) == 0) {
+        int number = gen() % charset_alphabet_size;
+        vector[i] = charset[number];
+        curCount++;
+      }
+    }
+  } else {
+    // Change alphabetics to non-alphabetics if there is an oversupply
+    for (size_t i = 0; curCount > alphCount; i++) {
+      if (std::isalpha(vector[i]) != 0) {
+        int number = gen() % (charset.length() - charset_alphabet_size) + charset_alphabet_size;
+        vector[i] = charset[number];
+        curCount--;
+      }
+    }
+  }
+
+  return vector;
+}
 
 TEST(voroshilov_v_num_of_alphabetic_chars_seq_perf, test_pipeline_run_seq) {
   int initial_num = 0;
@@ -12,8 +54,7 @@ TEST(voroshilov_v_num_of_alphabetic_chars_seq_perf, test_pipeline_run_seq) {
   size_t vec_size = 10000;
 
   // Create data
-  std::vector<char> in =
-      voroshilov_v_num_of_alphabetic_chars_seq::genVecWithFixedAlphabeticsCount(expected_num, vec_size);
+  std::vector<char> in = genVecWithFixedAlphabeticsCount(expected_num, vec_size);
   std::vector<int> out(1, initial_num);
 
   // Create TaskData
@@ -53,8 +94,7 @@ TEST(voroshilov_v_num_of_alphabetic_chars_seq_perf, test_task_run_seq) {
   size_t vec_size = 10000;
 
   // Create data
-  std::vector<char> in =
-      voroshilov_v_num_of_alphabetic_chars_seq::genVecWithFixedAlphabeticsCount(expected_num, vec_size);
+  std::vector<char> in = genVecWithFixedAlphabeticsCount(expected_num, vec_size);
   std::vector<int> out(1, initial_num);
 
   // Create TaskData

@@ -1,14 +1,11 @@
 #pragma once
 
-#include <random>
 #include <string>
 #include <vector>
 
 #include "core/task/include/task.hpp"
 
 namespace voroshilov_v_num_of_alphabetic_chars_seq {
-
-std::vector<char> genVecWithFixedAlphabeticsCount(int alphCount, size_t size);
 
 class AlphabetCharsTaskSequential : public ppc::core::Task {
  public:

@@ -2,9 +2,51 @@
 
 #include <boost/mpi/communicator.hpp>
 #include <boost/mpi/environment.hpp>
+#include <random>
 #include <vector>
 
 #include "mpi/voroshilov_v_num_of_alphabetic_chars/include/ops_mpi.hpp"
+
+std::vector<char> genVecWithFixedAlphabeticsCount(int alphCount, size_t size) {
+  std::random_device dev;
+  std::mt19937 gen(dev());
+  std::vector<char> vector(size);
+  int curCount = 0;
+
+  std::string charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%&(){}[]*+-/";
+  int charset_alphabet_size = 52;
+
+  // Generate with absolutely random alphabetics count:
+  for (size_t i = 0; i < vector.size(); i++) {
+    int number = gen() % charset.length();
+    vector[i] = charset[number];
+    if (std::isalpha(vector[i]) != 0) {
+      curCount++;
+    }
+  }
+
+  if (curCount < alphCount) {
+    // Change non-alphabetics to alphabetics to complete missing quantity
+    for (size_t i = 0; curCount < alphCount; i++) {
+      if (std::isalpha(vector[i]) == 0) {
+        int number = gen() % charset_alphabet_size;
+        vector[i] = charset[number];
+        curCount++;
+      }
+    }
+  } else {
+    // Change alphabetics to non-alphabetics if there is an oversupply
+    for (size_t i = 0; curCount > alphCount; i++) {
+      if (std::isalpha(vector[i]) != 0) {
+        int number = gen() % (charset.length() - charset_alphabet_size) + charset_alphabet_size;
+        vector[i] = charset[number];
+        curCount--;
+      }
+    }
+  }
+
+  return vector;
+}
 
 TEST(voroshilov_v_num_of_alphabetic_chars_mpi_func, test_without_alphabetic_chars_mpi) {
   std::string str = "123456789-+*/=<>";
@@ -222,7 +264,7 @@ TEST(voroshilov_v_num_of_alphabetic_chars_mpi_func, test_with_random_generated_v
   std::shared_ptr<ppc::core::TaskData> taskDataPar = std::make_shared<ppc::core::TaskData>();
 
   if (world.rank() == 0) {
-    global_vec = voroshilov_v_num_of_alphabetic_chars_mpi::genVecWithFixedAlphabeticsCount(expected_num, vec_size);
+    global_vec = genVecWithFixedAlphabeticsCount(expected_num, vec_size);
     taskDataPar->inputs.emplace_back(reinterpret_cast<uint8_t*>(global_vec.data()));
     taskDataPar->inputs_count.emplace_back(global_vec.size());
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(global_num.data()));
