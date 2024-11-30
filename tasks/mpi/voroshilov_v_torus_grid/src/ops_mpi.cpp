@@ -195,7 +195,7 @@ bool voroshilov_v_torus_grid_mpi::TorusGridTaskParallel::pre_processing() {
 bool voroshilov_v_torus_grid_mpi::TorusGridTaskParallel::run() {
   internal_order_test();
 
-  if (source_proc != destination_proc) {
+  if (source_proc == destination_proc) {
     path.push_back(source_proc);
     return true;
   }
