@@ -219,8 +219,6 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_first_to_first_mpi) {
     ASSERT_EQ(flg_path, true);
   }
 
-  
-  
 }
 
 TEST(voroshilov_v_torus_grid_mpi_func, test_run_first_to_middle_mpi) {
@@ -312,8 +310,6 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_first_to_middle_mpi) {
     ASSERT_EQ(flg_path, true);
   }
 
-  
-  
 }
 
 TEST(voroshilov_v_torus_grid_mpi_func, test_run_first_to_last_mpi) {
@@ -405,8 +401,6 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_first_to_last_mpi) {
     ASSERT_EQ(flg_path, true);
   }
 
-  
-  
 }
 
 TEST(voroshilov_v_torus_grid_mpi_func, test_run_middle_to_first_mpi) {
@@ -498,8 +492,6 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_middle_to_first_mpi) {
     ASSERT_EQ(flg_path, true);
   }
 
-  
-  
 }
 
 TEST(voroshilov_v_torus_grid_mpi_func, test_run_middle_to_middle_mpi) {
@@ -591,8 +583,6 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_middle_to_middle_mpi) {
     ASSERT_EQ(flg_path, true);
   }
 
-  
-  
 }
 
 TEST(voroshilov_v_torus_grid_mpi_func, test_run_middle_to_last_mpi) {
@@ -684,8 +674,6 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_middle_to_last_mpi) {
     ASSERT_EQ(flg_path, true);
   }
 
-  
-  
 }
 
 TEST(voroshilov_v_torus_grid_mpi_func, test_run_last_to_first_mpi) {
@@ -777,8 +765,6 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_last_to_first_mpi) {
     ASSERT_EQ(flg_path, true);
   }
 
-  
-  
 }
 
 TEST(voroshilov_v_torus_grid_mpi_func, test_run_last_to_middle_mpi) {
@@ -870,8 +856,6 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_last_to_middle_mpi) {
     ASSERT_EQ(flg_path, true);
   }
 
-  
-  
 }
 
 TEST(voroshilov_v_torus_grid_mpi_func, test_run_last_to_last_mpi) {
@@ -963,8 +947,6 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_last_to_last_mpi) {
     ASSERT_EQ(flg_path, true);
   }
 
-  
-  
 }
 
 TEST(voroshilov_v_torus_grid_mpi_func, test_run_random_to_random_mpi) {
@@ -1064,4 +1046,5 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_random_to_random_mpi) {
     ASSERT_EQ(flg_data, true);
     ASSERT_EQ(flg_path, true);
   }
+
 }
