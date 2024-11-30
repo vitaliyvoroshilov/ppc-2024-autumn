@@ -66,11 +66,11 @@ TEST(voroshilov_v_torus_grid_mpi_perf, test_pipeline_run_mpi) {
     return;
   }
 
-  /*struct Perf_tags {
+  struct Perf_tags {
     int send_generated_data = 100;
     int send_flag_data = 101;
     int send_flag_path = 102;
-  } perf_tags;*/
+  } perf_tags;
 
   std::vector<char> input_data(data_size);
   std::vector<char> output_data(data_size);
@@ -89,12 +89,12 @@ TEST(voroshilov_v_torus_grid_mpi_perf, test_pipeline_run_mpi) {
   if (world.rank() == src_proc) {
     input_data = generate_data(data_size);
     if ((world.size() > 1) && (src_proc != dst_proc)) {
-      world.send(dst_proc, 1111/*perf_tags.send_generated_data*/, input_data.data(), input_data.size());
+      world.send(dst_proc, perf_tags.send_generated_data, input_data.data(), input_data.size());
     }
   }
   if (world.rank() == dst_proc) {
     if ((world.size() > 1) && (src_proc != dst_proc)) {
-      world.recv(src_proc, 1111/*perf_tags.send_generated_data*/, input_data.data(), input_data.size());
+      world.recv(src_proc, perf_tags.send_generated_data, input_data.data(), input_data.size());
     }
   }
 
@@ -151,8 +151,8 @@ TEST(voroshilov_v_torus_grid_mpi_perf, test_pipeline_run_mpi) {
       }
     }
     if ((world.size() > 1) && (dst_proc != 0)) {
-      world.send(0, 2222/*perf_tags.send_flag_data*/, flag_data);
-      world.send(0, 3333/*perf_tags.send_flag_path*/, flag_path);
+      world.send(0, perf_tags.send_flag_data, flag_data);
+      world.send(0, perf_tags.send_flag_path, flag_path);
     }
   }
 
@@ -161,8 +161,8 @@ TEST(voroshilov_v_torus_grid_mpi_perf, test_pipeline_run_mpi) {
     bool flg_data = true;
     bool flg_path = true;
     if ((world.size() > 1) && (dst_proc != 0)) {
-      world.recv(dst_proc, 2222/*perf_tags.send_flag_data*/, flg_data);
-      world.recv(dst_proc, 3333/*perf_tags.send_flag_path*/, flg_path);
+      world.recv(dst_proc, perf_tags.send_flag_data, flg_data);
+      world.recv(dst_proc, perf_tags.send_flag_path, flg_path);
     }
     ASSERT_EQ(flg_data, true);
     ASSERT_EQ(flg_path, true);
@@ -173,17 +173,17 @@ TEST(voroshilov_v_torus_grid_mpi_perf, test_task_run_mpi) {
   int data_size = 100000;
 
   boost::mpi::communicator world;
-  
+
   // This task requires a "square" number of processes
   if (check_grid(world.size()) == false) {
     return;
   }
 
-  /*struct Perf_tags {
+  struct Perf_tags {
     int send_generated_data = 100;
     int send_flag_data = 101;
     int send_flag_path = 102;
-  } perf_tags;*/
+  } perf_tags;
 
   std::vector<char> input_data(data_size);
   std::vector<char> output_data(data_size);
@@ -202,12 +202,12 @@ TEST(voroshilov_v_torus_grid_mpi_perf, test_task_run_mpi) {
   if (world.rank() == src_proc) {
     input_data = generate_data(data_size);
     if ((world.size() > 1) && (src_proc != dst_proc)) {
-      world.send(dst_proc, 1111/*perf_tags.send_generated_data*/, input_data.data(), input_data.size());
+      world.send(dst_proc, perf_tags.send_generated_data, input_data.data(), input_data.size());
     }
   }
   if (world.rank() == dst_proc) {
     if ((world.size() > 1) && (src_proc != dst_proc)) {
-      world.recv(src_proc, 1111/*perf_tags.send_generated_data*/, input_data.data(), input_data.size());
+      world.recv(src_proc, perf_tags.send_generated_data, input_data.data(), input_data.size());
     }
   }
 
@@ -264,8 +264,8 @@ TEST(voroshilov_v_torus_grid_mpi_perf, test_task_run_mpi) {
       }
     }
     if ((world.size() > 1) && (dst_proc != 0)) {
-      world.send(0, 2222/*perf_tags.send_flag_data*/, flag_data);
-      world.send(0, 3333/*perf_tags.send_flag_path*/, flag_path);
+      world.send(0, perf_tags.send_flag_data, flag_data);
+      world.send(0, perf_tags.send_flag_path, flag_path);
     }
   }
 
@@ -274,8 +274,8 @@ TEST(voroshilov_v_torus_grid_mpi_perf, test_task_run_mpi) {
     bool flg_data = true;
     bool flg_path = true;
     if ((world.size() > 1) && (dst_proc != 0)) {
-      world.recv(dst_proc, 2222/*perf_tags.send_flag_data*/, flg_data);
-      world.recv(dst_proc, 3333/*perf_tags.send_flag_path*/, flg_path);
+      world.recv(dst_proc, perf_tags.send_flag_data, flg_data);
+      world.recv(dst_proc, perf_tags.send_flag_path, flg_path);
     }
     ASSERT_EQ(flg_data, true);
     ASSERT_EQ(flg_path, true);
