@@ -140,13 +140,14 @@ std::pair<int, int> voroshilov_v_torus_grid_mpi::select_terminate_proc(int curre
 
 bool voroshilov_v_torus_grid_mpi::TorusGridTaskParallel::validation() {
   internal_order_test();
-  size_t world_size = world.size();
-
-  if ((taskData->inputs_count[0] >= world_size) || (taskData->inputs_count[1] >= world_size)) {
-    return false;
-  }
+  int world_size = world.size();
 
   int src = taskData->inputs_count[0];
+  int dst = taskData->inputs_count[1];
+
+  if ((src >= world_size) || (dst >= world_size)) {
+    return false;
+  }
 
   if (world.rank() == src) {
     if ((taskData->inputs_count[2] <= 0) || (taskData->outputs_count[0] <= 0)) {
