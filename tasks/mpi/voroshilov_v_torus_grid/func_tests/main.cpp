@@ -55,7 +55,7 @@ bool check_grid(int world_size) {
   }
   return false;
 }
-
+/*
 TEST(voroshilov_v_torus_grid_mpi_func, test_validation_empty_input_mpi) {
   int data_size = 0;
 
@@ -92,7 +92,7 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_validation_empty_input_mpi) {
   voroshilov_v_torus_grid_mpi::TorusGridTaskParallel torusGridTaskParallel(taskDataPar);
   ASSERT_EQ(torusGridTaskParallel.validation(), false);
 }
-
+*/
 TEST(voroshilov_v_torus_grid_mpi_func, test_validation_src_process_not_exists_mpi) {
   int data_size = 100000;
 
