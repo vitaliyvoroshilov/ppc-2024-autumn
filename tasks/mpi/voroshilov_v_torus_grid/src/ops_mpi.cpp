@@ -71,10 +71,9 @@ int voroshilov_v_torus_grid_mpi::select_path_proc(int current_id, int destinatio
         }
       }
     }
-      
+
     // Destination is on left
     if (destination_col_id - current_col_id < 0) {
-
       if (-1 * (destination_col_id - current_col_id) <= grid / 2) {
         // Direct way
         next_col_id = current_col_id - 1;
@@ -102,7 +101,7 @@ std::pair<int, int> voroshilov_v_torus_grid_mpi::select_terminate_proc(int curre
 
   int next_row_id = current_row_id;
   int next_col_id = current_col_id;
-  
+
   int next_terminate_code = terminate_code;
 
   if (terminate_code == Commands::direct_terminate) {
@@ -111,7 +110,7 @@ std::pair<int, int> voroshilov_v_torus_grid_mpi::select_terminate_proc(int curre
       // Step right in row
       next_row_id = current_row_id;
       next_col_id = current_col_id + 1;
-      next_terminate_code = Commands::direct_terminate;  
+      next_terminate_code = Commands::direct_terminate;
     } else {
       // Step to next row
       next_row_id = current_row_id + 1;
@@ -125,7 +124,7 @@ std::pair<int, int> voroshilov_v_torus_grid_mpi::select_terminate_proc(int curre
       // Step left in row
       next_row_id = current_row_id;
       next_col_id = current_col_id - 1;
-      next_terminate_code = Commands::reverse_terminate;  
+      next_terminate_code = Commands::reverse_terminate;
     } else {
       // Step to next row
       next_row_id = current_row_id + 1;
@@ -215,7 +214,6 @@ bool voroshilov_v_torus_grid_mpi::TorusGridTaskParallel::run() {
 
     message.path = std::vector<int>(path_size);
     world.recv(boost::mpi::any_source, Tags::path, message.path.data(), path_size);
-
   }
 
   if (terminate_command == Commands::send_from_source || terminate_command == Commands::route_to_dest) {
@@ -261,9 +259,9 @@ bool voroshilov_v_torus_grid_mpi::TorusGridTaskParallel::run() {
   }
 
   if (terminate_command == Commands::direct_terminate || terminate_command == Commands::reverse_terminate) {
-    // we continue terminating in direct way (right and down) || in reverse way (left and down)
+    // continue terminating in direct way (right and down) || in reverse way (left and down)
 
-    if (world.rank() == world.size() - 1 && grid_size % 2 == 1 ) {
+    if (world.rank() == world.size() - 1 && grid_size % 2 == 1) {
       // It is last process to terminate if grid_size is odd number
       return true;
     }
@@ -282,11 +280,9 @@ bool voroshilov_v_torus_grid_mpi::TorusGridTaskParallel::run() {
 }
 
 bool voroshilov_v_torus_grid_mpi::TorusGridTaskParallel::post_processing() {
-
   internal_order_test();
 
   if (world.rank() == destination_proc) {
-
     auto* ptr1 = reinterpret_cast<char*>(taskData->outputs[0]);
     std::copy(message.buffer.begin(), message.buffer.end(), ptr1);
 

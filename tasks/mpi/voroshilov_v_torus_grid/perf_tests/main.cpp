@@ -57,10 +57,10 @@ TEST(voroshilov_v_torus_grid_mpi_perf, test_pipeline_run_mpi) {
   int data_size = 100000;
 
   boost::mpi::communicator world;
-  
+
   std::vector<char> input_data(data_size);
   std::vector<char> output_data(data_size);
-  
+
   int src_proc = 0;
   int dst_proc = 0;
 
@@ -71,7 +71,7 @@ TEST(voroshilov_v_torus_grid_mpi_perf, test_pipeline_run_mpi) {
   // broadcast() because in other way each process generates its own local src_proc and dst_proc
   boost::mpi::broadcast(world, src_proc, 0);
   boost::mpi::broadcast(world, dst_proc, 0);
-  
+
   if (world.rank() == src_proc) {
     input_data = generate_data(data_size);
     if ((world.size() > 1) && (src_proc != dst_proc)) {
@@ -93,13 +93,12 @@ TEST(voroshilov_v_torus_grid_mpi_perf, test_pipeline_run_mpi) {
   taskDataPar->inputs_count.emplace_back(dst_proc);
 
   if ((world.rank() == src_proc) || (world.rank() == dst_proc)) {
-
     taskDataPar->inputs_count.emplace_back(input_data.size());
 
     taskDataPar->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_data.data()));
-    
+
     taskDataPar->outputs_count.emplace_back(output_data.size());
-    
+
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_data.data()));
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_path.data()));
   }
@@ -160,10 +159,10 @@ TEST(voroshilov_v_torus_grid_mpi_perf, test_task_run_mpi) {
   int data_size = 100000;
 
   boost::mpi::communicator world;
-  
+
   std::vector<char> input_data(data_size);
   std::vector<char> output_data(data_size);
-  
+
   int src_proc = 0;
   int dst_proc = 0;
 
@@ -174,7 +173,7 @@ TEST(voroshilov_v_torus_grid_mpi_perf, test_task_run_mpi) {
   // broadcast() because in other way each process generates its own local src_proc and dst_proc
   boost::mpi::broadcast(world, src_proc, 0);
   boost::mpi::broadcast(world, dst_proc, 0);
-  
+
   if (world.rank() == src_proc) {
     input_data = generate_data(data_size);
     if ((world.size() > 1) && (src_proc != dst_proc)) {
@@ -196,13 +195,12 @@ TEST(voroshilov_v_torus_grid_mpi_perf, test_task_run_mpi) {
   taskDataPar->inputs_count.emplace_back(dst_proc);
 
   if ((world.rank() == src_proc) || (world.rank() == dst_proc)) {
-
     taskDataPar->inputs_count.emplace_back(input_data.size());
 
     taskDataPar->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_data.data()));
-    
+
     taskDataPar->outputs_count.emplace_back(output_data.size());
-    
+
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_data.data()));
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_path.data()));
   }

@@ -57,7 +57,7 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_validation_empty_input_mpi) {
   int data_size = 0;
 
   boost::mpi::communicator world;
-  
+
   int src_proc = 0;
   int dst_proc = world.size() - 1;
 
@@ -74,9 +74,9 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_validation_empty_input_mpi) {
     taskDataPar->inputs_count.emplace_back(input_data.size());
 
     taskDataPar->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_data.data()));
-    
+
     taskDataPar->outputs_count.emplace_back(output_data.size());
-    
+
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_data.data()));
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_path.data()));
   }
@@ -106,9 +106,9 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_validation_src_process_not_exists_mp
     taskDataPar->inputs_count.emplace_back(input_data.size());
 
     taskDataPar->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_data.data()));
-    
+
     taskDataPar->outputs_count.emplace_back(output_data.size());
-    
+
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_data.data()));
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_path.data()));
   }
@@ -138,9 +138,9 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_validation_dst_process_not_exists_mp
     taskDataPar->inputs_count.emplace_back(input_data.size());
 
     taskDataPar->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_data.data()));
-    
+
     taskDataPar->outputs_count.emplace_back(output_data.size());
-    
+
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_data.data()));
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_path.data()));
   }
@@ -153,10 +153,10 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_first_to_first_mpi) {
   int data_size = 100000;
 
   boost::mpi::communicator world;
-  
+
   int src_proc = 0;
   int dst_proc = 0;
-  
+
   std::vector<char> input_data(data_size);
   std::vector<char> output_data(data_size);
   std::vector<int> expected_path = calculate_expected_path(src_proc, dst_proc, world.size());
@@ -183,9 +183,9 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_first_to_first_mpi) {
     taskDataPar->inputs_count.emplace_back(input_data.size());
 
     taskDataPar->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_data.data()));
-    
+
     taskDataPar->outputs_count.emplace_back(output_data.size());
-    
+
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_data.data()));
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_path.data()));
   }
@@ -226,18 +226,16 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_first_to_first_mpi) {
     ASSERT_EQ(flg_data, true);
     ASSERT_EQ(flg_path, true);
   }
-
-  
 }
 
 TEST(voroshilov_v_torus_grid_mpi_func, test_run_first_to_middle_mpi) {
   int data_size = 100000;
 
   boost::mpi::communicator world;
-  
+
   int src_proc = 0;
   int dst_proc = world.size() / 2;
-  
+
   std::vector<char> input_data(data_size);
   std::vector<char> output_data(data_size);
   std::vector<int> expected_path = calculate_expected_path(src_proc, dst_proc, world.size());
@@ -264,9 +262,9 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_first_to_middle_mpi) {
     taskDataPar->inputs_count.emplace_back(input_data.size());
 
     taskDataPar->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_data.data()));
-    
+
     taskDataPar->outputs_count.emplace_back(output_data.size());
-    
+
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_data.data()));
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_path.data()));
   }
@@ -307,18 +305,16 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_first_to_middle_mpi) {
     ASSERT_EQ(flg_data, true);
     ASSERT_EQ(flg_path, true);
   }
-  
-  
 }
 
 TEST(voroshilov_v_torus_grid_mpi_func, test_run_first_to_last_mpi) {
   int data_size = 100000;
 
   boost::mpi::communicator world;
-  
+
   int src_proc = 0;
   int dst_proc = world.size() - 1;
-  
+
   std::vector<char> input_data(data_size);
   std::vector<char> output_data(data_size);
   std::vector<int> expected_path = calculate_expected_path(src_proc, dst_proc, world.size());
@@ -345,9 +341,9 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_first_to_last_mpi) {
     taskDataPar->inputs_count.emplace_back(input_data.size());
 
     taskDataPar->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_data.data()));
-    
+
     taskDataPar->outputs_count.emplace_back(output_data.size());
-    
+
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_data.data()));
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_path.data()));
   }
@@ -388,18 +384,16 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_first_to_last_mpi) {
     ASSERT_EQ(flg_data, true);
     ASSERT_EQ(flg_path, true);
   }
-
-  
 }
 
 TEST(voroshilov_v_torus_grid_mpi_func, test_run_middle_to_first_mpi) {
   int data_size = 100000;
 
   boost::mpi::communicator world;
-  
+
   int src_proc = world.size() / 2;
   int dst_proc = 0;
-  
+
   std::vector<char> input_data(data_size);
   std::vector<char> output_data(data_size);
   std::vector<int> expected_path = calculate_expected_path(src_proc, dst_proc, world.size());
@@ -426,9 +420,9 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_middle_to_first_mpi) {
     taskDataPar->inputs_count.emplace_back(input_data.size());
 
     taskDataPar->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_data.data()));
-    
+
     taskDataPar->outputs_count.emplace_back(output_data.size());
-    
+
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_data.data()));
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_path.data()));
   }
@@ -469,18 +463,16 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_middle_to_first_mpi) {
     ASSERT_EQ(flg_data, true);
     ASSERT_EQ(flg_path, true);
   }
-
-  
 }
 
 TEST(voroshilov_v_torus_grid_mpi_func, test_run_middle_to_middle_mpi) {
   int data_size = 10000;
 
   boost::mpi::communicator world;
-  
+
   int src_proc = world.size() / 2;
   int dst_proc = world.size() / 2;
-  
+
   std::vector<char> input_data(data_size);
   std::vector<char> output_data(data_size);
   std::vector<int> expected_path = calculate_expected_path(src_proc, dst_proc, world.size());
@@ -507,9 +499,9 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_middle_to_middle_mpi) {
     taskDataPar->inputs_count.emplace_back(input_data.size());
 
     taskDataPar->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_data.data()));
-    
+
     taskDataPar->outputs_count.emplace_back(output_data.size());
-    
+
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_data.data()));
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_path.data()));
   }
@@ -550,18 +542,16 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_middle_to_middle_mpi) {
     ASSERT_EQ(flg_data, true);
     ASSERT_EQ(flg_path, true);
   }
-
-  
 }
 
 TEST(voroshilov_v_torus_grid_mpi_func, test_run_middle_to_last_mpi) {
   int data_size = 100000;
 
   boost::mpi::communicator world;
-  
+
   int src_proc = world.size() / 2;
   int dst_proc = world.size() - 1;
-  
+
   std::vector<char> input_data(data_size);
   std::vector<char> output_data(data_size);
   std::vector<int> expected_path = calculate_expected_path(src_proc, dst_proc, world.size());
@@ -588,9 +578,9 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_middle_to_last_mpi) {
     taskDataPar->inputs_count.emplace_back(input_data.size());
 
     taskDataPar->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_data.data()));
-    
+
     taskDataPar->outputs_count.emplace_back(output_data.size());
-    
+
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_data.data()));
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_path.data()));
   }
@@ -631,18 +621,16 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_middle_to_last_mpi) {
     ASSERT_EQ(flg_data, true);
     ASSERT_EQ(flg_path, true);
   }
-
-  
 }
 
 TEST(voroshilov_v_torus_grid_mpi_func, test_run_last_to_first_mpi) {
   int data_size = 100000;
 
   boost::mpi::communicator world;
-  
+
   int src_proc = world.size() - 1;
   int dst_proc = 0;
-  
+
   std::vector<char> input_data(data_size);
   std::vector<char> output_data(data_size);
   std::vector<int> expected_path = calculate_expected_path(src_proc, dst_proc, world.size());
@@ -669,9 +657,9 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_last_to_first_mpi) {
     taskDataPar->inputs_count.emplace_back(input_data.size());
 
     taskDataPar->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_data.data()));
-    
+
     taskDataPar->outputs_count.emplace_back(output_data.size());
-    
+
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_data.data()));
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_path.data()));
   }
@@ -712,18 +700,16 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_last_to_first_mpi) {
     ASSERT_EQ(flg_data, true);
     ASSERT_EQ(flg_path, true);
   }
-
-  
 }
 
 TEST(voroshilov_v_torus_grid_mpi_func, test_run_last_to_middle_mpi) {
   int data_size = 100000;
 
   boost::mpi::communicator world;
-  
+
   int src_proc = world.size() - 1;
   int dst_proc = world.size() / 2;
-  
+
   std::vector<char> input_data(data_size);
   std::vector<char> output_data(data_size);
   std::vector<int> expected_path = calculate_expected_path(src_proc, dst_proc, world.size());
@@ -750,9 +736,9 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_last_to_middle_mpi) {
     taskDataPar->inputs_count.emplace_back(input_data.size());
 
     taskDataPar->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_data.data()));
-    
+
     taskDataPar->outputs_count.emplace_back(output_data.size());
-    
+
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_data.data()));
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_path.data()));
   }
@@ -793,18 +779,16 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_last_to_middle_mpi) {
     ASSERT_EQ(flg_data, true);
     ASSERT_EQ(flg_path, true);
   }
-
-  
 }
 
 TEST(voroshilov_v_torus_grid_mpi_func, test_run_last_to_last_mpi) {
   int data_size = 100000;
 
   boost::mpi::communicator world;
-  
+
   int src_proc = world.size() - 1;
   int dst_proc = world.size() - 1;
-  
+
   std::vector<char> input_data(data_size);
   std::vector<char> output_data(data_size);
   std::vector<int> expected_path = calculate_expected_path(src_proc, dst_proc, world.size());
@@ -831,9 +815,9 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_last_to_last_mpi) {
     taskDataPar->inputs_count.emplace_back(input_data.size());
 
     taskDataPar->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_data.data()));
-    
+
     taskDataPar->outputs_count.emplace_back(output_data.size());
-    
+
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_data.data()));
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_path.data()));
   }
@@ -874,18 +858,16 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_last_to_last_mpi) {
     ASSERT_EQ(flg_data, true);
     ASSERT_EQ(flg_path, true);
   }
-
-  
 }
 
 TEST(voroshilov_v_torus_grid_mpi_func, test_run_random_to_random_mpi) {
   int data_size = 100000;
 
   boost::mpi::communicator world;
-  
+
   std::vector<char> input_data(data_size);
   std::vector<char> output_data(data_size);
-  
+
   int src_proc = 0;
   int dst_proc = 0;
 
@@ -896,7 +878,7 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_random_to_random_mpi) {
   // broadcast() because in other way each process generates its own local src_proc and dst_proc
   boost::mpi::broadcast(world, src_proc, 0);
   boost::mpi::broadcast(world, dst_proc, 0);
-  
+
   if (world.rank() == src_proc) {
     input_data = generate_data(data_size);
     if ((world.size() > 1) && (src_proc != dst_proc)) {
@@ -918,13 +900,12 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_random_to_random_mpi) {
   taskDataPar->inputs_count.emplace_back(dst_proc);
 
   if ((world.rank() == src_proc) || (world.rank() == dst_proc)) {
-
     taskDataPar->inputs_count.emplace_back(input_data.size());
 
     taskDataPar->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_data.data()));
-    
+
     taskDataPar->outputs_count.emplace_back(output_data.size());
-    
+
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_data.data()));
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_path.data()));
   }
@@ -965,6 +946,4 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_random_to_random_mpi) {
     ASSERT_EQ(flg_data, true);
     ASSERT_EQ(flg_path, true);
   }
-
-  
 }
