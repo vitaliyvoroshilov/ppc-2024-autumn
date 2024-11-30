@@ -47,6 +47,15 @@ std::vector<int> calculate_expected_path(int source_id, int destination_id, int 
   return path;
 }
 
+bool check_grid(int world_size) {
+  for (int i = 0; i < world_size; i++) {
+    if (world_size == i * i) {
+      return true;
+    }
+  }
+  return false;
+}
+
 TEST(voroshilov_v_torus_grid_mpi_perf, test_pipeline_run_mpi) {
   int data_size = 100000;
 
