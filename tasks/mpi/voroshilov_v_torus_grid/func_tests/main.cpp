@@ -63,7 +63,7 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_validation_empty_input_mpi) {
 
   // This task requires a "square" number of processes
   if (check_grid(world.size()) == false) {
-    SUCCEED();
+    return;
   }
 
   int src_proc = 0;
@@ -100,7 +100,7 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_validation_src_process_not_exists_mp
 
   // This task requires a "square" number of processes
   if (check_grid(world.size()) == false) {
-    SUCCEED();
+    return;
   }
 
   int src_proc = world.size();
@@ -137,7 +137,7 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_validation_dst_process_not_exists_mp
 
   // This task requires a "square" number of processes
   if (check_grid(world.size()) == false) {
-    SUCCEED();
+    return;
   }
 
   int src_proc = 0;
@@ -174,7 +174,7 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_first_to_first_mpi) {
 
   // This task requires a "square" number of processes
   if (check_grid(world.size()) == false) {
-    SUCCEED();
+    return;
   }
 
   /*sruct Func_tags {
@@ -264,7 +264,7 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_first_to_middle_mpi) {
 
   // This task requires a "square" number of processes
   if (check_grid(world.size()) == false) {
-    SUCCEED();
+    return;
   }
 
   /*sruct Func_tags {
@@ -354,7 +354,7 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_first_to_last_mpi) {
 
   // This task requires a "square" number of processes
   if (check_grid(world.size()) == false) {
-    SUCCEED();
+    return;
   }
 
   /*sruct Func_tags {
@@ -444,7 +444,7 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_middle_to_first_mpi) {
 
   // This task requires a "square" number of processes
   if (check_grid(world.size()) == false) {
-    SUCCEED();
+    return;
   }
 
   /*sruct Func_tags {
@@ -534,7 +534,7 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_middle_to_middle_mpi) {
 
   // This task requires a "square" number of processes
   if (check_grid(world.size()) == false) {
-    SUCCEED();
+    return;
   }
 
   /*sruct Func_tags {
@@ -624,7 +624,7 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_middle_to_last_mpi) {
 
   // This task requires a "square" number of processes
   if (check_grid(world.size()) == false) {
-    SUCCEED();
+    return;
   }
 
   /*sruct Func_tags {
@@ -714,7 +714,7 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_last_to_first_mpi) {
 
   // This task requires a "square" number of processes
   if (check_grid(world.size()) == false) {
-    SUCCEED();
+    return;
   }
 
   /*sruct Func_tags {
@@ -804,7 +804,7 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_last_to_middle_mpi) {
 
   // This task requires a "square" number of processes
   if (check_grid(world.size()) == false) {
-    SUCCEED();
+    return;
   }
 
   /*sruct Func_tags {
@@ -894,7 +894,7 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_last_to_last_mpi) {
 
   // This task requires a "square" number of processes
   if (check_grid(world.size()) == false) {
-    SUCCEED();
+    return;
   }
 
   /*sruct Func_tags {
@@ -984,7 +984,7 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_random_to_random_mpi) {
 
   // This task requires a "square" number of processes
   if (check_grid(world.size()) == false) {
-    SUCCEED();
+    return;
   }
 
   /*sruct Func_tags {

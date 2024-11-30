@@ -63,7 +63,7 @@ TEST(voroshilov_v_torus_grid_mpi_perf, test_pipeline_run_mpi) {
 
   // This task requires a "square" number of processes
   if (check_grid(world.size()) == false) {
-    SUCCEED();
+    return;
   }
 
   /*struct Perf_tags {
@@ -176,7 +176,7 @@ TEST(voroshilov_v_torus_grid_mpi_perf, test_task_run_mpi) {
   
   // This task requires a "square" number of processes
   if (check_grid(world.size()) == false) {
-    SUCCEED();
+    return;
   }
 
   /*struct Perf_tags {

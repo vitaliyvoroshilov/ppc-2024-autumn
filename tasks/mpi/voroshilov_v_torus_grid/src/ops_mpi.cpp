@@ -289,6 +289,9 @@ bool voroshilov_v_torus_grid_mpi::TorusGridTaskParallel::run() {
 
 bool voroshilov_v_torus_grid_mpi::TorusGridTaskParallel::post_processing() {
   internal_order_test();
+  
+  // without barrier() it works incorrectly on large number of processes
+  world.barrier();
 
   if (world.rank() == destination_proc) {
     auto* ptr1 = reinterpret_cast<char*>(taskData->outputs[0]);
@@ -297,9 +300,6 @@ bool voroshilov_v_torus_grid_mpi::TorusGridTaskParallel::post_processing() {
     auto* ptr2 = reinterpret_cast<int*>(taskData->outputs[1]);
     std::copy(path.begin(), path.end(), ptr2);
   }
-
-  // without barrier() it works incorrectly on large number of processes
-  world.barrier();
 
   return true;
 }
