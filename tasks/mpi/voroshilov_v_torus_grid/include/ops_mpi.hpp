@@ -14,22 +14,9 @@
 
 namespace voroshilov_v_torus_grid_mpi {
 
-enum Command {
-  send_from_source = 0,
-  route_to_dest,
-  move_to_zero,
-  direct_terminate,
-  reverse_terminate
-};
+enum Command { send_from_source = 0, route_to_dest, move_to_zero, direct_terminate, reverse_terminate };
 
-enum Tags {
-  terminate_command = 0,
-  current_proc,
-  buf_size,
-  buffer,
-  path_size,
-  path
-};
+enum Tags { terminate_command = 0, current_proc, buf_size, buffer, path_size, path };
 
 int select_path_proc(int current_id, int destination_id, int grid);
 std::pair<int, Command> select_terminate_proc(int current_id, Command terminate_code, int grid);

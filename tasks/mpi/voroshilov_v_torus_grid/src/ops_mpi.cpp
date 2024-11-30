@@ -95,7 +95,8 @@ int voroshilov_v_torus_grid_mpi::select_path_proc(int current_id, int destinatio
   return next_id;
 }
 
-std::pair<int, voroshilov_v_torus_grid_mpi::Command> voroshilov_v_torus_grid_mpi::select_terminate_proc(int current_id, Command terminate_code, int grid) {
+std::pair<int, voroshilov_v_torus_grid_mpi::Command> voroshilov_v_torus_grid_mpi::select_terminate_proc(
+    int current_id, Command terminate_code, int grid) {
   int current_row_id = current_id / grid;
   int current_col_id = current_id % grid;
 

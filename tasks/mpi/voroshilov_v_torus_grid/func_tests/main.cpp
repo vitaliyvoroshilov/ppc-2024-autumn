@@ -7,11 +7,7 @@
 
 #include "mpi/voroshilov_v_torus_grid/include/ops_mpi.hpp"
 
-enum Func_tags {
-  send_generated_data = 10,
-  send_flag_data,
-  send_flag_path
-};
+enum Func_tags { send_generated_data = 10, send_flag_data, send_flag_path };
 
 int generate_rank(int world_size) {
   std::random_device dev;
