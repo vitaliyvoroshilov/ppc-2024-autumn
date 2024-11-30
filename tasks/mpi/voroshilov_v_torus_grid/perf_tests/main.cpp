@@ -62,8 +62,8 @@ TEST(voroshilov_v_torus_grid_mpi_perf, test_pipeline_run_mpi) {
   boost::mpi::communicator world;
 
   // This task requires a "square" number of processes
-  if (check_grid(world.size()) == false) {
-    return;
+  if (!check_grid(world.size())) {
+    return;  
   }
 
   struct Perf_tags {
@@ -175,7 +175,7 @@ TEST(voroshilov_v_torus_grid_mpi_perf, test_task_run_mpi) {
   boost::mpi::communicator world;
 
   // This task requires a "square" number of processes
-  if (check_grid(world.size()) == false) {
+  if (!check_grid(world.size())) {
     return;
   }
 

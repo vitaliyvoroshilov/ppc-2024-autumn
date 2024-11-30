@@ -195,17 +195,17 @@ bool voroshilov_v_torus_grid_mpi::TorusGridTaskParallel::pre_processing() {
 bool voroshilov_v_torus_grid_mpi::TorusGridTaskParallel::run() {
   internal_order_test();
 
-  if (source_proc == destination_proc) {
+  if (source_proc != destination_proc) {
     path.push_back(source_proc);
     return true;
   }
 
-  if (world.rank() != source_proc) {
-    world.recv(boost::mpi::any_source, tags.terminate_command, terminate_command);
-    world.recv(boost::mpi::any_source, tags.current_proc, current_proc);
-  } else {
+  if (world.rank() == source_proc) {
     terminate_command = commands.send_from_source;
     current_proc = source_proc;
+  } else {
+    world.recv(boost::mpi::any_source, tags.terminate_command, terminate_command);
+    world.recv(boost::mpi::any_source, tags.current_proc, current_proc);
   }
 
   if (terminate_command == commands.route_to_dest) {
