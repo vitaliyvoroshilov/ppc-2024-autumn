@@ -13,7 +13,7 @@
 #include "core/task/include/task.hpp"
 
 namespace voroshilov_v_torus_grid_mpi {
-
+/*
 struct Commands {
   int send_from_source;
   int route_to_dest;
@@ -29,7 +29,7 @@ struct Tags {
   int buffer;
   int path_size;
   int path;
-};
+};*/
 
 int select_path_proc(int current_id, int destination_id, int grid);
 std::pair<int, int> select_terminate_proc(int current_id, int terminate_code, int grid);
@@ -43,10 +43,8 @@ class TorusGridTaskParallel : public ppc::core::Task {
   bool post_processing() override;
 
  private:
-  struct Message {
-    std::vector<char> buffer;
-    std::vector<int> path;
-  } message;
+  std::vector<char> buffer;
+  std::vector<int> path;
 
   int grid_size;
 
@@ -56,9 +54,9 @@ class TorusGridTaskParallel : public ppc::core::Task {
 
   int terminate_command;
 
-  Commands commands;
+  //Commands commands;
 
-  Tags tags;
+  //Tags tags;
 
   boost::mpi::communicator world;
 };
