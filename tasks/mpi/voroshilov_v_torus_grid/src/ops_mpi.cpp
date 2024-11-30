@@ -96,7 +96,7 @@ int voroshilov_v_torus_grid_mpi::select_path_proc(int current_id, int destinatio
 }
 
 std::pair<int, int> voroshilov_v_torus_grid_mpi::select_terminate_proc(int current_id, int terminate_code, int grid) {
-  const Commands codes{0, 1, 2, 3, 4};
+  Commands codes{0, 1, 2, 3, 4};
 
   int current_row_id = current_id / grid;
   int current_col_id = current_id % grid;
@@ -184,6 +184,11 @@ bool voroshilov_v_torus_grid_mpi::TorusGridTaskParallel::pre_processing() {
       grid_size = i;
     }
   }
+
+  commands = {0, 1, 2, 3, 4};
+
+  tags = {0, 1, 2, 3, 4, 5};
+
   return true;
 }
 

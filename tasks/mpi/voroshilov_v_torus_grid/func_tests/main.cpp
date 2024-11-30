@@ -7,12 +7,6 @@
 
 #include "mpi/voroshilov_v_torus_grid/include/ops_mpi.hpp"
 
-struct Func_tags {
-  static const int send_generated_data = 10;
-  static const int send_flag_data = 11;
-  static const int send_flag_path = 12;
-} func_tags;
-
 int generate_rank(int world_size) {
   std::random_device dev;
   std::mt19937 gen(dev());
@@ -53,10 +47,24 @@ std::vector<int> calculate_expected_path(int source_id, int destination_id, int 
   return path;
 }
 
+bool check_grid(int world_size) {
+  for (int i = 0; i < world_size; i++) {
+    if (world_size == i * i) {
+      return true;
+    }
+  }
+  return false;
+}
+
 TEST(voroshilov_v_torus_grid_mpi_func, test_validation_empty_input_mpi) {
   int data_size = 0;
 
   boost::mpi::communicator world;
+
+  // This task requires a "square" number of processes
+  if (check_grid(world.size()) == false) {
+    SUCCEED();
+  }
 
   int src_proc = 0;
   int dst_proc = world.size() - 1;
@@ -90,6 +98,11 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_validation_src_process_not_exists_mp
 
   boost::mpi::communicator world;
 
+  // This task requires a "square" number of processes
+  if (check_grid(world.size()) == false) {
+    SUCCEED();
+  }
+
   int src_proc = world.size();
   int dst_proc = 0;
 
@@ -122,6 +135,11 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_validation_dst_process_not_exists_mp
 
   boost::mpi::communicator world;
 
+  // This task requires a "square" number of processes
+  if (check_grid(world.size()) == false) {
+    SUCCEED();
+  }
+
   int src_proc = 0;
   int dst_proc = world.size();
 
@@ -153,6 +171,17 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_first_to_first_mpi) {
   int data_size = 100000;
 
   boost::mpi::communicator world;
+
+  // This task requires a "square" number of processes
+  if (check_grid(world.size()) == false) {
+    SUCCEED();
+  }
+
+  struct Func_tags {
+    int send_generated_data = 10;
+    int send_flag_data = 11;
+    int send_flag_path = 12;
+  } func_tags;
 
   int src_proc = 0;
   int dst_proc = 0;
@@ -233,6 +262,17 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_first_to_middle_mpi) {
 
   boost::mpi::communicator world;
 
+  // This task requires a "square" number of processes
+  if (check_grid(world.size()) == false) {
+    SUCCEED();
+  }
+
+  struct Func_tags {
+    int send_generated_data = 10;
+    int send_flag_data = 11;
+    int send_flag_path = 12;
+  } func_tags;
+
   int src_proc = 0;
   int dst_proc = world.size() / 2;
 
@@ -311,6 +351,17 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_first_to_last_mpi) {
   int data_size = 100000;
 
   boost::mpi::communicator world;
+
+  // This task requires a "square" number of processes
+  if (check_grid(world.size()) == false) {
+    SUCCEED();
+  }
+
+  struct Func_tags {
+    int send_generated_data = 10;
+    int send_flag_data = 11;
+    int send_flag_path = 12;
+  } func_tags;
 
   int src_proc = 0;
   int dst_proc = world.size() - 1;
@@ -391,6 +442,17 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_middle_to_first_mpi) {
 
   boost::mpi::communicator world;
 
+  // This task requires a "square" number of processes
+  if (check_grid(world.size()) == false) {
+    SUCCEED();
+  }
+
+  struct Func_tags {
+    int send_generated_data = 10;
+    int send_flag_data = 11;
+    int send_flag_path = 12;
+  } func_tags;
+
   int src_proc = world.size() / 2;
   int dst_proc = 0;
 
@@ -469,6 +531,17 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_middle_to_middle_mpi) {
   int data_size = 10000;
 
   boost::mpi::communicator world;
+
+  // This task requires a "square" number of processes
+  if (check_grid(world.size()) == false) {
+    SUCCEED();
+  }
+
+  struct Func_tags {
+    int send_generated_data = 10;
+    int send_flag_data = 11;
+    int send_flag_path = 12;
+  } func_tags;
 
   int src_proc = world.size() / 2;
   int dst_proc = world.size() / 2;
@@ -549,6 +622,17 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_middle_to_last_mpi) {
 
   boost::mpi::communicator world;
 
+  // This task requires a "square" number of processes
+  if (check_grid(world.size()) == false) {
+    SUCCEED();
+  }
+
+  struct Func_tags {
+    int send_generated_data = 10;
+    int send_flag_data = 11;
+    int send_flag_path = 12;
+  } func_tags;
+
   int src_proc = world.size() / 2;
   int dst_proc = world.size() - 1;
 
@@ -627,6 +711,17 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_last_to_first_mpi) {
   int data_size = 100000;
 
   boost::mpi::communicator world;
+
+  // This task requires a "square" number of processes
+  if (check_grid(world.size()) == false) {
+    SUCCEED();
+  }
+
+  struct Func_tags {
+    int send_generated_data = 10;
+    int send_flag_data = 11;
+    int send_flag_path = 12;
+  } func_tags;
 
   int src_proc = world.size() - 1;
   int dst_proc = 0;
@@ -707,6 +802,17 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_last_to_middle_mpi) {
 
   boost::mpi::communicator world;
 
+  // This task requires a "square" number of processes
+  if (check_grid(world.size()) == false) {
+    SUCCEED();
+  }
+
+  struct Func_tags {
+    int send_generated_data = 10;
+    int send_flag_data = 11;
+    int send_flag_path = 12;
+  } func_tags;
+
   int src_proc = world.size() - 1;
   int dst_proc = world.size() / 2;
 
@@ -786,6 +892,17 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_last_to_last_mpi) {
 
   boost::mpi::communicator world;
 
+  // This task requires a "square" number of processes
+  if (check_grid(world.size()) == false) {
+    SUCCEED();
+  }
+
+  struct Func_tags {
+    int send_generated_data = 10;
+    int send_flag_data = 11;
+    int send_flag_path = 12;
+  } func_tags;
+
   int src_proc = world.size() - 1;
   int dst_proc = world.size() - 1;
 
@@ -864,6 +981,17 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_random_to_random_mpi) {
   int data_size = 100000;
 
   boost::mpi::communicator world;
+
+  // This task requires a "square" number of processes
+  if (check_grid(world.size()) == false) {
+    SUCCEED();
+  }
+
+  struct Func_tags {
+    int send_generated_data = 10;
+    int send_flag_data = 11;
+    int send_flag_path = 12;
+  } func_tags;
 
   std::vector<char> input_data(data_size);
   std::vector<char> output_data(data_size);

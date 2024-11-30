@@ -7,12 +7,6 @@
 #include "core/perf/include/perf.hpp"
 #include "mpi/voroshilov_v_torus_grid/include/ops_mpi.hpp"
 
-struct Perf_tags {
-  static const int send_generated_data = 100;
-  static const int send_flag_data = 101;
-  static const int send_flag_path = 102;
-} perf_tags;
-
 int generate_rank(int world_size) {
   std::random_device dev;
   std::mt19937 gen(dev());
@@ -57,6 +51,17 @@ TEST(voroshilov_v_torus_grid_mpi_perf, test_pipeline_run_mpi) {
   int data_size = 100000;
 
   boost::mpi::communicator world;
+
+  // This task requires a "square" number of processes
+  if (check_grid(world.size()) == false) {
+    SUCCEED();
+  }
+
+  struct Perf_tags {
+    int send_generated_data = 100;
+    int send_flag_data = 101;
+    int send_flag_path = 102;
+  } perf_tags;
 
   std::vector<char> input_data(data_size);
   std::vector<char> output_data(data_size);
@@ -159,6 +164,17 @@ TEST(voroshilov_v_torus_grid_mpi_perf, test_task_run_mpi) {
   int data_size = 100000;
 
   boost::mpi::communicator world;
+  
+  // This task requires a "square" number of processes
+  if (check_grid(world.size()) == false) {
+    SUCCEED();
+  }
+
+  struct Perf_tags {
+    int send_generated_data = 100;
+    int send_flag_data = 101;
+    int send_flag_path = 102;
+  } perf_tags;
 
   std::vector<char> input_data(data_size);
   std::vector<char> output_data(data_size);

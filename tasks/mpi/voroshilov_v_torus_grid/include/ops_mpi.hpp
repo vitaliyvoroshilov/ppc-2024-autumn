@@ -56,9 +56,9 @@ class TorusGridTaskParallel : public ppc::core::Task {
 
   int terminate_command;
 
-  static constexpr Commands commands{0, 1, 2, 3, 4};
+  Commands commands;
 
-  static constexpr Tags tags{0, 1, 2, 3, 4, 5};
+  Tags tags;
 
   boost::mpi::communicator world;
 };
