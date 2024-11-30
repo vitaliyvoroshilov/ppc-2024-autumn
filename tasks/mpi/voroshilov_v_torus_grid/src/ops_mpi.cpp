@@ -95,15 +95,15 @@ int voroshilov_v_torus_grid_mpi::select_path_proc(int current_id, int destinatio
   return next_id;
 }
 
-std::pair<int, voroshilov_v_torus_grid_mpi::Command> voroshilov_v_torus_grid_mpi::select_terminate_proc(
-    int current_id, Command terminate_code, int grid) {
+std::pair<int, int> voroshilov_v_torus_grid_mpi::select_terminate_proc(
+    int current_id, int terminate_code, int grid) {
   int current_row_id = current_id / grid;
   int current_col_id = current_id % grid;
 
   int next_row_id = current_row_id;
   int next_col_id = current_col_id;
 
-  Command next_terminate_code = terminate_code;
+  int next_terminate_code = terminate_code;
 
   if (terminate_code == Command::direct_terminate) {
     // Go forward in row
@@ -135,7 +135,7 @@ std::pair<int, voroshilov_v_torus_grid_mpi::Command> voroshilov_v_torus_grid_mpi
   }
 
   int next_id = next_row_id * grid + next_col_id;
-  std::pair<int, Command> next_terminate(next_id, next_terminate_code);
+  std::pair<int, int> next_terminate(next_id, next_terminate_code);
   return next_terminate;
 }
 
@@ -271,9 +271,9 @@ bool voroshilov_v_torus_grid_mpi::TorusGridTaskParallel::run() {
       // It is last process to terminate if grid_size is even number
       return true;
     }
-    std::pair<int, Command> next_terminate = select_terminate_proc(current_proc, terminate_command, grid_size);
+    std::pair<int, int> next_terminate = select_terminate_proc(current_proc, terminate_command, grid_size);
     int next_proc = next_terminate.first;
-    Command next_terminate_command = next_terminate.second;
+    int next_terminate_command = next_terminate.second;
     world.send(next_proc, Tags::terminate_command, next_terminate_command);
     world.send(next_proc, Tags::current_proc, next_proc);
     return true;
