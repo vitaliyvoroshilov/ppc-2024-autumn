@@ -7,7 +7,11 @@
 #include "core/perf/include/perf.hpp"
 #include "mpi/voroshilov_v_torus_grid/include/ops_mpi.hpp"
 
-enum Perf_tags { send_generated_data = 100, send_flag_data, send_flag_path };
+struct Perf_tags {
+  static const int send_generated_data = 100;
+  static const int send_flag_data = 101;
+  static const int send_flag_path = 102;
+};
 
 int generate_rank(int world_size) {
   std::random_device dev;

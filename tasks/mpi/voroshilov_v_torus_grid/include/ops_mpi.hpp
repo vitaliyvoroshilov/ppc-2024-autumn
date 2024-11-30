@@ -16,8 +16,6 @@ namespace voroshilov_v_torus_grid_mpi {
 
 enum Command { send_from_source = 0, route_to_dest, move_to_zero, direct_terminate, reverse_terminate };
 
-enum Tags { terminate_command = 0, current_proc, buf_size, buffer, path_size, path };
-
 int select_path_proc(int current_id, int destination_id, int grid);
 std::pair<int, Command> select_terminate_proc(int current_id, Command terminate_code, int grid);
 
@@ -42,6 +40,15 @@ class TorusGridTaskParallel : public ppc::core::Task {
   int current_proc;
 
   Command terminate_command;
+
+  struct Tags {
+    static const int terminate_command = 0;
+    static const int current_proc = 1;
+    static const int buf_size = 2;
+    static const int buffer = 3;
+    static const int path_size = 4;
+    static const int path = 5;
+  };
 
   boost::mpi::communicator world;
 };
