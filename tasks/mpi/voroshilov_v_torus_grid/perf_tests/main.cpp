@@ -7,6 +7,12 @@
 #include "core/perf/include/perf.hpp"
 #include "mpi/voroshilov_v_torus_grid/include/ops_mpi.hpp"
 
+struct Perf_test_tags {
+  static const int send_generated_data = 111;
+  static const int send_flag_data = 222;
+  static const int send_flag_path = 333;
+};
+
 int generate_rank(int world_size) {
   std::random_device dev;
   std::mt19937 gen(dev());
@@ -48,9 +54,6 @@ std::vector<int> calculate_expected_path(int source_id, int destination_id, int 
 }
 
 TEST(voroshilov_v_torus_grid_mpi_perf, test_pipeline_run_mpi) {
-
-ASSERT_EQ(1, 1);
-/*  
   int data_size = 100000;
 
   boost::mpi::communicator world;
@@ -58,51 +61,58 @@ ASSERT_EQ(1, 1);
   std::vector<char> input_data(data_size);
   std::vector<char> output_data(data_size);
   
-  int source_proc = 0;
-  int destination_proc = 0;
+  int src_proc = 0;
+  int dst_proc = 0;
 
   if (world.rank() == 0) {
-    source_proc = generate_rank(world.size());
-    destination_proc = generate_rank(world.size());
+    src_proc = generate_rank(world.size());
+    dst_proc = generate_rank(world.size());
   }
-  boost::mpi::broadcast(world, source_proc, 0);
-  boost::mpi::broadcast(world, destination_proc, 0);
+  // broadcast() because in other way each process generates its own local src_proc and dst_proc
+  boost::mpi::broadcast(world, src_proc, 0);
+  boost::mpi::broadcast(world, dst_proc, 0);
   
-  if (world.rank() == source_proc) {
+  if (world.rank() == src_proc) {
     input_data = generate_data(data_size);
-    if ((world.size() > 1) && (source_proc != destination_proc)) {
-      world.send(destination_proc, 111, input_data.data(), input_data.size());
+    if ((world.size() > 1) && (src_proc != dst_proc)) {
+      world.send(dst_proc, Perf_test_tags::send_generated_data, input_data.data(), input_data.size());
     }
   }
-  if (world.rank() == destination_proc) {
-    if ((world.size() > 1) && (source_proc != destination_proc)) {
-      world.recv(source_proc, 111, input_data.data(), input_data.size());
+  if (world.rank() == dst_proc) {
+    if ((world.size() > 1) && (src_proc != dst_proc)) {
+      world.recv(src_proc, Perf_test_tags::send_generated_data, input_data.data(), input_data.size());
     }
   }
 
-  std::vector<int> expected_path = calculate_expected_path(source_proc, destination_proc, world.size());
+  std::vector<int> expected_path = calculate_expected_path(src_proc, dst_proc, world.size());
   std::vector<int> output_path(expected_path.size());
 
   std::shared_ptr<ppc::core::TaskData> taskDataPar = std::make_shared<ppc::core::TaskData>();
-  if ((world.rank() == source_proc) || (world.rank() == destination_proc)) {
-    taskDataPar->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_data.data()));
+
+  taskDataPar->inputs_count.emplace_back(src_proc);
+  taskDataPar->inputs_count.emplace_back(dst_proc);
+
+  if ((world.rank() == src_proc) || (world.rank() == dst_proc)) {
+
     taskDataPar->inputs_count.emplace_back(input_data.size());
-    taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_data.data()));
+
+    taskDataPar->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_data.data()));
+    
     taskDataPar->outputs_count.emplace_back(output_data.size());
+    
+    taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_data.data()));
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_path.data()));
   }
 
   auto torusGridTaskParallel = std::make_shared<voroshilov_v_torus_grid_mpi::TorusGridTaskParallel>(taskDataPar);
-  torusGridTaskParallel.set_source_proc(source_proc);
-  torusGridTaskParallel.set_destination_proc(destination_proc);
-  ASSERT_EQ(torusGridTaskParallel.validation(), true);
-  torusGridTaskParallel.pre_processing();
-  torusGridTaskParallel.run();
-  torusGridTaskParallel.post_processing();
+  ASSERT_EQ(torusGridTaskParallel->validation(), true);
+  torusGridTaskParallel->pre_processing();
+  torusGridTaskParallel->run();
+  torusGridTaskParallel->post_processing();
 
   // Create Perf attributes
   auto perfAttr = std::make_shared<ppc::core::PerfAttr>();
-  perfAttr->num_running = 1000;
+  perfAttr->num_running = 1;
   const boost::mpi::timer current_timer;
   perfAttr->current_timer = [&] { return current_timer.elapsed(); };
 
@@ -114,7 +124,7 @@ ASSERT_EQ(1, 1);
   perfAnalyzer->pipeline_run(perfAttr, perfResults);
 
   // ASSERT_EQ() doesnt work if world.rank() != 0 so decided send to process 0 and check there
-  if (world.rank() == destination_proc) {
+  if (world.rank() == dst_proc) {
     bool flag_data = true;
     for (int i = 0; i < output_data.size(); i++) {
       if (output_data[i] != input_data[i]) {
@@ -127,9 +137,9 @@ ASSERT_EQ(1, 1);
         flag_path = false;
       }
     }
-    if ((world.size() > 1) && (destination_proc != 0)) {
-      world.send(0, 222, flag_data);
-      world.send(0, 333, flag_path);
+    if ((world.size() > 1) && (dst_proc != 0)) {
+      world.send(0, Perf_test_tags::send_flag_data, flag_data);
+      world.send(0, Perf_test_tags::send_flag_path, flag_path);
     }
   }
 
@@ -137,72 +147,75 @@ ASSERT_EQ(1, 1);
     ppc::core::Perf::print_perf_statistic(perfResults);
     bool flg_data = true;
     bool flg_path = true;
-    if ((world.size() > 1) && (destination_proc != 0)) {
-      world.recv(destination_proc, 222, flg_data);
-      world.recv(destination_proc, 333, flg_path);
+    if ((world.size() > 1) && (dst_proc != 0)) {
+      world.recv(dst_proc, Perf_test_tags::send_flag_data, flg_data);
+      world.recv(dst_proc, Perf_test_tags::send_flag_path, flg_path);
     }
     ASSERT_EQ(flg_data, true);
     ASSERT_EQ(flg_path, true);
   }
-*/
 }
 
 TEST(voroshilov_v_torus_grid_mpi_perf, test_task_run_mpi) {
-
-ASSERT_EQ(1, 1);
-
-/*  int data_size = 100000;
+  int data_size = 100000;
 
   boost::mpi::communicator world;
   
   std::vector<char> input_data(data_size);
   std::vector<char> output_data(data_size);
   
-  int source_proc = 0;
-  int destination_proc = 0;
+  int src_proc = 0;
+  int dst_proc = 0;
 
   if (world.rank() == 0) {
-    source_proc = generate_rank(world.size());
-    destination_proc = generate_rank(world.size());
+    src_proc = generate_rank(world.size());
+    dst_proc = generate_rank(world.size());
   }
-  boost::mpi::broadcast(world, source_proc, 0);
-  boost::mpi::broadcast(world, destination_proc, 0);
+  // broadcast() because in other way each process generates its own local src_proc and dst_proc
+  boost::mpi::broadcast(world, src_proc, 0);
+  boost::mpi::broadcast(world, dst_proc, 0);
   
-  if (world.rank() == source_proc) {
+  if (world.rank() == src_proc) {
     input_data = generate_data(data_size);
-    if ((world.size() > 1) && (source_proc != destination_proc)) {
-      world.send(destination_proc, 111, input_data.data(), input_data.size());
+    if ((world.size() > 1) && (src_proc != dst_proc)) {
+      world.send(dst_proc, Perf_test_tags::send_generated_data, input_data.data(), input_data.size());
     }
   }
-  if (world.rank() == destination_proc) {
-    if ((world.size() > 1) && (source_proc != destination_proc)) {
-      world.recv(source_proc, 111, input_data.data(), input_data.size());
+  if (world.rank() == dst_proc) {
+    if ((world.size() > 1) && (src_proc != dst_proc)) {
+      world.recv(src_proc, Perf_test_tags::send_generated_data, input_data.data(), input_data.size());
     }
   }
 
-  std::vector<int> expected_path = calculate_expected_path(source_proc, destination_proc, world.size());
+  std::vector<int> expected_path = calculate_expected_path(src_proc, dst_proc, world.size());
   std::vector<int> output_path(expected_path.size());
 
   std::shared_ptr<ppc::core::TaskData> taskDataPar = std::make_shared<ppc::core::TaskData>();
-  if ((world.rank() == source_proc) || (world.rank() == destination_proc)) {
-    taskDataPar->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_data.data()));
+
+  taskDataPar->inputs_count.emplace_back(src_proc);
+  taskDataPar->inputs_count.emplace_back(dst_proc);
+
+  if ((world.rank() == src_proc) || (world.rank() == dst_proc)) {
+
     taskDataPar->inputs_count.emplace_back(input_data.size());
-    taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_data.data()));
+
+    taskDataPar->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_data.data()));
+    
     taskDataPar->outputs_count.emplace_back(output_data.size());
+    
+    taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_data.data()));
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_path.data()));
   }
 
   auto torusGridTaskParallel = std::make_shared<voroshilov_v_torus_grid_mpi::TorusGridTaskParallel>(taskDataPar);
-  torusGridTaskParallel.set_source_proc(source_proc);
-  torusGridTaskParallel.set_destination_proc(destination_proc);
-  ASSERT_EQ(torusGridTaskParallel.validation(), true);
-  torusGridTaskParallel.pre_processing();
-  torusGridTaskParallel.run();
-  torusGridTaskParallel.post_processing();
+  ASSERT_EQ(torusGridTaskParallel->validation(), true);
+  torusGridTaskParallel->pre_processing();
+  torusGridTaskParallel->run();
+  torusGridTaskParallel->post_processing();
 
   // Create Perf attributes
   auto perfAttr = std::make_shared<ppc::core::PerfAttr>();
-  perfAttr->num_running = 1000;
+  perfAttr->num_running = 1;
   const boost::mpi::timer current_timer;
   perfAttr->current_timer = [&] { return current_timer.elapsed(); };
 
@@ -214,7 +227,7 @@ ASSERT_EQ(1, 1);
   perfAnalyzer->task_run(perfAttr, perfResults);
 
   // ASSERT_EQ() doesnt work if world.rank() != 0 so decided send to process 0 and check there
-  if (world.rank() == destination_proc) {
+  if (world.rank() == dst_proc) {
     bool flag_data = true;
     for (int i = 0; i < output_data.size(); i++) {
       if (output_data[i] != input_data[i]) {
@@ -227,9 +240,9 @@ ASSERT_EQ(1, 1);
         flag_path = false;
       }
     }
-    if ((world.size() > 1) && (destination_proc != 0)) {
-      world.send(0, 222, flag_data);
-      world.send(0, 333, flag_path);
+    if ((world.size() > 1) && (dst_proc != 0)) {
+      world.send(0, Perf_test_tags::send_flag_data, flag_data);
+      world.send(0, Perf_test_tags::send_flag_path, flag_path);
     }
   }
 
@@ -237,11 +250,11 @@ ASSERT_EQ(1, 1);
     ppc::core::Perf::print_perf_statistic(perfResults);
     bool flg_data = true;
     bool flg_path = true;
-    if ((world.size() > 1) && (destination_proc != 0)) {
-      world.recv(destination_proc, 222, flg_data);
-      world.recv(destination_proc, 333, flg_path);
+    if ((world.size() > 1) && (dst_proc != 0)) {
+      world.recv(dst_proc, Perf_test_tags::send_flag_data, flg_data);
+      world.recv(dst_proc, Perf_test_tags::send_flag_path, flg_path);
     }
     ASSERT_EQ(flg_data, true);
     ASSERT_EQ(flg_path, true);
-  }*/
+  }
 }

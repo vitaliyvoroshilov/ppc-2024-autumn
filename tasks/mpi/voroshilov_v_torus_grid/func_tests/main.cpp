@@ -7,6 +7,12 @@
 
 #include "mpi/voroshilov_v_torus_grid/include/ops_mpi.hpp"
 
+struct Func_test_tags {
+  static const int send_generated_data = 111;
+  static const int send_flag_data = 222;
+  static const int send_flag_path = 333;
+};
+
 int generate_rank(int world_size) {
   std::random_device dev;
   std::mt19937 gen(dev());
@@ -159,12 +165,12 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_first_to_first_mpi) {
   if (world.rank() == src_proc) {
     input_data = generate_data(data_size);
     if ((world.size() > 1) && (src_proc != dst_proc)) {
-      world.send(dst_proc, 111, input_data.data(), input_data.size());
+      world.send(dst_proc, Func_test_tags::send_generated_data, input_data.data(), input_data.size());
     }
   }
   if (world.rank() == dst_proc) {
     if ((world.size() > 1) && (src_proc != dst_proc)) {
-      world.recv(src_proc, 111, input_data.data(), input_data.size());
+      world.recv(src_proc, Func_test_tags::send_generated_data, input_data.data(), input_data.size());
     }
   }
 
@@ -205,8 +211,8 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_first_to_first_mpi) {
       }
     }
     if ((world.size() > 1) && (dst_proc != 0)) {
-      world.send(0, 222, flag_data);
-      world.send(0, 333, flag_path);
+      world.send(0, Func_test_tags::send_flag_data, flag_data);
+      world.send(0, Func_test_tags::send_flag_path, flag_path);
     }
   }
 
@@ -214,14 +220,14 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_first_to_first_mpi) {
     bool flg_data = true;
     bool flg_path = true;
     if ((world.size() > 1) && (dst_proc != 0)) {
-      world.recv(dst_proc, 222, flg_data);
-      world.recv(dst_proc, 333, flg_path);
+      world.recv(dst_proc, Func_test_tags::send_flag_data, flg_data);
+      world.recv(dst_proc, Func_test_tags::send_flag_path, flg_path);
     }
     ASSERT_EQ(flg_data, true);
     ASSERT_EQ(flg_path, true);
   }
 
-  world.barrier();
+  
 }
 
 TEST(voroshilov_v_torus_grid_mpi_func, test_run_first_to_middle_mpi) {
@@ -240,12 +246,12 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_first_to_middle_mpi) {
   if (world.rank() == src_proc) {
     input_data = generate_data(data_size);
     if ((world.size() > 1) && (src_proc != dst_proc)) {
-      world.send(dst_proc, 111, input_data.data(), input_data.size());
+      world.send(dst_proc, Func_test_tags::send_generated_data, input_data.data(), input_data.size());
     }
   }
   if (world.rank() == dst_proc) {
     if ((world.size() > 1) && (src_proc != dst_proc)) {
-      world.recv(src_proc, 111, input_data.data(), input_data.size());
+      world.recv(src_proc, Func_test_tags::send_generated_data, input_data.data(), input_data.size());
     }
   }
 
@@ -286,8 +292,8 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_first_to_middle_mpi) {
       }
     }
     if ((world.size() > 1) && (dst_proc != 0)) {
-      world.send(0, 222, flag_data);
-      world.send(0, 333, flag_path);
+      world.send(0, Func_test_tags::send_flag_data, flag_data);
+      world.send(0, Func_test_tags::send_flag_path, flag_path);
     }
   }
 
@@ -295,14 +301,14 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_first_to_middle_mpi) {
     bool flg_data = true;
     bool flg_path = true;
     if ((world.size() > 1) && (dst_proc != 0)) {
-      world.recv(dst_proc, 222, flg_data);
-      world.recv(dst_proc, 333, flg_path);
+      world.recv(dst_proc, Func_test_tags::send_flag_data, flg_data);
+      world.recv(dst_proc, Func_test_tags::send_flag_path, flg_path);
     }
     ASSERT_EQ(flg_data, true);
     ASSERT_EQ(flg_path, true);
   }
   
-  world.barrier();
+  
 }
 
 TEST(voroshilov_v_torus_grid_mpi_func, test_run_first_to_last_mpi) {
@@ -321,12 +327,12 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_first_to_last_mpi) {
   if (world.rank() == src_proc) {
     input_data = generate_data(data_size);
     if ((world.size() > 1) && (src_proc != dst_proc)) {
-      world.send(dst_proc, 111, input_data.data(), input_data.size());
+      world.send(dst_proc, Func_test_tags::send_generated_data, input_data.data(), input_data.size());
     }
   }
   if (world.rank() == dst_proc) {
     if ((world.size() > 1) && (src_proc != dst_proc)) {
-      world.recv(src_proc, 111, input_data.data(), input_data.size());
+      world.recv(src_proc, Func_test_tags::send_generated_data, input_data.data(), input_data.size());
     }
   }
 
@@ -367,8 +373,8 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_first_to_last_mpi) {
       }
     }
     if ((world.size() > 1) && (dst_proc != 0)) {
-      world.send(0, 222, flag_data);
-      world.send(0, 333, flag_path);
+      world.send(0, Func_test_tags::send_flag_data, flag_data);
+      world.send(0, Func_test_tags::send_flag_path, flag_path);
     }
   }
 
@@ -376,14 +382,14 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_first_to_last_mpi) {
     bool flg_data = true;
     bool flg_path = true;
     if ((world.size() > 1) && (dst_proc != 0)) {
-      world.recv(dst_proc, 222, flg_data);
-      world.recv(dst_proc, 333, flg_path);
+      world.recv(dst_proc, Func_test_tags::send_flag_data, flg_data);
+      world.recv(dst_proc, Func_test_tags::send_flag_path, flg_path);
     }
     ASSERT_EQ(flg_data, true);
     ASSERT_EQ(flg_path, true);
   }
 
-  world.barrier();
+  
 }
 
 TEST(voroshilov_v_torus_grid_mpi_func, test_run_middle_to_first_mpi) {
@@ -402,12 +408,12 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_middle_to_first_mpi) {
   if (world.rank() == src_proc) {
     input_data = generate_data(data_size);
     if ((world.size() > 1) && (src_proc != dst_proc)) {
-      world.send(dst_proc, 111, input_data.data(), input_data.size());
+      world.send(dst_proc, Func_test_tags::send_generated_data, input_data.data(), input_data.size());
     }
   }
   if (world.rank() == dst_proc) {
     if ((world.size() > 1) && (src_proc != dst_proc)) {
-      world.recv(src_proc, 111, input_data.data(), input_data.size());
+      world.recv(src_proc, Func_test_tags::send_generated_data, input_data.data(), input_data.size());
     }
   }
 
@@ -448,8 +454,8 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_middle_to_first_mpi) {
       }
     }
     if ((world.size() > 1) && (dst_proc != 0)) {
-      world.send(0, 222, flag_data);
-      world.send(0, 333, flag_path);
+      world.send(0, Func_test_tags::send_flag_data, flag_data);
+      world.send(0, Func_test_tags::send_flag_path, flag_path);
     }
   }
 
@@ -457,14 +463,14 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_middle_to_first_mpi) {
     bool flg_data = true;
     bool flg_path = true;
     if ((world.size() > 1) && (dst_proc != 0)) {
-      world.recv(dst_proc, 222, flg_data);
-      world.recv(dst_proc, 333, flg_path);
+      world.recv(dst_proc, Func_test_tags::send_flag_data, flg_data);
+      world.recv(dst_proc, Func_test_tags::send_flag_path, flg_path);
     }
     ASSERT_EQ(flg_data, true);
     ASSERT_EQ(flg_path, true);
   }
 
-  world.barrier();
+  
 }
 
 TEST(voroshilov_v_torus_grid_mpi_func, test_run_middle_to_middle_mpi) {
@@ -483,12 +489,12 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_middle_to_middle_mpi) {
   if (world.rank() == src_proc) {
     input_data = generate_data(data_size);
     if ((world.size() > 1) && (src_proc != dst_proc)) {
-      world.send(dst_proc, 111, input_data.data(), input_data.size());
+      world.send(dst_proc, Func_test_tags::send_generated_data, input_data.data(), input_data.size());
     }
   }
   if (world.rank() == dst_proc) {
     if ((world.size() > 1) && (src_proc != dst_proc)) {
-      world.recv(src_proc, 111, input_data.data(), input_data.size());
+      world.recv(src_proc, Func_test_tags::send_generated_data, input_data.data(), input_data.size());
     }
   }
 
@@ -529,8 +535,8 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_middle_to_middle_mpi) {
       }
     }
     if ((world.size() > 1) && (dst_proc != 0)) {
-      world.send(0, 222, flag_data);
-      world.send(0, 333, flag_path);
+      world.send(0, Func_test_tags::send_flag_data, flag_data);
+      world.send(0, Func_test_tags::send_flag_path, flag_path);
     }
   }
 
@@ -538,14 +544,14 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_middle_to_middle_mpi) {
     bool flg_data = true;
     bool flg_path = true;
     if ((world.size() > 1) && (dst_proc != 0)) {
-      world.recv(dst_proc, 222, flg_data);
-      world.recv(dst_proc, 333, flg_path);
+      world.recv(dst_proc, Func_test_tags::send_flag_data, flg_data);
+      world.recv(dst_proc, Func_test_tags::send_flag_path, flg_path);
     }
     ASSERT_EQ(flg_data, true);
     ASSERT_EQ(flg_path, true);
   }
 
-  world.barrier();
+  
 }
 
 TEST(voroshilov_v_torus_grid_mpi_func, test_run_middle_to_last_mpi) {
@@ -564,12 +570,12 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_middle_to_last_mpi) {
   if (world.rank() == src_proc) {
     input_data = generate_data(data_size);
     if ((world.size() > 1) && (src_proc != dst_proc)) {
-      world.send(dst_proc, 111, input_data.data(), input_data.size());
+      world.send(dst_proc, Func_test_tags::send_generated_data, input_data.data(), input_data.size());
     }
   }
   if (world.rank() == dst_proc) {
     if ((world.size() > 1) && (src_proc != dst_proc)) {
-      world.recv(src_proc, 111, input_data.data(), input_data.size());
+      world.recv(src_proc, Func_test_tags::send_generated_data, input_data.data(), input_data.size());
     }
   }
 
@@ -610,8 +616,8 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_middle_to_last_mpi) {
       }
     }
     if ((world.size() > 1) && (dst_proc != 0)) {
-      world.send(0, 222, flag_data);
-      world.send(0, 333, flag_path);
+      world.send(0, Func_test_tags::send_flag_data, flag_data);
+      world.send(0, Func_test_tags::send_flag_path, flag_path);
     }
   }
 
@@ -619,14 +625,14 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_middle_to_last_mpi) {
     bool flg_data = true;
     bool flg_path = true;
     if ((world.size() > 1) && (dst_proc != 0)) {
-      world.recv(dst_proc, 222, flg_data);
-      world.recv(dst_proc, 333, flg_path);
+      world.recv(dst_proc, Func_test_tags::send_flag_data, flg_data);
+      world.recv(dst_proc, Func_test_tags::send_flag_path, flg_path);
     }
     ASSERT_EQ(flg_data, true);
     ASSERT_EQ(flg_path, true);
   }
 
-  world.barrier();
+  
 }
 
 TEST(voroshilov_v_torus_grid_mpi_func, test_run_last_to_first_mpi) {
@@ -645,12 +651,12 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_last_to_first_mpi) {
   if (world.rank() == src_proc) {
     input_data = generate_data(data_size);
     if ((world.size() > 1) && (src_proc != dst_proc)) {
-      world.send(dst_proc, 111, input_data.data(), input_data.size());
+      world.send(dst_proc, Func_test_tags::send_generated_data, input_data.data(), input_data.size());
     }
   }
   if (world.rank() == dst_proc) {
     if ((world.size() > 1) && (src_proc != dst_proc)) {
-      world.recv(src_proc, 111, input_data.data(), input_data.size());
+      world.recv(src_proc, Func_test_tags::send_generated_data, input_data.data(), input_data.size());
     }
   }
 
@@ -691,8 +697,8 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_last_to_first_mpi) {
       }
     }
     if ((world.size() > 1) && (dst_proc != 0)) {
-      world.send(0, 222, flag_data);
-      world.send(0, 333, flag_path);
+      world.send(0, Func_test_tags::send_flag_data, flag_data);
+      world.send(0, Func_test_tags::send_flag_path, flag_path);
     }
   }
 
@@ -700,14 +706,14 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_last_to_first_mpi) {
     bool flg_data = true;
     bool flg_path = true;
     if ((world.size() > 1) && (dst_proc != 0)) {
-      world.recv(dst_proc, 222, flg_data);
-      world.recv(dst_proc, 333, flg_path);
+      world.recv(dst_proc, Func_test_tags::send_flag_data, flg_data);
+      world.recv(dst_proc, Func_test_tags::send_flag_path, flg_path);
     }
     ASSERT_EQ(flg_data, true);
     ASSERT_EQ(flg_path, true);
   }
 
-  world.barrier();
+  
 }
 
 TEST(voroshilov_v_torus_grid_mpi_func, test_run_last_to_middle_mpi) {
@@ -726,12 +732,12 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_last_to_middle_mpi) {
   if (world.rank() == src_proc) {
     input_data = generate_data(data_size);
     if ((world.size() > 1) && (src_proc != dst_proc)) {
-      world.send(dst_proc, 111, input_data.data(), input_data.size());
+      world.send(dst_proc, Func_test_tags::send_generated_data, input_data.data(), input_data.size());
     }
   }
   if (world.rank() == dst_proc) {
     if ((world.size() > 1) && (src_proc != dst_proc)) {
-      world.recv(src_proc, 111, input_data.data(), input_data.size());
+      world.recv(src_proc, Func_test_tags::send_generated_data, input_data.data(), input_data.size());
     }
   }
 
@@ -772,8 +778,8 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_last_to_middle_mpi) {
       }
     }
     if ((world.size() > 1) && (dst_proc != 0)) {
-      world.send(0, 222, flag_data);
-      world.send(0, 333, flag_path);
+      world.send(0, Func_test_tags::send_flag_data, flag_data);
+      world.send(0, Func_test_tags::send_flag_path, flag_path);
     }
   }
 
@@ -781,14 +787,14 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_last_to_middle_mpi) {
     bool flg_data = true;
     bool flg_path = true;
     if ((world.size() > 1) && (dst_proc != 0)) {
-      world.recv(dst_proc, 222, flg_data);
-      world.recv(dst_proc, 333, flg_path);
+      world.recv(dst_proc, Func_test_tags::send_flag_data, flg_data);
+      world.recv(dst_proc, Func_test_tags::send_flag_path, flg_path);
     }
     ASSERT_EQ(flg_data, true);
     ASSERT_EQ(flg_path, true);
   }
 
-  world.barrier();
+  
 }
 
 TEST(voroshilov_v_torus_grid_mpi_func, test_run_last_to_last_mpi) {
@@ -807,12 +813,12 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_last_to_last_mpi) {
   if (world.rank() == src_proc) {
     input_data = generate_data(data_size);
     if ((world.size() > 1) && (src_proc != dst_proc)) {
-      world.send(dst_proc, 111, input_data.data(), input_data.size());
+      world.send(dst_proc, Func_test_tags::send_generated_data, input_data.data(), input_data.size());
     }
   }
   if (world.rank() == dst_proc) {
     if ((world.size() > 1) && (src_proc != dst_proc)) {
-      world.recv(src_proc, 111, input_data.data(), input_data.size());
+      world.recv(src_proc, Func_test_tags::send_generated_data, input_data.data(), input_data.size());
     }
   }
 
@@ -853,8 +859,8 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_last_to_last_mpi) {
       }
     }
     if ((world.size() > 1) && (dst_proc != 0)) {
-      world.send(0, 222, flag_data);
-      world.send(0, 333, flag_path);
+      world.send(0, Func_test_tags::send_flag_data, flag_data);
+      world.send(0, Func_test_tags::send_flag_path, flag_path);
     }
   }
 
@@ -862,14 +868,14 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_last_to_last_mpi) {
     bool flg_data = true;
     bool flg_path = true;
     if ((world.size() > 1) && (dst_proc != 0)) {
-      world.recv(dst_proc, 222, flg_data);
-      world.recv(dst_proc, 333, flg_path);
+      world.recv(dst_proc, Func_test_tags::send_flag_data, flg_data);
+      world.recv(dst_proc, Func_test_tags::send_flag_path, flg_path);
     }
     ASSERT_EQ(flg_data, true);
     ASSERT_EQ(flg_path, true);
   }
 
-  world.barrier();
+  
 }
 
 TEST(voroshilov_v_torus_grid_mpi_func, test_run_random_to_random_mpi) {
@@ -887,18 +893,19 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_random_to_random_mpi) {
     src_proc = generate_rank(world.size());
     dst_proc = generate_rank(world.size());
   }
+  // broadcast() because in other way each process generates its own local src_proc and dst_proc
   boost::mpi::broadcast(world, src_proc, 0);
   boost::mpi::broadcast(world, dst_proc, 0);
   
   if (world.rank() == src_proc) {
     input_data = generate_data(data_size);
     if ((world.size() > 1) && (src_proc != dst_proc)) {
-      world.send(dst_proc, 111, input_data.data(), input_data.size());
+      world.send(dst_proc, Func_test_tags::send_generated_data, input_data.data(), input_data.size());
     }
   }
   if (world.rank() == dst_proc) {
     if ((world.size() > 1) && (src_proc != dst_proc)) {
-      world.recv(src_proc, 111, input_data.data(), input_data.size());
+      world.recv(src_proc, Func_test_tags::send_generated_data, input_data.data(), input_data.size());
     }
   }
 
@@ -943,8 +950,8 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_random_to_random_mpi) {
       }
     }
     if ((world.size() > 1) && (dst_proc != 0)) {
-      world.send(0, 222, flag_data);
-      world.send(0, 333, flag_path);
+      world.send(0, Func_test_tags::send_flag_data, flag_data);
+      world.send(0, Func_test_tags::send_flag_path, flag_path);
     }
   }
 
@@ -952,12 +959,12 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_random_to_random_mpi) {
     bool flg_data = true;
     bool flg_path = true;
     if ((world.size() > 1) && (dst_proc != 0)) {
-      world.recv(dst_proc, 222, flg_data);
-      world.recv(dst_proc, 333, flg_path);
+      world.recv(dst_proc, Func_test_tags::send_flag_data, flg_data);
+      world.recv(dst_proc, Func_test_tags::send_flag_path, flg_path);
     }
     ASSERT_EQ(flg_data, true);
     ASSERT_EQ(flg_path, true);
   }
 
-  world.barrier();
+  
 }
