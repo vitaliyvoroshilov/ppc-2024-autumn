@@ -95,8 +95,10 @@ int voroshilov_v_torus_grid_mpi::select_path_proc(int current_id, int destinatio
   return next_id;
 }
 
-std::pair<int, int> voroshilov_v_torus_grid_mpi::select_terminate_proc(
-    int current_id, int terminate_code, int grid) {
+std::pair<int, int> voroshilov_v_torus_grid_mpi::select_terminate_proc(int current_id, int terminate_code, int grid) {
+  
+  const Commands codes;
+  
   int current_row_id = current_id / grid;
   int current_col_id = current_id % grid;
 
@@ -105,32 +107,32 @@ std::pair<int, int> voroshilov_v_torus_grid_mpi::select_terminate_proc(
 
   int next_terminate_code = terminate_code;
 
-  if (terminate_code == Command::direct_terminate) {
+  if (terminate_code == codes.direct_terminate) {
     // Go forward in row
     if (current_col_id < grid - 1) {
       // Step right in row
       next_row_id = current_row_id;
       next_col_id = current_col_id + 1;
-      next_terminate_code = Command::direct_terminate;
+      next_terminate_code = codes.direct_terminate;
     } else {
       // Step to next row
       next_row_id = current_row_id + 1;
       next_col_id = current_col_id;
-      next_terminate_code = Command::reverse_terminate;
+      next_terminate_code = codes.reverse_terminate;
     }
   }
-  if (terminate_code == Command::reverse_terminate) {
+  if (terminate_code == codes.reverse_terminate) {
     // Go backward in row
     if (current_col_id > 0) {
       // Step left in row
       next_row_id = current_row_id;
       next_col_id = current_col_id - 1;
-      next_terminate_code = Command::reverse_terminate;
+      next_terminate_code = codes.reverse_terminate;
     } else {
       // Step to next row
       next_row_id = current_row_id + 1;
       next_col_id = current_col_id;
-      next_terminate_code = Command::direct_terminate;
+      next_terminate_code = codes.direct_terminate;
     }
   }
 
@@ -195,72 +197,72 @@ bool voroshilov_v_torus_grid_mpi::TorusGridTaskParallel::run() {
   }
 
   if (world.rank() != source_proc) {
-    world.recv(boost::mpi::any_source, Tags::terminate_command, terminate_command);
-    world.recv(boost::mpi::any_source, Tags::current_proc, current_proc);
+    world.recv(boost::mpi::any_source, tags.terminate_command, terminate_command);
+    world.recv(boost::mpi::any_source, tags.current_proc, current_proc);
   } else {
-    terminate_command = Command::send_from_source;
+    terminate_command = commands.send_from_source;
     current_proc = source_proc;
   }
 
-  if (terminate_command == Command::route_to_dest) {
+  if (terminate_command == commands.route_to_dest) {
     // sending data is in progress and we are not source process
 
     size_t buf_size;
-    world.recv(boost::mpi::any_source, Tags::buf_size, buf_size);
+    world.recv(boost::mpi::any_source, tags.buf_size, buf_size);
 
     message.buffer = std::vector<char>(buf_size);
-    world.recv(boost::mpi::any_source, Tags::buffer, message.buffer.data(), buf_size);
+    world.recv(boost::mpi::any_source, tags.buffer, message.buffer.data(), buf_size);
 
     size_t path_size;
-    world.recv(boost::mpi::any_source, Tags::path_size, path_size);
+    world.recv(boost::mpi::any_source, tags.path_size, path_size);
 
     message.path = std::vector<int>(path_size);
-    world.recv(boost::mpi::any_source, Tags::path, message.path.data(), path_size);
+    world.recv(boost::mpi::any_source, tags.path, message.path.data(), path_size);
   }
 
-  if (terminate_command == Command::send_from_source || terminate_command == Command::route_to_dest) {
+  if (terminate_command == commands.send_from_source || terminate_command == commands.route_to_dest) {
     // we are source process || we are router (or destination process)
 
     if (current_proc == destination_proc) {
       message.path.push_back(current_proc);
-      terminate_command = Command::move_to_zero;
+      terminate_command = commands.move_to_zero;
     } else {
       int next_proc = select_path_proc(current_proc, destination_proc, grid_size);
       message.path.push_back(current_proc);
-      world.send(next_proc, Tags::terminate_command, Command::route_to_dest);
-      world.send(next_proc, Tags::current_proc, next_proc);
+      world.send(next_proc, tags.terminate_command, commands.route_to_dest);
+      world.send(next_proc, tags.current_proc, next_proc);
 
-      world.send(next_proc, Tags::buf_size, message.buffer.size());
-      world.send(next_proc, Tags::buffer, message.buffer.data(), message.buffer.size());
-      world.send(next_proc, Tags::path_size, message.path.size());
-      world.send(next_proc, Tags::path, message.path.data(), message.path.size());
+      world.send(next_proc, tags.buf_size, message.buffer.size());
+      world.send(next_proc, tags.buffer, message.buffer.data(), message.buffer.size());
+      world.send(next_proc, tags.path_size, message.path.size());
+      world.send(next_proc, tags.path, message.path.data(), message.path.size());
 
-      world.recv(boost::mpi::any_source, Tags::terminate_command, terminate_command);
-      world.recv(boost::mpi::any_source, Tags::current_proc, current_proc);
+      world.recv(boost::mpi::any_source, tags.terminate_command, terminate_command);
+      world.recv(boost::mpi::any_source, tags.current_proc, current_proc);
     }
   }
 
-  if (terminate_command == Command::move_to_zero) {
+  if (terminate_command == commands.move_to_zero) {
     // sending data is completed and we are moving to process 0
     // in order to start terminating from him but now we are not terminating
 
     int next_proc = select_path_proc(current_proc, 0, grid_size);
     if (current_proc != next_proc) {
       if (next_proc == 0) {
-        world.send(next_proc, Tags::terminate_command, Command::direct_terminate);
-        world.send(next_proc, Tags::current_proc, next_proc);
+        world.send(next_proc, tags.terminate_command, commands.direct_terminate);
+        world.send(next_proc, tags.current_proc, next_proc);
       } else {
-        world.send(next_proc, Tags::terminate_command, Command::move_to_zero);
-        world.send(next_proc, Tags::current_proc, next_proc);
+        world.send(next_proc, tags.terminate_command, commands.move_to_zero);
+        world.send(next_proc, tags.current_proc, next_proc);
       }
-      world.recv(boost::mpi::any_source, Tags::terminate_command, terminate_command);
-      world.recv(boost::mpi::any_source, Tags::current_proc, current_proc);
+      world.recv(boost::mpi::any_source, tags.terminate_command, terminate_command);
+      world.recv(boost::mpi::any_source, tags.current_proc, current_proc);
     } else {
-      terminate_command = Command::direct_terminate;
+      terminate_command = commands.direct_terminate;
     }
   }
 
-  if (terminate_command == Command::direct_terminate || terminate_command == Command::reverse_terminate) {
+  if (terminate_command == commands.direct_terminate || terminate_command == commands.reverse_terminate) {
     // continue terminating in direct way (right and down) || in reverse way (left and down)
 
     if (world.rank() == world.size() - 1 && grid_size % 2 == 1) {
@@ -274,8 +276,8 @@ bool voroshilov_v_torus_grid_mpi::TorusGridTaskParallel::run() {
     std::pair<int, int> next_terminate = select_terminate_proc(current_proc, terminate_command, grid_size);
     int next_proc = next_terminate.first;
     int next_terminate_command = next_terminate.second;
-    world.send(next_proc, Tags::terminate_command, next_terminate_command);
-    world.send(next_proc, Tags::current_proc, next_proc);
+    world.send(next_proc, tags.terminate_command, next_terminate_command);
+    world.send(next_proc, tags.current_proc, next_proc);
     return true;
   }
   return true;
