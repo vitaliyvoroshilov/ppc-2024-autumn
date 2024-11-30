@@ -199,13 +199,13 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_first_to_first_mpi) {
   // ASSERT_EQ() doesnt work if world.rank() != 0 so decided send to process 0 and check there
   if (world.rank() == dst_proc) {
     bool flag_data = true;
-    for (int i = 0; i < output_data.size(); i++) {
+    for (size_t i = 0; i < output_data.size(); i++) {
       if (output_data[i] != input_data[i]) {
         flag_data = false;
       }
     }
     bool flag_path = true;
-    for (int i = 0; i < output_path.size(); i++) {
+    for (size_t i = 0; i < output_path.size(); i++) {
       if (output_path[i] != expected_path[i]) {
         flag_path = false;
       }
@@ -278,13 +278,13 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_first_to_middle_mpi) {
   // ASSERT_EQ() doesnt work if world.rank() != 0 so decided send to process 0 and check there
   if (world.rank() == dst_proc) {
     bool flag_data = true;
-    for (int i = 0; i < output_data.size(); i++) {
+    for (size_t i = 0; i < output_data.size(); i++) {
       if (output_data[i] != input_data[i]) {
         flag_data = false;
       }
     }
     bool flag_path = true;
-    for (int i = 0; i < output_path.size(); i++) {
+    for (size_t i = 0; i < output_path.size(); i++) {
       if (output_path[i] != expected_path[i]) {
         flag_path = false;
       }
@@ -357,13 +357,13 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_first_to_last_mpi) {
   // ASSERT_EQ() doesnt work if world.rank() != 0 so decided send to process 0 and check there
   if (world.rank() == dst_proc) {
     bool flag_data = true;
-    for (int i = 0; i < output_data.size(); i++) {
+    for (size_t i = 0; i < output_data.size(); i++) {
       if (output_data[i] != input_data[i]) {
         flag_data = false;
       }
     }
     bool flag_path = true;
-    for (int i = 0; i < output_path.size(); i++) {
+    for (size_t i = 0; i < output_path.size(); i++) {
       if (output_path[i] != expected_path[i]) {
         flag_path = false;
       }
@@ -436,13 +436,13 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_middle_to_first_mpi) {
   // ASSERT_EQ() doesnt work if world.rank() != 0 so decided send to process 0 and check there
   if (world.rank() == dst_proc) {
     bool flag_data = true;
-    for (int i = 0; i < output_data.size(); i++) {
+    for (size_t i = 0; i < output_data.size(); i++) {
       if (output_data[i] != input_data[i]) {
         flag_data = false;
       }
     }
     bool flag_path = true;
-    for (int i = 0; i < output_path.size(); i++) {
+    for (size_t i = 0; i < output_path.size(); i++) {
       if (output_path[i] != expected_path[i]) {
         flag_path = false;
       }
@@ -515,13 +515,13 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_middle_to_middle_mpi) {
   // ASSERT_EQ() doesnt work if world.rank() != 0 so decided send to process 0 and check there
   if (world.rank() == dst_proc) {
     bool flag_data = true;
-    for (int i = 0; i < output_data.size(); i++) {
+    for (size_t i = 0; i < output_data.size(); i++) {
       if (output_data[i] != input_data[i]) {
         flag_data = false;
       }
     }
     bool flag_path = true;
-    for (int i = 0; i < output_path.size(); i++) {
+    for (size_t i = 0; i < output_path.size(); i++) {
       if (output_path[i] != expected_path[i]) {
         flag_path = false;
       }
@@ -594,13 +594,13 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_middle_to_last_mpi) {
   // ASSERT_EQ() doesnt work if world.rank() != 0 so decided send to process 0 and check there
   if (world.rank() == dst_proc) {
     bool flag_data = true;
-    for (int i = 0; i < output_data.size(); i++) {
+    for (size_t i = 0; i < output_data.size(); i++) {
       if (output_data[i] != input_data[i]) {
         flag_data = false;
       }
     }
     bool flag_path = true;
-    for (int i = 0; i < output_path.size(); i++) {
+    for (size_t i = 0; i < output_path.size(); i++) {
       if (output_path[i] != expected_path[i]) {
         flag_path = false;
       }
@@ -673,13 +673,13 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_last_to_first_mpi) {
   // ASSERT_EQ() doesnt work if world.rank() != 0 so decided send to process 0 and check there
   if (world.rank() == dst_proc) {
     bool flag_data = true;
-    for (int i = 0; i < output_data.size(); i++) {
+    for (size_t i = 0; i < output_data.size(); i++) {
       if (output_data[i] != input_data[i]) {
         flag_data = false;
       }
     }
     bool flag_path = true;
-    for (int i = 0; i < output_path.size(); i++) {
+    for (size_t i = 0; i < output_path.size(); i++) {
       if (output_path[i] != expected_path[i]) {
         flag_path = false;
       }
@@ -752,13 +752,13 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_last_to_middle_mpi) {
   // ASSERT_EQ() doesnt work if world.rank() != 0 so decided send to process 0 and check there
   if (world.rank() == dst_proc) {
     bool flag_data = true;
-    for (int i = 0; i < output_data.size(); i++) {
+    for (size_t i = 0; i < output_data.size(); i++) {
       if (output_data[i] != input_data[i]) {
         flag_data = false;
       }
     }
     bool flag_path = true;
-    for (int i = 0; i < output_path.size(); i++) {
+    for (size_t i = 0; i < output_path.size(); i++) {
       if (output_path[i] != expected_path[i]) {
         flag_path = false;
       }
@@ -831,13 +831,13 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_last_to_last_mpi) {
   // ASSERT_EQ() doesnt work if world.rank() != 0 so decided send to process 0 and check there
   if (world.rank() == dst_proc) {
     bool flag_data = true;
-    for (int i = 0; i < output_data.size(); i++) {
+    for (size_t i = 0; i < output_data.size(); i++) {
       if (output_data[i] != input_data[i]) {
         flag_data = false;
       }
     }
     bool flag_path = true;
-    for (int i = 0; i < output_path.size(); i++) {
+    for (size_t i = 0; i < output_path.size(); i++) {
       if (output_path[i] != expected_path[i]) {
         flag_path = false;
       }
@@ -919,13 +919,13 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_random_to_random_mpi) {
   // ASSERT_EQ() doesnt work if world.rank() != 0 so decided send to process 0 and check there
   if (world.rank() == dst_proc) {
     bool flag_data = true;
-    for (int i = 0; i < output_data.size(); i++) {
+    for (size_t i = 0; i < output_data.size(); i++) {
       if (output_data[i] != input_data[i]) {
         flag_data = false;
       }
     }
     bool flag_path = true;
-    for (int i = 0; i < output_path.size(); i++) {
+    for (size_t i = 0; i < output_path.size(); i++) {
       if (output_path[i] != expected_path[i]) {
         flag_path = false;
       }
