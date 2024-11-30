@@ -62,7 +62,7 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_validation_src_process_not_exists_mp
   boost::mpi::communicator world;
 
   // This task requires a "square" number of processes
-  if (check_grid(world.size()) == false) {
+  if (!check_grid(world.size())) {
     return;
   }
 
@@ -99,7 +99,7 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_validation_dst_process_not_exists_mp
   boost::mpi::communicator world;
 
   // This task requires a "square" number of processes
-  if (check_grid(world.size()) == false) {
+  if (!check_grid(world.size())) {
     return;
   }
 
@@ -136,7 +136,7 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_first_to_first_mpi) {
   boost::mpi::communicator world;
 
   // This task requires a "square" number of processes
-  if (check_grid(world.size()) == false) {
+  if (!check_grid(world.size())) {
     return;
   }
 
@@ -226,7 +226,7 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_first_to_middle_mpi) {
   boost::mpi::communicator world;
 
   // This task requires a "square" number of processes
-  if (check_grid(world.size()) == false) {
+  if (!check_grid(world.size())) {
     return;
   }
 
@@ -316,7 +316,7 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_first_to_last_mpi) {
   boost::mpi::communicator world;
 
   // This task requires a "square" number of processes
-  if (check_grid(world.size()) == false) {
+  if (!check_grid(world.size())) {
     return;
   }
 
@@ -406,7 +406,7 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_middle_to_first_mpi) {
   boost::mpi::communicator world;
 
   // This task requires a "square" number of processes
-  if (check_grid(world.size()) == false) {
+  if (!check_grid(world.size())) {
     return;
   }
 
@@ -496,7 +496,7 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_middle_to_middle_mpi) {
   boost::mpi::communicator world;
 
   // This task requires a "square" number of processes
-  if (check_grid(world.size()) == false) {
+  if (!check_grid(world.size())) {
     return;
   }
 
@@ -586,7 +586,7 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_middle_to_last_mpi) {
   boost::mpi::communicator world;
 
   // This task requires a "square" number of processes
-  if (check_grid(world.size()) == false) {
+  if (!check_grid(world.size())) {
     return;
   }
 
@@ -676,7 +676,7 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_last_to_first_mpi) {
   boost::mpi::communicator world;
 
   // This task requires a "square" number of processes
-  if (check_grid(world.size()) == false) {
+  if (!check_grid(world.size())) {
     return;
   }
 
@@ -766,7 +766,7 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_last_to_middle_mpi) {
   boost::mpi::communicator world;
 
   // This task requires a "square" number of processes
-  if (check_grid(world.size()) == false) {
+  if (!check_grid(world.size())) {
     return;
   }
 
@@ -856,7 +856,7 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_last_to_last_mpi) {
   boost::mpi::communicator world;
 
   // This task requires a "square" number of processes
-  if (check_grid(world.size()) == false) {
+  if (!check_grid(world.size())) {
     return;
   }
 
@@ -946,7 +946,7 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_random_to_random_mpi) {
   boost::mpi::communicator world;
 
   // This task requires a "square" number of processes
-  if (check_grid(world.size()) == false) {
+  if (!check_grid(world.size())) {
     return;
   }
 
