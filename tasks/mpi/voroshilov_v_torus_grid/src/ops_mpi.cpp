@@ -26,7 +26,8 @@ int voroshilov_v_torus_grid_mpi::select_path_proc(int current_id, int destinatio
         if (next_row_id == grid) {
           next_row_id = 0;
         }
-      } else {
+      }
+      if (destination_row_id - current_row_id > grid / 2) {
         // Reverse way
         next_row_id = current_row_id - 1;
         if (next_row_id == -1) {
@@ -43,7 +44,8 @@ int voroshilov_v_torus_grid_mpi::select_path_proc(int current_id, int destinatio
         if (next_row_id == -1) {
           next_row_id = grid - 1;
         }
-      } else {
+      }
+      if (-1 * (destination_row_id - current_row_id) > grid / 2) {
         // Reverse way
         next_row_id = current_row_id + 1;
         if (next_row_id == grid) {
@@ -63,7 +65,8 @@ int voroshilov_v_torus_grid_mpi::select_path_proc(int current_id, int destinatio
         if (next_col_id == grid) {
           next_col_id = 0;
         }
-      } else {
+      }
+      if (destination_col_id - current_col_id > grid / 2) {
         // Reverse way
         next_col_id = current_col_id - 1;
         if (next_col_id == -1) {
@@ -80,7 +83,8 @@ int voroshilov_v_torus_grid_mpi::select_path_proc(int current_id, int destinatio
         if (next_col_id == -1) {
           next_col_id = grid - 1;
         }
-      } else {
+      }
+      if (-1 * (destination_col_id - current_col_id) > grid / 2) {
         // Reverse way
         next_col_id = current_col_id + 1;
         if (next_col_id == grid) {
@@ -113,7 +117,8 @@ std::pair<int, int> voroshilov_v_torus_grid_mpi::select_terminate_proc(int curre
       next_row_id = current_row_id;
       next_col_id = current_col_id + 1;
       next_terminate_code = codes.direct_terminate;
-    } else {
+    }
+    if (current_col_id == grid - 1) {
       // Step to next row
       next_row_id = current_row_id + 1;
       next_col_id = current_col_id;
@@ -127,7 +132,8 @@ std::pair<int, int> voroshilov_v_torus_grid_mpi::select_terminate_proc(int curre
       next_row_id = current_row_id;
       next_col_id = current_col_id - 1;
       next_terminate_code = codes.reverse_terminate;
-    } else {
+    } 
+    if (current_col_id == 0) {
       // Step to next row
       next_row_id = current_row_id + 1;
       next_col_id = current_col_id;
