@@ -132,7 +132,7 @@ std::pair<int, int> voroshilov_v_torus_grid_mpi::select_terminate_proc(int curre
       next_row_id = current_row_id;
       next_col_id = current_col_id - 1;
       next_terminate_code = codes.reverse_terminate;
-    } 
+    }
     if (current_col_id == 0) {
       // Step to next row
       next_row_id = current_row_id + 1;
