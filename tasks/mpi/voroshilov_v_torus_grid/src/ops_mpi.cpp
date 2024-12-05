@@ -99,51 +99,42 @@ int voroshilov_v_torus_grid_mpi::select_path_proc(int current_id, int destinatio
   return next_id;
 }
 
-std::pair<int, int> voroshilov_v_torus_grid_mpi::select_terminate_proc(int current_id, int terminate_code, int grid) {
-  Commands codes{0, 1, 2, 3, 4};
+std::pair<int, int> voroshilov_v_torus_grid_mpi::select_terminate_pair(int current_id, int grid) {
 
   int current_row_id = current_id / grid;
   int current_col_id = current_id % grid;
 
-  int next_row_id = current_row_id;
-  int next_col_id = current_col_id;
+  int right_row_id = -1;
+  int right_col_id = -1;
+  int lower_row_id = -1;
+  int lower_col_id = -1;
 
-  int next_terminate_code = terminate_code;
-
-  if (terminate_code == codes.direct_terminate) {
-    // Go forward in row
-    if (current_col_id < grid - 1) {
-      // Step right in row
-      next_row_id = current_row_id;
-      next_col_id = current_col_id + 1;
-      next_terminate_code = codes.direct_terminate;
-    }
-    if (current_col_id == grid - 1) {
-      // Step to next row
-      next_row_id = current_row_id + 1;
-      next_col_id = current_col_id;
-      next_terminate_code = codes.reverse_terminate;
-    }
+  if ((current_row_id == 0) && (current_col_id < grid - 1)) {
+    // Route command do_terminate to right in first row
+    right_row_id = current_row_id;
+    right_col_id = current_col_id + 1;
   }
-  if (terminate_code == codes.reverse_terminate) {
-    // Go backward in row
-    if (current_col_id > 0) {
-      // Step left in row
-      next_row_id = current_row_id;
-      next_col_id = current_col_id - 1;
-      next_terminate_code = codes.reverse_terminate;
-    }
-    if (current_col_id == 0) {
-      // Step to next row
-      next_row_id = current_row_id + 1;
-      next_col_id = current_col_id;
-      next_terminate_code = codes.direct_terminate;
-    }
+  if (current_row_id < grid - 1) {
+    // Not last row, route command do_terminate to lower in column
+    lower_row_id = current_row_id + 1;
+    lower_col_id = current_col_id;
   }
 
-  int next_id = next_row_id * grid + next_col_id;
-  std::pair<int, int> next_terminate(next_id, next_terminate_code);
-  return next_terminate;
+  int right_id;
+  if ((right_row_id == -1) || (right_col_id == -1)) {
+    right_id = -1;
+  } else {
+    right_id = right_row_id * grid + right_col_id;
+  }
+  int lower_id;
+  if ((lower_row_id == -1) || (lower_col_id == -1)) {
+    lower_id = -1;
+  } else {
+    lower_id = lower_row_id * grid + lower_col_id;
+  }
+
+  std::pair<int, int> terminate_pair(right_id, lower_id);
+  return terminate_pair;
 }
 
 bool voroshilov_v_torus_grid_mpi::TorusGridTaskParallel::validation() {
@@ -162,12 +153,10 @@ bool voroshilov_v_torus_grid_mpi::TorusGridTaskParallel::validation() {
       return false;
     };
     // Check if there is n^2 processes to build grid
-    for (int i = 0; i <= world_size; i++) {
-      if (world_size == i * i) {
-        return true;
-      }
+    int n = std::sqrt(world_size);
+    if (n * n != world_size) {
+      return false;
     }
-    return false;
   }
   return true;
 }
@@ -184,14 +173,10 @@ bool voroshilov_v_torus_grid_mpi::TorusGridTaskParallel::pre_processing() {
     auto* ptr = reinterpret_cast<char*>(taskData->inputs[0]);
     std::copy(ptr, ptr + taskData->inputs_count[2], buffer.begin());
   }
-  int proc_count = world.size();
-  for (int i = 0; i < proc_count; i++) {
-    if (proc_count == i * i) {
-      grid_size = i;
-    }
-  }
+  int world_size = world.size();
+  grid_size = std::sqrt(world_size);
 
-  commands = {0, 1, 2, 3, 4};
+  commands = {0, 1, 2, 3};
 
   tags = {0, 1, 2, 3, 4, 5};
 
@@ -259,7 +244,7 @@ bool voroshilov_v_torus_grid_mpi::TorusGridTaskParallel::run() {
     int next_proc = select_path_proc(current_proc, 0, grid_size);
     if (current_proc != next_proc) {
       if (next_proc == 0) {
-        world.send(next_proc, tags.terminate_command, commands.direct_terminate);
+        world.send(next_proc, tags.terminate_command, commands.do_terminate);
         world.send(next_proc, tags.current_proc, next_proc);
       } else {
         world.send(next_proc, tags.terminate_command, commands.move_to_zero);
@@ -268,27 +253,28 @@ bool voroshilov_v_torus_grid_mpi::TorusGridTaskParallel::run() {
       world.recv(boost::mpi::any_source, tags.terminate_command, terminate_command);
       world.recv(boost::mpi::any_source, tags.current_proc, current_proc);
     } else {
-      terminate_command = commands.direct_terminate;
+      terminate_command = commands.do_terminate;
     }
   }
 
-  if (terminate_command == commands.direct_terminate || terminate_command == commands.reverse_terminate) {
-    // continue terminating in direct way (right and down) || in reverse way (left and down)
+  if (terminate_command == commands.do_terminate) {
+    // continue terminating processes
 
-    if (world.rank() == world.size() - 1 && grid_size % 2 == 1) {
-      // It is last process to terminate if grid_size is odd number
-      return true;
+    std::pair<int, int> terminate_pair = select_terminate_pair(current_proc, grid_size);
+
+    int right_proc = terminate_pair.first;
+    if (right_proc > -1) {
+      // If its first row and not last column send do_terminate command to right
+      world.send(right_proc, tags.terminate_command, commands.do_terminate);
+      world.send(right_proc, tags.current_proc, right_proc);
     }
-    if (world.rank() == world.size() - grid_size && grid_size % 2 == 0) {
-      // It is last process to terminate if grid_size is even number
-      return true;
+
+    int lower_proc = terminate_pair.second;
+    if (lower_proc > -1) {
+      // If its not last row send do_terminate command to lower
+      world.send(lower_proc, tags.terminate_command, commands.do_terminate);
+      world.send(lower_proc, tags.current_proc, lower_proc);
     }
-    std::pair<int, int> next_terminate = select_terminate_proc(current_proc, terminate_command, grid_size);
-    int next_proc = next_terminate.first;
-    int next_terminate_command = next_terminate.second;
-    world.send(next_proc, tags.terminate_command, next_terminate_command);
-    world.send(next_proc, tags.current_proc, next_proc);
-    return true;
   }
   return true;
 }

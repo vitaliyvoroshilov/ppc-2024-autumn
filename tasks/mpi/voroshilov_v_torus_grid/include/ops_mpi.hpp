@@ -18,8 +18,7 @@ struct Commands {
   int send_from_source;
   int route_to_dest;
   int move_to_zero;
-  int direct_terminate;
-  int reverse_terminate;
+  int do_terminate;
 };
 
 struct Tags {
@@ -32,7 +31,7 @@ struct Tags {
 };
 
 int select_path_proc(int current_id, int destination_id, int grid);
-std::pair<int, int> select_terminate_proc(int current_id, int terminate_code, int grid);
+std::pair<int, int> select_terminate_pair(int current_id, int grid);
 
 class TorusGridTaskParallel : public ppc::core::Task {
  public:

@@ -48,12 +48,11 @@ std::vector<int> calculate_expected_path(int source_id, int destination_id, int 
 }
 
 bool check_grid(int world_size) {
-  for (int i = 0; i < world_size; i++) {
-    if (world_size == i * i) {
-      return true;
-    }
+  int n = std::sqrt(world_size);
+  if (n * n != world_size) {
+    return false;
   }
-  return false;
+  return true;
 }
 
 TEST(voroshilov_v_torus_grid_mpi_perf, test_pipeline_run_mpi) {
