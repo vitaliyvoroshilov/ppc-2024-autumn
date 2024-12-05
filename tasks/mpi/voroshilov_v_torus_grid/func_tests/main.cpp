@@ -48,11 +48,12 @@ std::vector<int> calculate_expected_path(int source_id, int destination_id, int 
 }
 
 bool check_grid(int world_size) {
+  bool res = true;
   int n = std::sqrt(world_size);
   if (n * n != world_size) {
-    return false;
+    res = false;
   }
-  return true;
+  return res;
 }
 
 TEST(voroshilov_v_torus_grid_mpi_func, test_validation_src_process_not_exists_mpi) {
@@ -93,7 +94,7 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_validation_src_process_not_exists_mp
 }
 
 TEST(voroshilov_v_torus_grid_mpi_func, test_validation_dst_process_not_exists_mpi) {
-  int data_size = 99989; // prime number
+  int data_size = 99989;  // prime number
 
   boost::mpi::communicator world;
 
@@ -220,7 +221,7 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_first_to_first_mpi) {
 }
 
 TEST(voroshilov_v_torus_grid_mpi_func, test_run_first_to_middle_mpi) {
-  int data_size = 65536; // 2 ^ 16
+  int data_size = 65536;  // 2 ^ 16
 
   boost::mpi::communicator world;
 
@@ -400,7 +401,7 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_first_to_last_mpi) {
 }
 
 TEST(voroshilov_v_torus_grid_mpi_func, test_run_middle_to_first_mpi) {
-  int data_size = 99989; // prime number
+  int data_size = 99989;  // prime number
 
   boost::mpi::communicator world;
 
@@ -580,7 +581,7 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_middle_to_middle_mpi) {
 }
 
 TEST(voroshilov_v_torus_grid_mpi_func, test_run_middle_to_last_mpi) {
-  int data_size = 65536; // 2 ^ 16
+  int data_size = 65536;  // 2 ^ 16
 
   boost::mpi::communicator world;
 
@@ -760,7 +761,7 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_last_to_first_mpi) {
 }
 
 TEST(voroshilov_v_torus_grid_mpi_func, test_run_last_to_middle_mpi) {
-  int data_size = 99989; // prime number
+  int data_size = 99989;  // prime number
 
   boost::mpi::communicator world;
 
@@ -940,7 +941,7 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_last_to_last_mpi) {
 }
 
 TEST(voroshilov_v_torus_grid_mpi_func, test_run_random_to_random_2powerN_mpi) {
-  int data_size = 65536; // 2 ^ 16
+  int data_size = 65536;  // 2 ^ 16
 
   boost::mpi::communicator world;
 
@@ -1039,7 +1040,7 @@ TEST(voroshilov_v_torus_grid_mpi_func, test_run_random_to_random_2powerN_mpi) {
 }
 
 TEST(voroshilov_v_torus_grid_mpi_func, test_run_random_to_random_prime_mpi) {
-  int data_size = 99989; // prime number
+  int data_size = 99989;  // prime number
 
   boost::mpi::communicator world;
 

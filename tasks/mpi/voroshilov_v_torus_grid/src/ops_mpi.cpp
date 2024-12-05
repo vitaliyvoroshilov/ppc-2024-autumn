@@ -100,7 +100,6 @@ int voroshilov_v_torus_grid_mpi::select_path_proc(int current_id, int destinatio
 }
 
 std::pair<int, int> voroshilov_v_torus_grid_mpi::select_terminate_pair(int current_id, int grid) {
-
   int current_row_id = current_id / grid;
   int current_col_id = current_id % grid;
 
