@@ -147,15 +147,16 @@ bool voroshilov_v_torus_grid_mpi::TorusGridTaskParallel::validation() {
     return false;
   }
 
+  // Check if there is n^2 processes to build grid
+  int n = sqrt(world_size);
+  if (n * n != world_size) {
+    return false;
+  }
+
   if (world.rank() == src) {
     if ((taskData->inputs_count[2] <= 0) || (taskData->outputs_count[0] <= 0)) {
       return false;
     };
-    // Check if there is n^2 processes to build grid
-    int n = std::sqrt(world_size);
-    if (n * n != world_size) {
-      return false;
-    }
   }
   return true;
 }

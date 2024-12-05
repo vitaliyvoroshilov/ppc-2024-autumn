@@ -49,7 +49,7 @@ std::vector<int> calculate_expected_path(int source_id, int destination_id, int 
 
 bool check_grid(int world_size) {
   bool res = true;
-  int n = std::sqrt(world_size);
+  int n = sqrt(world_size);
   if (n * n != world_size) {
     res = false;
   }
