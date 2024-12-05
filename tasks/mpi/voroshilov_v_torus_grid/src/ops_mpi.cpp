@@ -4,7 +4,9 @@
 #include <functional>
 #include <string>
 #include <thread>
+#include <cmath>
 #include <vector>
+
 
 int voroshilov_v_torus_grid_mpi::select_path_proc(int current_id, int destination_id, int grid) {
   int destination_row_id = destination_id / grid;
@@ -174,7 +176,7 @@ bool voroshilov_v_torus_grid_mpi::TorusGridTaskParallel::pre_processing() {
     std::copy(ptr, ptr + taskData->inputs_count[2], buffer.begin());
   }
   int world_size = world.size();
-  grid_size = std::sqrt(world_size);
+  grid_size = sqrt(world_size);
 
   commands = {0, 1, 2, 3};
 
