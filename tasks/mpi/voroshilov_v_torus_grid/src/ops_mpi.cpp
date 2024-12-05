@@ -7,7 +7,6 @@
 #include <thread>
 #include <vector>
 
-
 int voroshilov_v_torus_grid_mpi::select_path_proc(int current_id, int destination_id, int grid) {
   int destination_row_id = destination_id / grid;
   int destination_col_id = destination_id % grid;
