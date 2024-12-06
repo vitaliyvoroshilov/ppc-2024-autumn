@@ -155,9 +155,15 @@ bool voroshilov_v_torus_grid_mpi::TorusGridTaskParallel::validation() {
   }
 
   if (world.rank() == src) {
-    if ((taskData->inputs_count[2] <= 0) || (taskData->outputs_count[0] <= 0)) {
+    if (taskData->inputs_count[2] <= 0) {
       return false;
     };
+  }
+
+  if (world.rank() == dst) {
+    if (taskData->outputs_count[0] <= 0) {
+      return false;
+    }
   }
   return true;
 }

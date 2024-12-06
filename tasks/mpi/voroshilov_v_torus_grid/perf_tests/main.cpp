@@ -28,15 +28,16 @@ std::vector<char> generate_data(size_t size) {
   return vector;
 }
 
-std::vector<int> calculate_expected_path(int source_id, int destination_id, int processes_count) {
-  int grid = 0;
-  for (int i = 0; i <= processes_count; i++) {
-    if (i * i == processes_count) {
-      grid = i;
-    }
+std::vector<int> calculate_expected_path(int source_id, int destination_id, int world_size) {
+  std::vector<int> path;
+
+  int grid = sqrt(world_size);
+
+  if ((source_id >= world_size) || (destination_id >= world_size)) {
+    path.push_back(-1);
+    return path;
   }
 
-  std::vector<int> path;
   int next_id = source_id;
   path.push_back(next_id);
   while (next_id != destination_id) {
@@ -57,9 +58,11 @@ bool check_grid(int world_size) {
 }
 
 TEST(voroshilov_v_torus_grid_mpi_perf, test_pipeline_run_mpi) {
-  int data_size = 100000;
-
   boost::mpi::communicator world;
+
+  int data_size = 100000;
+  int src_proc = 0;
+  int dst_proc = 0;
 
   // This task requires a "square" number of processes
   if (!check_grid(world.size())) {
@@ -72,11 +75,10 @@ TEST(voroshilov_v_torus_grid_mpi_perf, test_pipeline_run_mpi) {
     int send_flag_path = 102;
   } perf_tags;
 
-  std::vector<char> input_data(data_size);
-  std::vector<char> output_data(data_size);
-
-  int src_proc = 0;
-  int dst_proc = 0;
+  std::vector<char> input_data;
+  std::vector<char> output_data;
+  std::vector<int> expected_path;
+  std::vector<int> output_path;
 
   if (world.rank() == 0) {
     src_proc = generate_rank(world.size());
@@ -93,26 +95,30 @@ TEST(voroshilov_v_torus_grid_mpi_perf, test_pipeline_run_mpi) {
     }
   }
   if (world.rank() == dst_proc) {
+    input_data = std::vector<char>(data_size);
+    output_data = std::vector<char>(data_size);
+    expected_path = calculate_expected_path(src_proc, dst_proc, world.size());
+    output_path = std::vector<int>(expected_path.size());
     if ((world.size() > 1) && (src_proc != dst_proc)) {
       world.recv(src_proc, perf_tags.send_generated_data, input_data.data(), input_data.size());
     }
   }
-
-  std::vector<int> expected_path = calculate_expected_path(src_proc, dst_proc, world.size());
-  std::vector<int> output_path(expected_path.size());
 
   std::shared_ptr<ppc::core::TaskData> taskDataPar = std::make_shared<ppc::core::TaskData>();
 
   taskDataPar->inputs_count.emplace_back(src_proc);
   taskDataPar->inputs_count.emplace_back(dst_proc);
 
-  if ((world.rank() == src_proc) || (world.rank() == dst_proc)) {
+  if (world.rank() == src_proc) {
     taskDataPar->inputs_count.emplace_back(input_data.size());
+    taskDataPar->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_data.data()));
+  }
 
+  if (world.rank() == dst_proc) {
+    taskDataPar->inputs_count.emplace_back(input_data.size());
     taskDataPar->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_data.data()));
 
     taskDataPar->outputs_count.emplace_back(output_data.size());
-
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_data.data()));
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_path.data()));
   }
@@ -170,9 +176,11 @@ TEST(voroshilov_v_torus_grid_mpi_perf, test_pipeline_run_mpi) {
 }
 
 TEST(voroshilov_v_torus_grid_mpi_perf, test_task_run_mpi) {
-  int data_size = 100000;
-
   boost::mpi::communicator world;
+
+  int data_size = 100000;
+  int src_proc = 0;
+  int dst_proc = 0;
 
   // This task requires a "square" number of processes
   if (!check_grid(world.size())) {
@@ -185,11 +193,10 @@ TEST(voroshilov_v_torus_grid_mpi_perf, test_task_run_mpi) {
     int send_flag_path = 102;
   } perf_tags;
 
-  std::vector<char> input_data(data_size);
-  std::vector<char> output_data(data_size);
-
-  int src_proc = 0;
-  int dst_proc = 0;
+  std::vector<char> input_data;
+  std::vector<char> output_data;
+  std::vector<int> expected_path;
+  std::vector<int> output_path;
 
   if (world.rank() == 0) {
     src_proc = generate_rank(world.size());
@@ -206,26 +213,30 @@ TEST(voroshilov_v_torus_grid_mpi_perf, test_task_run_mpi) {
     }
   }
   if (world.rank() == dst_proc) {
+    input_data = std::vector<char>(data_size);
+    output_data = std::vector<char>(data_size);
+    expected_path = calculate_expected_path(src_proc, dst_proc, world.size());
+    output_path = std::vector<int>(expected_path.size());
     if ((world.size() > 1) && (src_proc != dst_proc)) {
       world.recv(src_proc, perf_tags.send_generated_data, input_data.data(), input_data.size());
     }
   }
-
-  std::vector<int> expected_path = calculate_expected_path(src_proc, dst_proc, world.size());
-  std::vector<int> output_path(expected_path.size());
 
   std::shared_ptr<ppc::core::TaskData> taskDataPar = std::make_shared<ppc::core::TaskData>();
 
   taskDataPar->inputs_count.emplace_back(src_proc);
   taskDataPar->inputs_count.emplace_back(dst_proc);
 
-  if ((world.rank() == src_proc) || (world.rank() == dst_proc)) {
+  if (world.rank() == src_proc) {
     taskDataPar->inputs_count.emplace_back(input_data.size());
+    taskDataPar->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_data.data()));
+  }
 
+  if (world.rank() == dst_proc) {
+    taskDataPar->inputs_count.emplace_back(input_data.size());
     taskDataPar->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_data.data()));
 
     taskDataPar->outputs_count.emplace_back(output_data.size());
-
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_data.data()));
     taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_path.data()));
   }
