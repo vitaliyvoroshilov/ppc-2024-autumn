@@ -104,7 +104,7 @@ bool validation_test(int data_count, int source_id, int destination_id) {
   }
 
   voroshilov_v_torus_grid_mpi::TorusGridTaskParallel torusGridTaskParallel(taskDataPar);
-  
+
   return torusGridTaskParallel.validation();
 }
 
