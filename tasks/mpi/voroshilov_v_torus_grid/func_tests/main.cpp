@@ -69,12 +69,6 @@ bool validation_test(int data_count, int source_id, int destination_id) {
     return false;
   }
 
-  struct Func_tags {
-    int send_generated_data = 10;
-    int send_flag_data = 11;
-    int send_flag_path = 12;
-  } func_tags;
-
   std::vector<char> input_data;
   std::vector<char> output_data;
   std::vector<int> expected_path;
@@ -110,11 +104,8 @@ bool validation_test(int data_count, int source_id, int destination_id) {
   }
 
   voroshilov_v_torus_grid_mpi::TorusGridTaskParallel torusGridTaskParallel(taskDataPar);
-  if (!torusGridTaskParallel.validation()) {
-    return false;
-  }
-
-  return true;
+  
+  return torusGridTaskParallel.validation();
 }
 
 bool full_test(int data_count, int source_id, int destination_id) {
