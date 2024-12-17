@@ -2,18 +2,30 @@
 
 #include <string>
 #include <vector>
+#include <cmath>
 
 #include "core/task/include/task.hpp"
 
 namespace voroshilov_v_bivariate_optimization_by_area_seq {
 
+struct Point {
+ public:
+  double x;
+  double y;
+
+  Point(double x_ = 0, double y_ = 0) {
+    x = x_;
+    y = y_;
+  }
+};
+
 struct Monomial {
-public:
-  int coef;
+ public:
+  double coef;
   int deg_x;
   int deg_y;
 
-  Monomial(int coef_, int deg_x_, int deg_y_) {
+  Monomial(double coef_, int deg_x_, int deg_y_) {
     coef = coef_;
     deg_x = deg_x_;
     deg_y = deg_y_;
@@ -22,33 +34,53 @@ public:
   Monomial(std::vector<char> monom) {
     size_t i = 0;
     std::string str_coef = "";
-    while (monom[i] != 'x') {
+    while ((i < monom.size()) && (monom[i] != 'x')) {
       str_coef += monom[i];
       i++;
     }
-    i += 2;
-
-    std::string str_degx = "";
-    while (monom[i] != 'y') {
-      str_degx += monom[i];
-      i++;
+    if (str_coef.length() > 0) {
+      if (str_coef == "-") {
+        coef = -1.0;
+      } else if (str_coef == "+") {
+        coef = 1.0;
+      } else {
+        coef = std::stod(str_coef);
+      }
     }
-    i += 2;
-
-    std::string str_degy = "";
-    while (i < monom.size()) {
-      str_degy += monom[i];
-      i++;
+    if (str_coef.length() == 0) {
+      coef = 1.0;
     }
 
-    coef = std::stoi(str_coef);
-    deg_x = std::stoi(str_degx);
-    deg_y = std::stoi(str_degy);
+    if (i == monom.size()) {
+      deg_x = 0;
+      deg_y = 0;
+    } else {
+      i += 2;
+      std::string str_degx = "";
+      while (monom[i] != 'y') {
+        str_degx += monom[i];
+        i++;
+      }
+      deg_x = std::stoi(str_degx);
+
+      i += 2;
+      std::string str_degy = "";
+      while (i < monom.size()) {
+        str_degy += monom[i];
+        i++;
+      }
+      deg_y = std::stoi(str_degy);
+    }
+  }
+
+  double calculate(Point point) {
+    double res = coef * pow(point.x, deg_x) * pow(point.y, deg_y);
+    return res;
   }
 };
 
 struct Polynomial {
-public:
+ public:
   int length;
   std::vector<Monomial> monomials;
 
@@ -65,39 +97,36 @@ public:
       monom.push_back(polynom[i]);
       i++;
       while ((i < polynom.size()) && (polynom[i] != '+') && (polynom[i] != '-')) {
-          monom.push_back(polynom[i]);
-          i++;
+        monom.push_back(polynom[i]);
+        i++;
       }
       Monomial mnm(monom);
       monomials.push_back(mnm);
       length++;
     }
   }
+
+  double calculate(Point point) {
+    double res = 0.0;
+    for (int i = 0; i < length; i++) {
+      res += monomials[i].calculate(point);
+    }
+    return res;
+  }
 };
 
 struct Search_area {
 public:
-  int min_value;
-  int max_value;
+  double min_value;
+  double max_value;
+  int steps_count;
 
-  Search_area(int min_value_ = 0, int max_value_ = 0) {
+  Search_area(double min_value_ = 0, double max_value_ = 0, int steps_count_ = 0) {
     min_value = min_value_;
     max_value = max_value_;
+    steps_count = steps_count_;
   }
 };
-
-struct Point {
-public:
-  int x;
-  int y;
-
-  Point(int x_ = 0, int y_ = 0) {
-    x = x_;
-    y = y_;
-  }
-};
-
-int calculate_function(std::string function, Point point);
 
 class OptimizationTaskSequential : public ppc::core::Task {
  public:
