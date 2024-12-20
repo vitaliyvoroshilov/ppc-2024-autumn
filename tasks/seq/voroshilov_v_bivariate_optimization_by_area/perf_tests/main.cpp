@@ -1,31 +1,54 @@
-// Copyright 2023 Nesterov Alexander
 #include <gtest/gtest.h>
 
-#include <vector>
-
 #include "core/perf/include/perf.hpp"
-#include "seq/example/include/ops_seq.hpp"
+#include "seq/voroshilov_v_bivariate_optimization_by_area/include/ops_seq.hpp"
 
-TEST(sequential_example_perf_test, test_pipeline_run) {
-  const int count = 100;
+TEST(voroshilov_v_bivariate_optimization_by_area_seq_perf, test_pipeline_run) {
+  std::string q_str = "x^2y^0 +x^0y^2";  // paraboloid x^2+y^2, increases from point (0;0)
+  std::vector<char> q_vec(q_str.length());
+  std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
-  // Create data
-  std::vector<int> in(1, count);
-  std::vector<int> out(1, 0);
+  std::vector<double> areas_vec({-5.0, 5.0, -5.0, 5.0});
+  std::vector<int> steps_vec({5000, 5000});
 
-  // Create TaskData
+  std::string g_str1 = "-x^1y^0 +1";  // x >= 1
+  std::vector<char> g_vec1(g_str1.length());
+  std::copy(g_str1.begin(), g_str1.end(), g_vec1.begin());
+  std::string g_str2 = "-x^0y^1 +1";  // y >= 1
+  std::vector<char> g_vec2(g_str2.length());
+  std::copy(g_str2.begin(), g_str2.end(), g_vec2.begin());
+  std::vector<std::vector<char>> g_vec({g_vec1, g_vec2});
+  int g_count = g_vec.size();
+
   std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  taskDataSeq->inputs_count.emplace_back(in.size());
-  taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  taskDataSeq->outputs_count.emplace_back(out.size());
 
-  // Create Task
-  auto testTaskSequential = std::make_shared<nesterov_a_test_task_seq::TestTaskSequential>(taskDataSeq);
+  // Criterium-function:
+  taskDataSeq->inputs_count.emplace_back(q_vec.size());
+  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(q_vec.data()));
+  // Search area boundaries:
+  taskDataSeq->inputs_count.emplace_back(areas_vec.size());
+  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(areas_vec.data()));
+  // Steps counts (how many points will be used):
+  taskDataSeq->inputs_count.emplace_back(steps_vec.size());
+  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(steps_vec.data()));
+  // Count of constraints-functions:
+  taskDataSeq->inputs_count.emplace_back(1);
+  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&g_count));
+  // Constraints-functions:
+  for (int i = 0; i < g_vec.size(); i++) {
+    taskDataSeq->inputs_count.emplace_back(g_vec[i].size());
+    taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(g_vec[i].data()));
+  }
+  // Output - optimum point and value:
+  std::vector<double> optimum_vec(3);
+  taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(optimum_vec.data()));
+
+  auto optimizationTaskSequential =
+      std::make_shared<voroshilov_v_bivariate_optimization_by_area_seq::OptimizationTaskSequential>(taskDataSeq);
 
   // Create Perf attributes
   auto perfAttr = std::make_shared<ppc::core::PerfAttr>();
-  perfAttr->num_running = 10;
+  perfAttr->num_running = 1;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perfAttr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
@@ -37,32 +60,67 @@ TEST(sequential_example_perf_test, test_pipeline_run) {
   auto perfResults = std::make_shared<ppc::core::PerfResults>();
 
   // Create Perf analyzer
-  auto perfAnalyzer = std::make_shared<ppc::core::Perf>(testTaskSequential);
+  auto perfAnalyzer = std::make_shared<ppc::core::Perf>(optimizationTaskSequential);
   perfAnalyzer->pipeline_run(perfAttr, perfResults);
   ppc::core::Perf::print_perf_statistic(perfResults);
-  ASSERT_EQ(count, out[0]);
+
+  double optimum_x = optimum_vec[0];
+  double optimum_y = optimum_vec[1];
+  double optimum_value = optimum_vec[2];
+
+  double eps = 0.1;
+
+  ASSERT_NEAR(optimum_x, 1.0, eps);
+  ASSERT_NEAR(optimum_y, 1.0, eps);
+  ASSERT_NEAR(optimum_value, 2.0, eps);
 }
 
-TEST(sequential_example_perf_test, test_task_run) {
-  const int count = 100;
+TEST(voroshilov_v_bivariate_optimization_by_area_seq_perf, test_task_run) {
+  std::string q_str = "x^2y^0 +x^0y^2";  // paraboloid x^2+y^2, increases from point (0;0)
+  std::vector<char> q_vec(q_str.length());
+  std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
-  // Create data
-  std::vector<int> in(1, count);
-  std::vector<int> out(1, 0);
+  std::vector<double> areas_vec({-5.0, 5.0, -5.0, 5.0});
+  std::vector<int> steps_vec({5000, 5000});
 
-  // Create TaskData
+  std::string g_str1 = "-x^1y^0 +1";  // x >= 1
+  std::vector<char> g_vec1(g_str1.length());
+  std::copy(g_str1.begin(), g_str1.end(), g_vec1.begin());
+  std::string g_str2 = "-x^0y^1 +1";  // y >= 1
+  std::vector<char> g_vec2(g_str2.length());
+  std::copy(g_str2.begin(), g_str2.end(), g_vec2.begin());
+  std::vector<std::vector<char>> g_vec({g_vec1, g_vec2});
+  int g_count = g_vec.size();
+
   std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  taskDataSeq->inputs_count.emplace_back(in.size());
-  taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  taskDataSeq->outputs_count.emplace_back(out.size());
 
-  // Create Task
-  auto testTaskSequential = std::make_shared<nesterov_a_test_task_seq::TestTaskSequential>(taskDataSeq);
+  // Criterium-function:
+  taskDataSeq->inputs_count.emplace_back(q_vec.size());
+  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(q_vec.data()));
+  // Search area boundaries:
+  taskDataSeq->inputs_count.emplace_back(areas_vec.size());
+  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(areas_vec.data()));
+  // Steps counts (how many points will be used):
+  taskDataSeq->inputs_count.emplace_back(steps_vec.size());
+  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(steps_vec.data()));
+  // Count of constraints-functions:
+  taskDataSeq->inputs_count.emplace_back(1);
+  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&g_count));
+  // Constraints-functions:
+  for (int i = 0; i < g_vec.size(); i++) {
+    taskDataSeq->inputs_count.emplace_back(g_vec[i].size());
+    taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(g_vec[i].data()));
+  }
+  // Output - optimum point and value:
+  std::vector<double> optimum_vec(3);
+  taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(optimum_vec.data()));
+
+  auto optimizationTaskSequential =
+      std::make_shared<voroshilov_v_bivariate_optimization_by_area_seq::OptimizationTaskSequential>(taskDataSeq);
 
   // Create Perf attributes
   auto perfAttr = std::make_shared<ppc::core::PerfAttr>();
-  perfAttr->num_running = 10;
+  perfAttr->num_running = 1;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perfAttr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
@@ -74,13 +132,17 @@ TEST(sequential_example_perf_test, test_task_run) {
   auto perfResults = std::make_shared<ppc::core::PerfResults>();
 
   // Create Perf analyzer
-  auto perfAnalyzer = std::make_shared<ppc::core::Perf>(testTaskSequential);
+  auto perfAnalyzer = std::make_shared<ppc::core::Perf>(optimizationTaskSequential);
   perfAnalyzer->task_run(perfAttr, perfResults);
   ppc::core::Perf::print_perf_statistic(perfResults);
-  ASSERT_EQ(count, out[0]);
-}
 
-int main(int argc, char **argv) {
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
+  double optimum_x = optimum_vec[0];
+  double optimum_y = optimum_vec[1];
+  double optimum_value = optimum_vec[2];
+
+  double eps = 0.1;
+
+  ASSERT_NEAR(optimum_x, 1.0, eps);
+  ASSERT_NEAR(optimum_y, 1.0, eps);
+  ASSERT_NEAR(optimum_value, 2.0, eps);
 }

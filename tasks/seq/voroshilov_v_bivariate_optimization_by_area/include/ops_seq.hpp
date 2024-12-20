@@ -1,8 +1,8 @@
 #pragma once
 
+#include <cmath>
 #include <string>
 #include <vector>
-#include <cmath>
 
 #include "core/task/include/task.hpp"
 
@@ -32,7 +32,7 @@ struct Monomial {
   }
 
   Monomial(std::vector<char> monom) {
-    size_t i = 0;
+    int i = 0;
     std::string str_coef = "";
     while ((i < monom.size()) && (monom[i] != 'x')) {
       str_coef += monom[i];
@@ -84,6 +84,8 @@ struct Polynomial {
   int length;
   std::vector<Monomial> monomials;
 
+  Polynomial() { length = 0; }
+
   Polynomial(int length_, std::vector<Monomial> monomials_) {
     length = length_;
     monomials = monomials_;
@@ -91,15 +93,16 @@ struct Polynomial {
 
   Polynomial(std::vector<char> polynom) {
     length = 0;
-    size_t i = 0;
+    int i = 0;
     while (i < polynom.size()) {
       std::vector<char> monom;
       monom.push_back(polynom[i]);
       i++;
-      while ((i < polynom.size()) && (polynom[i] != '+') && (polynom[i] != '-')) {
+      while ((i < polynom.size()) && (polynom[i] != ' ')) {
         monom.push_back(polynom[i]);
         i++;
       }
+      i++;  // skip ' '
       Monomial mnm(monom);
       monomials.push_back(mnm);
       length++;
@@ -116,7 +119,7 @@ struct Polynomial {
 };
 
 struct Search_area {
-public:
+ public:
   double min_value;
   double max_value;
   int steps_count;
@@ -137,14 +140,14 @@ class OptimizationTaskSequential : public ppc::core::Task {
   bool post_processing() override;
 
  private:
-  std::vector<char> q; // criterion function
-  std::vector<std::vector<char>> g; // constraints functions
+  Polynomial q;               // criterium function
+  std::vector<Polynomial> g;  // constraints functions
 
   Search_area x_area;
   Search_area y_area;
 
   Point optimum_point;
-  int optimum_value;
+  double optimum_value;
 };
 
 }  // namespace voroshilov_v_bivariate_optimization_by_area_seq

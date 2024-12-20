@@ -14,36 +14,168 @@
 
 namespace voroshilov_v_bivariate_optimization_by_area_mpi {
 
-std::vector<int> getRandomVector(int sz);
-
-class TestMPITaskSequential : public ppc::core::Task {
+struct Point {
  public:
-  explicit TestMPITaskSequential(std::shared_ptr<ppc::core::TaskData> taskData_, std::string ops_)
-      : Task(std::move(taskData_)), ops(std::move(ops_)) {}
-  bool pre_processing() override;
-  bool validation() override;
-  bool run() override;
-  bool post_processing() override;
+  double x;
+  double y;
 
- private:
-  std::vector<int> input_;
-  int res{};
-  std::string ops;
+  Point(double x_ = 0, double y_ = 0) {
+    x = x_;
+    y = y_;
+  }
 };
 
-class TestMPITaskParallel : public ppc::core::Task {
+struct Monomial {
  public:
-  explicit TestMPITaskParallel(std::shared_ptr<ppc::core::TaskData> taskData_, std::string ops_)
+  double coef;
+  int deg_x;
+  int deg_y;
+
+  Monomial(double coef_, int deg_x_, int deg_y_) {
+    coef = coef_;
+    deg_x = deg_x_;
+    deg_y = deg_y_;
+  }
+
+  Monomial(std::vector<char> monom) {
+    int i = 0;
+    std::string str_coef = "";
+    while ((i < monom.size()) && (monom[i] != 'x')) {
+      str_coef += monom[i];
+      i++;
+    }
+    if (str_coef.length() > 0) {
+      if (str_coef == "-") {
+        coef = -1.0;
+      } else if (str_coef == "+") {
+        coef = 1.0;
+      } else {
+        coef = std::stod(str_coef);
+      }
+    }
+    if (str_coef.length() == 0) {
+      coef = 1.0;
+    }
+
+    if (i == monom.size()) {
+      deg_x = 0;
+      deg_y = 0;
+    } else {
+      i += 2;
+      std::string str_degx = "";
+      while (monom[i] != 'y') {
+        str_degx += monom[i];
+        i++;
+      }
+      deg_x = std::stoi(str_degx);
+
+      i += 2;
+      std::string str_degy = "";
+      while (i < monom.size()) {
+        str_degy += monom[i];
+        i++;
+      }
+      deg_y = std::stoi(str_degy);
+    }
+  }
+
+  double calculate(Point point) {
+    double res = coef * pow(point.x, deg_x) * pow(point.y, deg_y);
+    return res;
+  }
+};
+
+struct Polynomial {
+ public:
+  int length;
+  std::vector<Monomial> monomials;
+
+  Polynomial() { length = 0; }
+
+  Polynomial(int length_, std::vector<Monomial> monomials_) {
+    length = length_;
+    monomials = monomials_;
+  }
+
+  Polynomial(std::vector<char> polynom) {
+    length = 0;
+    int i = 0;
+    while (i < polynom.size()) {
+      std::vector<char> monom;
+      monom.push_back(polynom[i]);
+      i++;
+      while ((i < polynom.size()) && (polynom[i] != ' ')) {
+        monom.push_back(polynom[i]);
+        i++;
+      }
+      i++;  // skip ' '
+      Monomial mnm(monom);
+      monomials.push_back(mnm);
+      length++;
+    }
+  }
+
+  double calculate(Point point) {
+    double res = 0.0;
+    for (int i = 0; i < length; i++) {
+      res += monomials[i].calculate(point);
+    }
+    return res;
+  }
+};
+
+struct Search_area {
+ public:
+  double min_value;
+  double max_value;
+  int steps_count;
+
+  Search_area(double min_value_ = 0, double max_value_ = 0, int steps_count_ = 0) {
+    min_value = min_value_;
+    max_value = max_value_;
+    steps_count = steps_count_;
+  }
+};
+
+class OptimizationMPITaskSequential : public ppc::core::Task {
+ public:
+  explicit OptimizationMPITaskSequential(std::shared_ptr<ppc::core::TaskData> taskData_, std::string ops_)
       : Task(std::move(taskData_)), ops(std::move(ops_)) {}
-  bool pre_processing() override;
   bool validation() override;
+  bool pre_processing() override;
   bool run() override;
   bool post_processing() override;
 
  private:
-  std::vector<int> input_, local_input_;
-  int res{};
-  std::string ops;
+  Polynomial q;               // criterium function
+  std::vector<Polynomial> g;  // constraints functions
+
+  Search_area x_area;
+  Search_area y_area;
+
+  Point optimum_point;
+  double optimum_value;
+};
+
+class OptimizationMPITaskParallel : public ppc::core::Task {
+ public:
+  explicit OptimizationMPITaskParallel(std::shared_ptr<ppc::core::TaskData> taskData_, std::string ops_)
+      : Task(std::move(taskData_)), ops(std::move(ops_)) {}
+  bool validation() override;
+  bool pre_processing() override;
+  bool run() override;
+  bool post_processing() override;
+
+ private:
+  Polynomial q;               // criterium function
+  std::vector<Polynomial> g;  // constraints functions
+
+  Search_area x_area;
+  Search_area y_area;
+
+  Point optimum_point;
+  double optimum_value;
+
   boost::mpi::communicator world;
 };
 
