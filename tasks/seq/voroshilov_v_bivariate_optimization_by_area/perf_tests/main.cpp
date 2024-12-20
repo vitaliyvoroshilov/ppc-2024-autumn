@@ -18,7 +18,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_perf, test_pipeline_run) {
   std::vector<char> g_vec2(g_str2.length());
   std::copy(g_str2.begin(), g_str2.end(), g_vec2.begin());
   std::vector<std::vector<char>> g_vec({g_vec1, g_vec2});
-  int g_count = g_vec.size();
+  size_t g_count = g_vec.size();
 
   std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
 
@@ -35,7 +35,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_perf, test_pipeline_run) {
   taskDataSeq->inputs_count.emplace_back(1);
   taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&g_count));
   // Constraints-functions:
-  for (int i = 0; i < g_vec.size(); i++) {
+  for (size_t i = 0; i < g_vec.size(); i++) {
     taskDataSeq->inputs_count.emplace_back(g_vec[i].size());
     taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(g_vec[i].data()));
   }
@@ -90,7 +90,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_perf, test_task_run) {
   std::vector<char> g_vec2(g_str2.length());
   std::copy(g_str2.begin(), g_str2.end(), g_vec2.begin());
   std::vector<std::vector<char>> g_vec({g_vec1, g_vec2});
-  int g_count = g_vec.size();
+  size_t g_count = g_vec.size();
 
   std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
 
@@ -107,7 +107,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_perf, test_task_run) {
   taskDataSeq->inputs_count.emplace_back(1);
   taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&g_count));
   // Constraints-functions:
-  for (int i = 0; i < g_vec.size(); i++) {
+  for (size_t i = 0; i < g_vec.size(); i++) {
     taskDataSeq->inputs_count.emplace_back(g_vec[i].size());
     taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(g_vec[i].data()));
   }

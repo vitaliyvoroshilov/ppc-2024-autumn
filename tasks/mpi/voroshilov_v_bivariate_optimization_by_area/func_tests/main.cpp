@@ -5,7 +5,7 @@
 
 #include "mpi/voroshilov_v_bivariate_optimization_by_area/include/ops_mpi.hpp"
 
-bool validation_test_mpi(boost::mpi::communicator comm, std::vector<char> q_vec, int g_count,
+bool validation_test_mpi(boost::mpi::communicator comm, std::vector<char> q_vec, size_t g_count,
                          std::vector<std::vector<char>> g_vec, std::vector<double> areas_vec,
                          std::vector<int> steps_vec) {
   std::shared_ptr<ppc::core::TaskData> taskDataParallel = std::make_shared<ppc::core::TaskData>();
@@ -17,7 +17,7 @@ bool validation_test_mpi(boost::mpi::communicator comm, std::vector<char> q_vec,
   taskDataParallel->inputs_count.emplace_back(1);
   taskDataParallel->inputs.emplace_back(reinterpret_cast<uint8_t *>(&g_count));
   // Constraints-functions:
-  for (int i = 0; i < g_vec.size(); i++) {
+  for (size_t i = 0; i < g_vec.size(); i++) {
     taskDataParallel->inputs_count.emplace_back(g_vec[i].size());
     taskDataParallel->inputs.emplace_back(reinterpret_cast<uint8_t *>(g_vec[i].data()));
   }
@@ -37,7 +37,7 @@ bool validation_test_mpi(boost::mpi::communicator comm, std::vector<char> q_vec,
   return optimizationMPITaskParallel.validation();
 }
 
-bool validation_test_seq(std::vector<char> q_vec, int g_count, std::vector<std::vector<char>> g_vec,
+bool validation_test_seq(std::vector<char> q_vec, size_t g_count, std::vector<std::vector<char>> g_vec,
                          std::vector<double> areas_vec, std::vector<int> steps_vec) {
   std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
 
@@ -48,7 +48,7 @@ bool validation_test_seq(std::vector<char> q_vec, int g_count, std::vector<std::
   taskDataSeq->inputs_count.emplace_back(1);
   taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&g_count));
   // Constraints-functions:
-  for (int i = 0; i < g_vec.size(); i++) {
+  for (size_t i = 0; i < g_vec.size(); i++) {
     taskDataSeq->inputs_count.emplace_back(g_vec[i].size());
     taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(g_vec[i].data()));
   }
@@ -83,7 +83,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_empty
   std::vector<char> g_vec2(g_str2.length());
   std::copy(g_str2.begin(), g_str2.end(), g_vec2.begin());
   std::vector<std::vector<char>> g_vec({g_vec1, g_vec2});
-  int g_count = g_vec.size();
+  size_t g_count = g_vec.size();
 
   // Search areas:
   std::vector<double> areas_vec({-10.0, 10.0, -10.0, 10.0});
@@ -113,7 +113,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incor
   std::vector<char> g_vec2(g_str2.length());
   std::copy(g_str2.begin(), g_str2.end(), g_vec2.begin());
   std::vector<std::vector<char>> g_vec({g_vec1, g_vec2});
-  int g_count = g_vec.size();
+  size_t g_count = g_vec.size();
 
   // Search areas:
   std::vector<double> areas_vec({-10.0, 10.0, -10.0});
@@ -143,7 +143,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incor
   std::vector<char> g_vec2(g_str2.length());
   std::copy(g_str2.begin(), g_str2.end(), g_vec2.begin());
   std::vector<std::vector<char>> g_vec({g_vec1, g_vec2});
-  int g_count = g_vec.size();
+  size_t g_count = g_vec.size();
 
   // Search areas:
   std::vector<double> areas_vec({-10.0, -20.0, -10.0, 10.0});
@@ -173,7 +173,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incor
   std::vector<char> g_vec2(g_str2.length());
   std::copy(g_str2.begin(), g_str2.end(), g_vec2.begin());
   std::vector<std::vector<char>> g_vec({g_vec1, g_vec2});
-  int g_count = g_vec.size();
+  size_t g_count = g_vec.size();
 
   // Search areas:
   std::vector<double> areas_vec({-10.0, 10.0, -10.0, 10.0});
@@ -203,7 +203,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incor
   std::vector<char> g_vec2(g_str2.length());
   std::copy(g_str2.begin(), g_str2.end(), g_vec2.begin());
   std::vector<std::vector<char>> g_vec({g_vec1, g_vec2});
-  int g_count = g_vec.size();
+  size_t g_count = g_vec.size();
 
   // Search areas:
   std::vector<double> areas_vec({-10.0, 10.0, -10.0, 10.0});
@@ -233,7 +233,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incor
   std::vector<char> g_vec2(g_str2.length());
   std::copy(g_str2.begin(), g_str2.end(), g_vec2.begin());
   std::vector<std::vector<char>> g_vec({g_vec1, g_vec2});
-  int g_count = 33;
+  size_t g_count = 33;
 
   // Search areas:
   std::vector<double> areas_vec({-10.0, 10.0, -10.0, 10.0});
@@ -247,7 +247,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incor
   }
 }
 
-double run_test_mpi(boost::mpi::communicator comm, std::vector<char> q_vec, int g_count,
+double run_test_mpi(boost::mpi::communicator comm, std::vector<char> q_vec, size_t g_count,
                     std::vector<std::vector<char>> g_vec, std::vector<double> areas_vec, std::vector<int> steps_vec) {
   std::shared_ptr<ppc::core::TaskData> taskDataParallel = std::make_shared<ppc::core::TaskData>();
 
@@ -258,7 +258,7 @@ double run_test_mpi(boost::mpi::communicator comm, std::vector<char> q_vec, int 
   taskDataParallel->inputs_count.emplace_back(1);
   taskDataParallel->inputs.emplace_back(reinterpret_cast<uint8_t *>(&g_count));
   // Constraints-functions:
-  for (int i = 0; i < g_vec.size(); i++) {
+  for (size_t i = 0; i < g_vec.size(); i++) {
     taskDataParallel->inputs_count.emplace_back(g_vec[i].size());
     taskDataParallel->inputs.emplace_back(reinterpret_cast<uint8_t *>(g_vec[i].data()));
   }
@@ -285,7 +285,7 @@ double run_test_mpi(boost::mpi::communicator comm, std::vector<char> q_vec, int 
   return optimum_value;
 }
 
-double run_test_seq(std::vector<char> q_vec, int g_count, std::vector<std::vector<char>> g_vec,
+double run_test_seq(std::vector<char> q_vec, size_t g_count, std::vector<std::vector<char>> g_vec,
                     std::vector<double> areas_vec, std::vector<int> steps_vec) {
   std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
 
@@ -296,7 +296,7 @@ double run_test_seq(std::vector<char> q_vec, int g_count, std::vector<std::vecto
   taskDataSeq->inputs_count.emplace_back(1);
   taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&g_count));
   // Constraints-functions:
-  for (int i = 0; i < g_vec.size(); i++) {
+  for (size_t i = 0; i < g_vec.size(); i++) {
     taskDataSeq->inputs_count.emplace_back(g_vec[i].size());
     taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(g_vec[i].data()));
   }
@@ -330,7 +330,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_zero_fu
 
   // Constraints-functions:
   std::vector<std::vector<char>> g_vec;
-  int g_count = g_vec.size();
+  size_t g_count = g_vec.size();
 
   // Search areas:
   std::vector<double> areas_vec({-10.0, 10.0, -10.0, 10.0});
@@ -366,7 +366,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_zero_fu
   std::vector<char> g_vec2(g_str2.length());
   std::copy(g_str2.begin(), g_str2.end(), g_vec2.begin());
   std::vector<std::vector<char>> g_vec({g_vec1, g_vec2});
-  int g_count = g_vec.size();
+  size_t g_count = g_vec.size();
 
   // Search areas:
   std::vector<double> areas_vec({-10.0, 10.0, -10.0, 10.0});
@@ -396,7 +396,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_parabol
 
   // Constraints-functions:
   std::vector<std::vector<char>> g_vec;
-  int g_count = g_vec.size();
+  size_t g_count = g_vec.size();
 
   // Search areas:
   std::vector<double> areas_vec({-5.0, 5.0, -5.0, 5.0});
@@ -432,7 +432,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_parabol
   std::vector<char> g_vec2(g_str2.length());
   std::copy(g_str2.begin(), g_str2.end(), g_vec2.begin());
   std::vector<std::vector<char>> g_vec({g_vec1, g_vec2});
-  int g_count = g_vec.size();
+  size_t g_count = g_vec.size();
 
   // Search areas:
   std::vector<double> areas_vec({-5.0, 5.0, -5.0, 5.0});
@@ -462,7 +462,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_parabol
 
   // Constraints-functions:
   std::vector<std::vector<char>> g_vec;
-  int g_count = g_vec.size();
+  size_t g_count = g_vec.size();
 
   // Search areas:
   std::vector<double> areas_vec({-5.0, 5.0, -5.0, 5.0});
@@ -498,7 +498,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_parabol
   std::vector<char> g_vec2(g_str2.length());
   std::copy(g_str2.begin(), g_str2.end(), g_vec2.begin());
   std::vector<std::vector<char>> g_vec({g_vec1, g_vec2});
-  int g_count = g_vec.size();
+  size_t g_count = g_vec.size();
 
   // Search areas:
   std::vector<double> areas_vec({-5.0, 5.0, -5.0, 5.0});
@@ -528,7 +528,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_shifted
 
   // Constraints-functions:
   std::vector<std::vector<char>> g_vec;
-  int g_count = g_vec.size();
+  size_t g_count = g_vec.size();
 
   // Search areas:
   std::vector<double> areas_vec({-10.0, 10.0, -10.0, 10.0});
@@ -567,7 +567,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_shifted
   std::vector<char> g_vec3(g_str3.length());
   std::copy(g_str3.begin(), g_str3.end(), g_vec3.begin());
   std::vector<std::vector<char>> g_vec({g_vec1, g_vec2, g_vec3});
-  int g_count = g_vec.size();
+  size_t g_count = g_vec.size();
 
   // Search areas:
   std::vector<double> areas_vec({-10.0, 10.0, -10.0, 10.0});
@@ -597,7 +597,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_large_d
 
   // Constraints-functions:
   std::vector<std::vector<char>> g_vec;
-  int g_count = g_vec.size();
+  size_t g_count = g_vec.size();
 
   // Search areas:
   std::vector<double> areas_vec({-2.0, 2.0, -2.0, 2.0});
@@ -633,7 +633,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_large_d
   std::vector<char> g_vec2(g_str2.length());
   std::copy(g_str2.begin(), g_str2.end(), g_vec2.begin());
   std::vector<std::vector<char>> g_vec({g_vec1, g_vec2});
-  int g_count = g_vec.size();
+  size_t g_count = g_vec.size();
 
   // Search areas:
   std::vector<double> areas_vec({-2.0, 2.0, -2.0, 2.0});
@@ -664,7 +664,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_odd_deg
 
   // Constraints-functions:
   std::vector<std::vector<char>> g_vec;
-  int g_count = g_vec.size();
+  size_t g_count = g_vec.size();
 
   // Search areas:
   std::vector<double> areas_vec({0.0, 2.0, 0.0, 2.0});  // areas changed to find min!!!
@@ -701,7 +701,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_odd_deg
   std::vector<char> g_vec2(g_str2.length());
   std::copy(g_str2.begin(), g_str2.end(), g_vec2.begin());
   std::vector<std::vector<char>> g_vec({g_vec1, g_vec2});
-  int g_count = g_vec.size();
+  size_t g_count = g_vec.size();
 
   // Search areas:
   std::vector<double> areas_vec({-2.0, 2.0, -2.0, 2.0});
@@ -731,7 +731,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_negativ
 
   // Constraints-functions:
   std::vector<std::vector<char>> g_vec;
-  int g_count = g_vec.size();
+  size_t g_count = g_vec.size();
 
   // Search areas:
   std::vector<double> areas_vec({-15.0, 0.0, -10.0, 10.0});  // areas changed to find min!!!
@@ -770,7 +770,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_negativ
   std::vector<char> g_vec3(g_str3.length());
   std::copy(g_str3.begin(), g_str3.end(), g_vec3.begin());
   std::vector<std::vector<char>> g_vec({g_vec1, g_vec2, g_vec3});
-  int g_count = g_vec.size();
+  size_t g_count = g_vec.size();
 
   // Search areas:
   std::vector<double> areas_vec({-15.0, 0.0, -10.0, 10.0});  // areas changed to find min!!!

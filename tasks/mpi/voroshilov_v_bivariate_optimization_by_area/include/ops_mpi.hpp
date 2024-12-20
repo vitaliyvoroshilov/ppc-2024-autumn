@@ -44,7 +44,7 @@ struct Monomial {
   }
 
   Monomial(std::vector<char> monom) {
-    int i = 0;
+    size_t i = 0;
     std::string str_coef = "";
     while ((i < monom.size()) && (monom[i] != 'x')) {
       str_coef += monom[i];
@@ -93,19 +93,19 @@ struct Monomial {
 
 struct Polynomial {
  public:
-  int length;
+  size_t length;
   std::vector<Monomial> monomials;
 
   Polynomial() { length = 0; }
 
-  Polynomial(int length_, std::vector<Monomial> monomials_) {
+  Polynomial(size_t length_, std::vector<Monomial> monomials_) {
     length = length_;
     monomials = monomials_;
   }
 
   Polynomial(std::vector<char> polynom) {
     length = 0;
-    int i = 0;
+    size_t i = 0;
     while (i < polynom.size()) {
       std::vector<char> monom;
       monom.push_back(polynom[i]);
@@ -123,7 +123,7 @@ struct Polynomial {
 
   double calculate(Point point) {
     double res = 0.0;
-    for (int i = 0; i < length; i++) {
+    for (size_t i = 0; i < length; i++) {
       res += monomials[i].calculate(point);
     }
     return res;

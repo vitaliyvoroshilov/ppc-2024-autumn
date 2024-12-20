@@ -38,7 +38,7 @@ bool voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskSequent
     return false;
   }
   // constraints count is not equal as it is:
-  int g_count = *reinterpret_cast<int*>(taskData->inputs[3]);
+  size_t g_count = *reinterpret_cast<size_t*>(taskData->inputs[3]);
   if (g_count != (taskData->inputs).size() - 4) {
     return false;
   }
@@ -55,10 +55,10 @@ bool voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskSequent
   std::copy(q_ptr, q_ptr + taskData->inputs_count[0], q_vec.begin());
   q = Polynomial(q_vec);
 
-  int g_count = *reinterpret_cast<int*>(taskData->inputs[1]);
+  size_t g_count = *reinterpret_cast<int*>(taskData->inputs[1]);
 
   // constraints-functions:
-  for (int i = 2; i < 2 + g_count; i++) {
+  for (size_t i = 2; i < 2 + g_count; i++) {
     char* g_ptr = reinterpret_cast<char*>(taskData->inputs[i]);
     std::vector<char> current_g_vec(taskData->inputs_count[i]);
     std::copy(g_ptr, g_ptr + taskData->inputs_count[i], current_g_vec.begin());
@@ -107,12 +107,12 @@ bool voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskSequent
   // Finding minimum in this vector of points:
 
   // Find first point satisfied constraints:
-  int index = 0;
+  size_t index = 0;
   bool flag_in_area = false;
   while ((index < points.size()) && (flag_in_area == false)) {
     // Check if constraints is satisfied:
     flag_in_area = true;
-    for (int j = 0; j < g.size(); j++) {
+    for (size_t j = 0; j < g.size(); j++) {
       if (g[j].calculate(points[index]) > 0) {
         flag_in_area = false;
         break;
@@ -120,16 +120,16 @@ bool voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskSequent
     }
     index++;
   }
-  int first_satisfied = index;  // it is first candidate for optimum
+  size_t first_satisfied = index;  // it is first candidate for optimum
   optimum_point = points[first_satisfied];
   optimum_value = q.calculate(points[first_satisfied]);
 
   // Start search from this point:
-  for (int i = first_satisfied + 1; i < points.size(); i++) {
+  for (size_t i = first_satisfied + 1; i < points.size(); i++) {
     double current_value = q.calculate(points[i]);
     // Check if constraints is satisfied:
     flag_in_area = true;
-    for (int j = 0; j < g.size(); j++) {
+    for (size_t j = 0; j < g.size(); j++) {
       if (g[j].calculate(points[i]) > 0) {
         flag_in_area = false;
         break;
@@ -195,7 +195,7 @@ bool voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskParalle
       return false;
     }
     // constraints count is not equal as it is:
-    int g_count = *reinterpret_cast<int*>(taskData->inputs[3]);
+    size_t g_count = *reinterpret_cast<size_t*>(taskData->inputs[3]);
     if (g_count != (taskData->inputs).size() - 4) {
       return false;
     }
@@ -212,10 +212,10 @@ bool voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskParalle
   std::copy(q_ptr, q_ptr + taskData->inputs_count[0], q_vec.begin());
   q = Polynomial(q_vec);
 
-  int g_count = *reinterpret_cast<int*>(taskData->inputs[1]);
+  size_t g_count = *reinterpret_cast<int*>(taskData->inputs[1]);
 
   // constraints-functions:
-  for (int i = 2; i < 2 + g_count; i++) {
+  for (size_t i = 2; i < 2 + g_count; i++) {
     char* g_ptr = reinterpret_cast<char*>(taskData->inputs[i]);
     std::vector<char> current_g_vec(taskData->inputs_count[i]);
     std::copy(g_ptr, g_ptr + taskData->inputs_count[i], current_g_vec.begin());
@@ -279,7 +279,7 @@ bool voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskParalle
   std::vector<int> parts(world.size(), part);
   std::vector<int> offsets(world.size());
 
-  for (int i = 0; i < world.size(); i++) {
+  for (size_t i = 0; i < world.size(); i++) {
     if (remainder > 0) {
       parts[i]++;
       remainder--;
@@ -297,12 +297,12 @@ bool voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskParalle
   // Finding minimum in local vector of points:
 
   // Find first point satisfied constraints:
-  int index = 0;
+  size_t index = 0;
   bool flag_in_area = false;
   while ((index < local_points.size()) && (flag_in_area == false)) {
     // Check if constraints is satisfied:
     flag_in_area = true;
-    for (int j = 0; j < g.size(); j++) {
+    for (size_t j = 0; j < g.size(); j++) {
       if (g[j].calculate(local_points[index]) > 0) {
         flag_in_area = false;
         break;
@@ -322,11 +322,11 @@ bool voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskParalle
   }
 
   // Start search from this point:
-  for (int i = first_satisfied + 1; i < local_points.size(); i++) {
+  for (size_t i = first_satisfied + 1; i < local_points.size(); i++) {
     double current_value = q.calculate(local_points[i]);
     // Check if constraints is satisfied:
     flag_in_area = true;
-    for (int j = 0; j < g.size(); j++) {
+    for (size_t j = 0; j < g.size(); j++) {
       if (g[j].calculate(local_points[i]) > 0) {
         flag_in_area = false;
         break;

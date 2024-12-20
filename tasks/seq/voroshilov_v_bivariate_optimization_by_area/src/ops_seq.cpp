@@ -36,7 +36,7 @@ bool voroshilov_v_bivariate_optimization_by_area_seq::OptimizationTaskSequential
     return false;
   }
   // constraints count is not equal as it is:
-  int g_count = *reinterpret_cast<int*>(taskData->inputs[3]);
+  size_t g_count = *reinterpret_cast<int*>(taskData->inputs[3]);
   if (g_count != (taskData->inputs).size() - 4) {
     return false;
   }
@@ -68,10 +68,10 @@ bool voroshilov_v_bivariate_optimization_by_area_seq::OptimizationTaskSequential
   x_area = Search_area(x_min, x_max, x_steps);
   y_area = Search_area(y_min, y_max, y_steps);
 
-  int g_count = *reinterpret_cast<int*>(taskData->inputs[3]);
+  size_t g_count = *reinterpret_cast<int*>(taskData->inputs[3]);
 
   // constraints-functions:
-  for (int i = 4; i < 4 + g_count; i++) {
+  for (size_t i = 4; i < 4 + g_count; i++) {
     char* g_ptr = reinterpret_cast<char*>(taskData->inputs[i]);
     std::vector<char> current_g_vec(taskData->inputs_count[i]);
     std::copy(g_ptr, g_ptr + taskData->inputs_count[i], current_g_vec.begin());
@@ -105,12 +105,12 @@ bool voroshilov_v_bivariate_optimization_by_area_seq::OptimizationTaskSequential
   // Finding minimum in this vector of points:
 
   // Find first point satisfied constraints:
-  int index = 0;
+  size_t index = 0;
   bool flag_in_area = false;
   while ((index < points.size()) && (flag_in_area == false)) {
     // Check if constraints is satisfied:
     flag_in_area = true;
-    for (int j = 0; j < g.size(); j++) {
+    for (size_t j = 0; j < g.size(); j++) {
       if (g[j].calculate(points[index]) > 0) {
         flag_in_area = false;
         break;
@@ -123,11 +123,11 @@ bool voroshilov_v_bivariate_optimization_by_area_seq::OptimizationTaskSequential
   optimum_value = q.calculate(points[first_satisfied]);
 
   // Start search from this point:
-  for (int i = first_satisfied + 1; i < points.size(); i++) {
+  for (size_t i = first_satisfied + 1; i < points.size(); i++) {
     double current_value = q.calculate(points[i]);
     // Check if constraints is satisfied:
     flag_in_area = true;
-    for (int j = 0; j < g.size(); j++) {
+    for (size_t j = 0; j < g.size(); j++) {
       if (g[j].calculate(points[i]) > 0) {
         flag_in_area = false;
         break;
