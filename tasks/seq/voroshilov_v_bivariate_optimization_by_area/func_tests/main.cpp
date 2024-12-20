@@ -151,8 +151,8 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_validation_incor
   ASSERT_FALSE(validation_test(q_vec, areas_vec, steps_vec, g_count, g_vec));
 }
 
-std::vector<double> task_run_test(std::vector<char> q_vec, std::vector<double> areas_vec, std::vector<int> steps_vec,
-                                  int g_count, std::vector<std::vector<char>> g_vec) {
+std::vector<double> run_test(std::vector<char> q_vec, std::vector<double> areas_vec, std::vector<int> steps_vec,
+                             int g_count, std::vector<std::vector<char>> g_vec) {
   std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
 
   // Criterium-function:
@@ -196,7 +196,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_zero_fu
   std::vector<std::vector<char>> g_vec;
   int g_count = g_vec.size();
 
-  std::vector<double> optimum_vec = task_run_test(q_vec, areas_vec, steps_vec, g_count, g_vec);
+  std::vector<double> optimum_vec = run_test(q_vec, areas_vec, steps_vec, g_count, g_vec);
 
   double optimum_value = optimum_vec[2];
 
@@ -222,7 +222,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_zero_fu
   std::vector<std::vector<char>> g_vec({g_vec1, g_vec2});
   int g_count = g_vec.size();
 
-  std::vector<double> optimum_vec = task_run_test(q_vec, areas_vec, steps_vec, g_count, g_vec);
+  std::vector<double> optimum_vec = run_test(q_vec, areas_vec, steps_vec, g_count, g_vec);
 
   double optimum_x = optimum_vec[0];
   double optimum_y = optimum_vec[1];
@@ -246,7 +246,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_parabol
   std::vector<std::vector<char>> g_vec;
   int g_count = g_vec.size();
 
-  std::vector<double> optimum_vec = task_run_test(q_vec, areas_vec, steps_vec, g_count, g_vec);
+  std::vector<double> optimum_vec = run_test(q_vec, areas_vec, steps_vec, g_count, g_vec);
 
   double optimum_x = optimum_vec[0];
   double optimum_y = optimum_vec[1];
@@ -276,7 +276,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_parabol
   std::vector<std::vector<char>> g_vec({g_vec1, g_vec2});
   int g_count = g_vec.size();
 
-  std::vector<double> optimum_vec = task_run_test(q_vec, areas_vec, steps_vec, g_count, g_vec);
+  std::vector<double> optimum_vec = run_test(q_vec, areas_vec, steps_vec, g_count, g_vec);
 
   double optimum_x = optimum_vec[0];
   double optimum_y = optimum_vec[1];
@@ -300,7 +300,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_parabol
   std::vector<std::vector<char>> g_vec;
   int g_count = g_vec.size();
 
-  std::vector<double> optimum_vec = task_run_test(q_vec, areas_vec, steps_vec, g_count, g_vec);
+  std::vector<double> optimum_vec = run_test(q_vec, areas_vec, steps_vec, g_count, g_vec);
 
   double optimum_x = optimum_vec[0];
   double optimum_y = optimum_vec[1];
@@ -330,7 +330,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_parabol
   std::vector<std::vector<char>> g_vec({g_vec1, g_vec2});
   int g_count = g_vec.size();
 
-  std::vector<double> optimum_vec = task_run_test(q_vec, areas_vec, steps_vec, g_count, g_vec);
+  std::vector<double> optimum_vec = run_test(q_vec, areas_vec, steps_vec, g_count, g_vec);
 
   double optimum_x = optimum_vec[0];
   double optimum_y = optimum_vec[1];
@@ -354,7 +354,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_shifted
   std::vector<std::vector<char>> g_vec;
   int g_count = g_vec.size();
 
-  std::vector<double> optimum_vec = task_run_test(q_vec, areas_vec, steps_vec, g_count, g_vec);
+  std::vector<double> optimum_vec = run_test(q_vec, areas_vec, steps_vec, g_count, g_vec);
 
   double optimum_x = optimum_vec[0];
   double optimum_y = optimum_vec[1];
@@ -387,7 +387,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_shifted
   std::vector<std::vector<char>> g_vec({g_vec1, g_vec2, g_vec3});
   int g_count = g_vec.size();
 
-  std::vector<double> optimum_vec = task_run_test(q_vec, areas_vec, steps_vec, g_count, g_vec);
+  std::vector<double> optimum_vec = run_test(q_vec, areas_vec, steps_vec, g_count, g_vec);
 
   double optimum_x = optimum_vec[0];
   double optimum_y = optimum_vec[1];
@@ -411,7 +411,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_large_d
   std::vector<std::vector<char>> g_vec;
   int g_count = g_vec.size();
 
-  std::vector<double> optimum_vec = task_run_test(q_vec, areas_vec, steps_vec, g_count, g_vec);
+  std::vector<double> optimum_vec = run_test(q_vec, areas_vec, steps_vec, g_count, g_vec);
 
   double optimum_x = optimum_vec[0];
   double optimum_y = optimum_vec[1];
@@ -441,7 +441,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_large_d
   std::vector<std::vector<char>> g_vec({g_vec1, g_vec2});
   int g_count = g_vec.size();
 
-  std::vector<double> optimum_vec = task_run_test(q_vec, areas_vec, steps_vec, g_count, g_vec);
+  std::vector<double> optimum_vec = run_test(q_vec, areas_vec, steps_vec, g_count, g_vec);
 
   double optimum_x = optimum_vec[0];
   double optimum_y = optimum_vec[1];
@@ -466,7 +466,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_odd_deg
   std::vector<std::vector<char>> g_vec;
   int g_count = g_vec.size();
 
-  std::vector<double> optimum_vec = task_run_test(q_vec, areas_vec, steps_vec, g_count, g_vec);
+  std::vector<double> optimum_vec = run_test(q_vec, areas_vec, steps_vec, g_count, g_vec);
 
   double optimum_x = optimum_vec[0];
   double optimum_y = optimum_vec[1];
@@ -497,7 +497,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_odd_deg
   std::vector<std::vector<char>> g_vec({g_vec1, g_vec2});
   int g_count = g_vec.size();
 
-  std::vector<double> optimum_vec = task_run_test(q_vec, areas_vec, steps_vec, g_count, g_vec);
+  std::vector<double> optimum_vec = run_test(q_vec, areas_vec, steps_vec, g_count, g_vec);
 
   double optimum_x = optimum_vec[0];
   double optimum_y = optimum_vec[1];
@@ -521,7 +521,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_negativ
   std::vector<std::vector<char>> g_vec;
   int g_count = g_vec.size();
 
-  std::vector<double> optimum_vec = task_run_test(q_vec, areas_vec, steps_vec, g_count, g_vec);
+  std::vector<double> optimum_vec = run_test(q_vec, areas_vec, steps_vec, g_count, g_vec);
 
   double optimum_value = optimum_vec[2];
 
@@ -550,7 +550,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_negativ
   std::vector<std::vector<char>> g_vec({g_vec1, g_vec2, g_vec3});
   int g_count = g_vec.size();
 
-  std::vector<double> optimum_vec = task_run_test(q_vec, areas_vec, steps_vec, g_count, g_vec);
+  std::vector<double> optimum_vec = run_test(q_vec, areas_vec, steps_vec, g_count, g_vec);
 
   double optimum_x = optimum_vec[0];
   double optimum_y = optimum_vec[1];

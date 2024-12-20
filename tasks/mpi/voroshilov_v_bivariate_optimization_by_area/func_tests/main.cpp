@@ -1,239 +1,791 @@
-// Copyright 2023 Nesterov Alexander
 #include <gtest/gtest.h>
 
 #include <boost/mpi/communicator.hpp>
 #include <boost/mpi/environment.hpp>
-#include <vector>
 
-#include "mpi/example/include/ops_mpi.hpp"
+#include "mpi/voroshilov_v_bivariate_optimization_by_area/include/ops_mpi.hpp"
 
-TEST(Parallel_Operations_MPI, Test_Sum) {
-  boost::mpi::communicator world;
-  std::vector<int> global_vec;
-  std::vector<int32_t> global_sum(1, 0);
-  // Create TaskData
-  std::shared_ptr<ppc::core::TaskData> taskDataPar = std::make_shared<ppc::core::TaskData>();
+bool validation_test_mpi(boost::mpi::communicator comm, std::vector<char> q_vec, int g_count,
+                         std::vector<std::vector<char>> g_vec, std::vector<double> areas_vec,
+                         std::vector<int> steps_vec) {
+  std::shared_ptr<ppc::core::TaskData> taskDataParallel = std::make_shared<ppc::core::TaskData>();
 
-  if (world.rank() == 0) {
-    const int count_size_vector = 120;
-    global_vec = nesterov_a_test_task_mpi::getRandomVector(count_size_vector);
-    taskDataPar->inputs.emplace_back(reinterpret_cast<uint8_t*>(global_vec.data()));
-    taskDataPar->inputs_count.emplace_back(global_vec.size());
-    taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(global_sum.data()));
-    taskDataPar->outputs_count.emplace_back(global_sum.size());
+  // Criterium-function:
+  taskDataParallel->inputs_count.emplace_back(q_vec.size());
+  taskDataParallel->inputs.emplace_back(reinterpret_cast<uint8_t *>(q_vec.data()));
+  // Count of constraints-functions:
+  taskDataParallel->inputs_count.emplace_back(1);
+  taskDataParallel->inputs.emplace_back(reinterpret_cast<uint8_t *>(&g_count));
+  // Constraints-functions:
+  for (int i = 0; i < g_vec.size(); i++) {
+    taskDataParallel->inputs_count.emplace_back(g_vec[i].size());
+    taskDataParallel->inputs.emplace_back(reinterpret_cast<uint8_t *>(g_vec[i].data()));
   }
+  double optimum_value = DBL_MAX;
+  if (comm.rank() == 0) {
+    // Search area boundaries:
+    taskDataParallel->inputs_count.emplace_back(areas_vec.size());
+    taskDataParallel->inputs.emplace_back(reinterpret_cast<uint8_t *>(areas_vec.data()));
+    // Steps counts (how many points will be used):
+    taskDataParallel->inputs_count.emplace_back(steps_vec.size());
+    taskDataParallel->inputs.emplace_back(reinterpret_cast<uint8_t *>(steps_vec.data()));
+    // Output - optimum point and value:
+    taskDataParallel->outputs.emplace_back(reinterpret_cast<uint8_t *>(&optimum_value));
+  }
+  voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskParallel optimizationMPITaskParallel(
+      taskDataParallel);
+  return optimizationMPITaskParallel.validation();
+}
 
-  nesterov_a_test_task_mpi::TestMPITaskParallel testMpiTaskParallel(taskDataPar, "+");
-  ASSERT_EQ(testMpiTaskParallel.validation(), true);
-  testMpiTaskParallel.pre_processing();
-  testMpiTaskParallel.run();
-  testMpiTaskParallel.post_processing();
+bool validation_test_seq(std::vector<char> q_vec, int g_count, std::vector<std::vector<char>> g_vec,
+                         std::vector<double> areas_vec, std::vector<int> steps_vec) {
+  std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
+
+  // Criterium-function:
+  taskDataSeq->inputs_count.emplace_back(q_vec.size());
+  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(q_vec.data()));
+  // Count of constraints-functions:
+  taskDataSeq->inputs_count.emplace_back(1);
+  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&g_count));
+  // Constraints-functions:
+  for (int i = 0; i < g_vec.size(); i++) {
+    taskDataSeq->inputs_count.emplace_back(g_vec[i].size());
+    taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(g_vec[i].data()));
+  }
+  // Search area boundaries:
+  taskDataSeq->inputs_count.emplace_back(areas_vec.size());
+  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(areas_vec.data()));
+  // Steps counts (how many points will be used):
+  taskDataSeq->inputs_count.emplace_back(steps_vec.size());
+  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(steps_vec.data()));
+  // Output - optimum point and value:
+  double optimum_value = DBL_MAX;
+  taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(&optimum_value));
+
+  voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskSequential optimizationMPITaskSequential(
+      taskDataSeq);
+  return optimizationMPITaskSequential.validation();
+}
+
+TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_empty_criterium_function) {
+  boost::mpi::communicator world;
+
+  // Criterium-function:
+  std::string q_str = "";
+  std::vector<char> q_vec(q_str.length());
+  std::copy(q_str.begin(), q_str.end(), q_vec.begin());
+
+  // Constraints-functions:
+  std::string g_str1 = "-x^1y^0";
+  std::vector<char> g_vec1(g_str1.length());
+  std::copy(g_str1.begin(), g_str1.end(), g_vec1.begin());
+  std::string g_str2 = "-x^0y^1";
+  std::vector<char> g_vec2(g_str2.length());
+  std::copy(g_str2.begin(), g_str2.end(), g_vec2.begin());
+  std::vector<std::vector<char>> g_vec({g_vec1, g_vec2});
+  int g_count = g_vec.size();
+
+  // Search areas:
+  std::vector<double> areas_vec({-10.0, 10.0, -10.0, 10.0});
+  // Steps counts (how many points will be used):
+  std::vector<int> steps_vec({1000, 1000});
+
+  ASSERT_FALSE(validation_test_mpi(world, q_vec, g_count, g_vec, areas_vec, steps_vec));
 
   if (world.rank() == 0) {
-    // Create data
-    std::vector<int32_t> reference_sum(1, 0);
-
-    // Create TaskData
-    std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
-    taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t*>(global_vec.data()));
-    taskDataSeq->inputs_count.emplace_back(global_vec.size());
-    taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t*>(reference_sum.data()));
-    taskDataSeq->outputs_count.emplace_back(reference_sum.size());
-
-    // Create Task
-    nesterov_a_test_task_mpi::TestMPITaskSequential testMpiTaskSequential(taskDataSeq, "+");
-    ASSERT_EQ(testMpiTaskSequential.validation(), true);
-    testMpiTaskSequential.pre_processing();
-    testMpiTaskSequential.run();
-    testMpiTaskSequential.post_processing();
-
-    ASSERT_EQ(reference_sum[0], global_sum[0]);
+    ASSERT_FALSE(validation_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec));
   }
 }
 
-TEST(Parallel_Operations_MPI, Test_Diff) {
+TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incorrect_num_of_areas) {
   boost::mpi::communicator world;
-  std::vector<int> global_vec;
-  std::vector<int32_t> global_diff(1, 0);
-  // Create TaskData
-  std::shared_ptr<ppc::core::TaskData> taskDataPar = std::make_shared<ppc::core::TaskData>();
+
+  // Criterium-function:
+  std::string q_str = "";
+  std::vector<char> q_vec(q_str.length());
+  std::copy(q_str.begin(), q_str.end(), q_vec.begin());
+
+  // Constraints-functions:
+  std::string g_str1 = "-x^1y^0";
+  std::vector<char> g_vec1(g_str1.length());
+  std::copy(g_str1.begin(), g_str1.end(), g_vec1.begin());
+  std::string g_str2 = "-x^0y^1";
+  std::vector<char> g_vec2(g_str2.length());
+  std::copy(g_str2.begin(), g_str2.end(), g_vec2.begin());
+  std::vector<std::vector<char>> g_vec({g_vec1, g_vec2});
+  int g_count = g_vec.size();
+
+  // Search areas:
+  std::vector<double> areas_vec({-10.0, 10.0, -10.0});
+  // Steps counts (how many points will be used):
+  std::vector<int> steps_vec({1000, 1000});
+
+  ASSERT_FALSE(validation_test_mpi(world, q_vec, g_count, g_vec, areas_vec, steps_vec));
 
   if (world.rank() == 0) {
-    const int count_size_vector = 240;
-    global_vec = nesterov_a_test_task_mpi::getRandomVector(count_size_vector);
-    taskDataPar->inputs.emplace_back(reinterpret_cast<uint8_t*>(global_vec.data()));
-    taskDataPar->inputs_count.emplace_back(global_vec.size());
-    taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(global_diff.data()));
-    taskDataPar->outputs_count.emplace_back(global_diff.size());
-  }
-
-  nesterov_a_test_task_mpi::TestMPITaskParallel testMpiTaskParallel(taskDataPar, "-");
-  ASSERT_EQ(testMpiTaskParallel.validation(), true);
-  testMpiTaskParallel.pre_processing();
-  testMpiTaskParallel.run();
-  testMpiTaskParallel.post_processing();
-
-  if (world.rank() == 0) {
-    // Create data
-    std::vector<int32_t> reference_diff(1, 0);
-
-    // Create TaskData
-    std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
-    taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t*>(global_vec.data()));
-    taskDataSeq->inputs_count.emplace_back(global_vec.size());
-    taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t*>(reference_diff.data()));
-    taskDataSeq->outputs_count.emplace_back(reference_diff.size());
-
-    // Create Task
-    nesterov_a_test_task_mpi::TestMPITaskSequential testMpiTaskSequential(taskDataSeq, "-");
-    ASSERT_EQ(testMpiTaskSequential.validation(), true);
-    testMpiTaskSequential.pre_processing();
-    testMpiTaskSequential.run();
-    testMpiTaskSequential.post_processing();
-
-    ASSERT_EQ(reference_diff[0], global_diff[0]);
+    ASSERT_FALSE(validation_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec));
   }
 }
 
-TEST(Parallel_Operations_MPI, Test_Diff_2) {
+TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incorrect_areas) {
   boost::mpi::communicator world;
-  std::vector<int> global_vec;
-  std::vector<int32_t> global_diff(1, 0);
-  // Create TaskData
-  std::shared_ptr<ppc::core::TaskData> taskDataPar = std::make_shared<ppc::core::TaskData>();
+
+  // Criterium-function:
+  std::string q_str = "";
+  std::vector<char> q_vec(q_str.length());
+  std::copy(q_str.begin(), q_str.end(), q_vec.begin());
+
+  // Constraints-functions:
+  std::string g_str1 = "-x^1y^0";
+  std::vector<char> g_vec1(g_str1.length());
+  std::copy(g_str1.begin(), g_str1.end(), g_vec1.begin());
+  std::string g_str2 = "-x^0y^1";
+  std::vector<char> g_vec2(g_str2.length());
+  std::copy(g_str2.begin(), g_str2.end(), g_vec2.begin());
+  std::vector<std::vector<char>> g_vec({g_vec1, g_vec2});
+  int g_count = g_vec.size();
+
+  // Search areas:
+  std::vector<double> areas_vec({-10.0, -20.0, -10.0, 10.0});
+  // Steps counts (how many points will be used):
+  std::vector<int> steps_vec({1000, 1000});
+
+  ASSERT_FALSE(validation_test_mpi(world, q_vec, g_count, g_vec, areas_vec, steps_vec));
 
   if (world.rank() == 0) {
-    const int count_size_vector = 120;
-    global_vec = nesterov_a_test_task_mpi::getRandomVector(count_size_vector);
-    taskDataPar->inputs.emplace_back(reinterpret_cast<uint8_t*>(global_vec.data()));
-    taskDataPar->inputs_count.emplace_back(global_vec.size());
-    taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(global_diff.data()));
-    taskDataPar->outputs_count.emplace_back(global_diff.size());
-  }
-
-  nesterov_a_test_task_mpi::TestMPITaskParallel testMpiTaskParallel(taskDataPar, "-");
-  ASSERT_EQ(testMpiTaskParallel.validation(), true);
-  testMpiTaskParallel.pre_processing();
-  testMpiTaskParallel.run();
-  testMpiTaskParallel.post_processing();
-
-  if (world.rank() == 0) {
-    // Create data
-    std::vector<int32_t> reference_diff(1, 0);
-
-    // Create TaskData
-    std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
-    taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t*>(global_vec.data()));
-    taskDataSeq->inputs_count.emplace_back(global_vec.size());
-    taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t*>(reference_diff.data()));
-    taskDataSeq->outputs_count.emplace_back(reference_diff.size());
-
-    // Create Task
-    nesterov_a_test_task_mpi::TestMPITaskSequential testMpiTaskSequential(taskDataSeq, "-");
-    ASSERT_EQ(testMpiTaskSequential.validation(), true);
-    testMpiTaskSequential.pre_processing();
-    testMpiTaskSequential.run();
-    testMpiTaskSequential.post_processing();
-
-    ASSERT_EQ(reference_diff[0], global_diff[0]);
+    ASSERT_FALSE(validation_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec));
   }
 }
 
-TEST(Parallel_Operations_MPI, Test_Max) {
+TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incorrect_num_of_steps_counts) {
   boost::mpi::communicator world;
-  std::vector<int> global_vec;
-  std::vector<int32_t> global_max(1, 0);
-  // Create TaskData
-  std::shared_ptr<ppc::core::TaskData> taskDataPar = std::make_shared<ppc::core::TaskData>();
+
+  // Criterium-function:
+  std::string q_str = "";
+  std::vector<char> q_vec(q_str.length());
+  std::copy(q_str.begin(), q_str.end(), q_vec.begin());
+
+  // Constraints-functions:
+  std::string g_str1 = "-x^1y^0";
+  std::vector<char> g_vec1(g_str1.length());
+  std::copy(g_str1.begin(), g_str1.end(), g_vec1.begin());
+  std::string g_str2 = "-x^0y^1";
+  std::vector<char> g_vec2(g_str2.length());
+  std::copy(g_str2.begin(), g_str2.end(), g_vec2.begin());
+  std::vector<std::vector<char>> g_vec({g_vec1, g_vec2});
+  int g_count = g_vec.size();
+
+  // Search areas:
+  std::vector<double> areas_vec({-10.0, 10.0, -10.0, 10.0});
+  // Steps counts (how many points will be used):
+  std::vector<int> steps_vec({1000});
+
+  ASSERT_FALSE(validation_test_mpi(world, q_vec, g_count, g_vec, areas_vec, steps_vec));
 
   if (world.rank() == 0) {
-    const int count_size_vector = 240;
-    global_vec = nesterov_a_test_task_mpi::getRandomVector(count_size_vector);
-    taskDataPar->inputs.emplace_back(reinterpret_cast<uint8_t*>(global_vec.data()));
-    taskDataPar->inputs_count.emplace_back(global_vec.size());
-    taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(global_max.data()));
-    taskDataPar->outputs_count.emplace_back(global_max.size());
-  }
-
-  nesterov_a_test_task_mpi::TestMPITaskParallel testMpiTaskParallel(taskDataPar, "max");
-  ASSERT_EQ(testMpiTaskParallel.validation(), true);
-  testMpiTaskParallel.pre_processing();
-  testMpiTaskParallel.run();
-  testMpiTaskParallel.post_processing();
-
-  if (world.rank() == 0) {
-    // Create data
-    std::vector<int32_t> reference_max(1, 0);
-
-    // Create TaskData
-    std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
-    taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t*>(global_vec.data()));
-    taskDataSeq->inputs_count.emplace_back(global_vec.size());
-    taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t*>(reference_max.data()));
-    taskDataSeq->outputs_count.emplace_back(reference_max.size());
-
-    // Create Task
-    nesterov_a_test_task_mpi::TestMPITaskSequential testMpiTaskSequential(taskDataSeq, "max");
-    ASSERT_EQ(testMpiTaskSequential.validation(), true);
-    testMpiTaskSequential.pre_processing();
-    testMpiTaskSequential.run();
-    testMpiTaskSequential.post_processing();
-
-    ASSERT_EQ(reference_max[0], global_max[0]);
+    ASSERT_FALSE(validation_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec));
   }
 }
 
-TEST(Parallel_Operations_MPI, Test_Max_2) {
+TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incorrect_steps_counts) {
   boost::mpi::communicator world;
-  std::vector<int> global_vec;
-  std::vector<int32_t> global_max(1, 0);
-  // Create TaskData
-  std::shared_ptr<ppc::core::TaskData> taskDataPar = std::make_shared<ppc::core::TaskData>();
+
+  // Criterium-function:
+  std::string q_str = "";
+  std::vector<char> q_vec(q_str.length());
+  std::copy(q_str.begin(), q_str.end(), q_vec.begin());
+
+  // Constraints-functions:
+  std::string g_str1 = "-x^1y^0";
+  std::vector<char> g_vec1(g_str1.length());
+  std::copy(g_str1.begin(), g_str1.end(), g_vec1.begin());
+  std::string g_str2 = "-x^0y^1";
+  std::vector<char> g_vec2(g_str2.length());
+  std::copy(g_str2.begin(), g_str2.end(), g_vec2.begin());
+  std::vector<std::vector<char>> g_vec({g_vec1, g_vec2});
+  int g_count = g_vec.size();
+
+  // Search areas:
+  std::vector<double> areas_vec({-10.0, 10.0, -10.0, 10.0});
+  // Steps counts (how many points will be used):
+  std::vector<int> steps_vec({0, 1000});
+
+  ASSERT_FALSE(validation_test_mpi(world, q_vec, g_count, g_vec, areas_vec, steps_vec));
 
   if (world.rank() == 0) {
-    const int count_size_vector = 120;
-    global_vec = nesterov_a_test_task_mpi::getRandomVector(count_size_vector);
-    taskDataPar->inputs.emplace_back(reinterpret_cast<uint8_t*>(global_vec.data()));
-    taskDataPar->inputs_count.emplace_back(global_vec.size());
-    taskDataPar->outputs.emplace_back(reinterpret_cast<uint8_t*>(global_max.data()));
-    taskDataPar->outputs_count.emplace_back(global_max.size());
-  }
-
-  nesterov_a_test_task_mpi::TestMPITaskParallel testMpiTaskParallel(taskDataPar, "max");
-  ASSERT_EQ(testMpiTaskParallel.validation(), true);
-  testMpiTaskParallel.pre_processing();
-  testMpiTaskParallel.run();
-  testMpiTaskParallel.post_processing();
-
-  if (world.rank() == 0) {
-    // Create data
-    std::vector<int32_t> reference_max(1, 0);
-
-    // Create TaskData
-    std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
-    taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t*>(global_vec.data()));
-    taskDataSeq->inputs_count.emplace_back(global_vec.size());
-    taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t*>(reference_max.data()));
-    taskDataSeq->outputs_count.emplace_back(reference_max.size());
-
-    // Create Task
-    nesterov_a_test_task_mpi::TestMPITaskSequential testMpiTaskSequential(taskDataSeq, "max");
-    ASSERT_EQ(testMpiTaskSequential.validation(), true);
-    testMpiTaskSequential.pre_processing();
-    testMpiTaskSequential.run();
-    testMpiTaskSequential.post_processing();
-
-    ASSERT_EQ(reference_max[0], global_max[0]);
+    ASSERT_FALSE(validation_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec));
   }
 }
 
-int main(int argc, char** argv) {
-  boost::mpi::environment env(argc, argv);
+TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incorrect_g_count) {
   boost::mpi::communicator world;
-  ::testing::InitGoogleTest(&argc, argv);
-  ::testing::TestEventListeners& listeners = ::testing::UnitTest::GetInstance()->listeners();
-  if (world.rank() != 0) {
-    delete listeners.Release(listeners.default_result_printer());
+
+  // Criterium-function:
+  std::string q_str = "";
+  std::vector<char> q_vec(q_str.length());
+  std::copy(q_str.begin(), q_str.end(), q_vec.begin());
+
+  // Constraints-functions:
+  std::string g_str1 = "-x^1y^0";
+  std::vector<char> g_vec1(g_str1.length());
+  std::copy(g_str1.begin(), g_str1.end(), g_vec1.begin());
+  std::string g_str2 = "-x^0y^1";
+  std::vector<char> g_vec2(g_str2.length());
+  std::copy(g_str2.begin(), g_str2.end(), g_vec2.begin());
+  std::vector<std::vector<char>> g_vec({g_vec1, g_vec2});
+  int g_count = 33;
+
+  // Search areas:
+  std::vector<double> areas_vec({-10.0, 10.0, -10.0, 10.0});
+  // Steps counts (how many points will be used):
+  std::vector<int> steps_vec({1000, 1000});
+
+  ASSERT_FALSE(validation_test_mpi(world, q_vec, g_count, g_vec, areas_vec, steps_vec));
+
+  if (world.rank() == 0) {
+    ASSERT_FALSE(validation_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec));
   }
-  return RUN_ALL_TESTS();
+}
+
+double run_test_mpi(boost::mpi::communicator comm, std::vector<char> q_vec, int g_count,
+                    std::vector<std::vector<char>> g_vec, std::vector<double> areas_vec, std::vector<int> steps_vec) {
+  std::shared_ptr<ppc::core::TaskData> taskDataParallel = std::make_shared<ppc::core::TaskData>();
+
+  // Criterium-function:
+  taskDataParallel->inputs_count.emplace_back(q_vec.size());
+  taskDataParallel->inputs.emplace_back(reinterpret_cast<uint8_t *>(q_vec.data()));
+  // Count of constraints-functions:
+  taskDataParallel->inputs_count.emplace_back(1);
+  taskDataParallel->inputs.emplace_back(reinterpret_cast<uint8_t *>(&g_count));
+  // Constraints-functions:
+  for (int i = 0; i < g_vec.size(); i++) {
+    taskDataParallel->inputs_count.emplace_back(g_vec[i].size());
+    taskDataParallel->inputs.emplace_back(reinterpret_cast<uint8_t *>(g_vec[i].data()));
+  }
+  double optimum_value = DBL_MAX;
+  if (comm.rank() == 0) {
+    // Search area boundaries:
+    taskDataParallel->inputs_count.emplace_back(areas_vec.size());
+    taskDataParallel->inputs.emplace_back(reinterpret_cast<uint8_t *>(areas_vec.data()));
+    // Steps counts (how many points will be used):
+    taskDataParallel->inputs_count.emplace_back(steps_vec.size());
+    taskDataParallel->inputs.emplace_back(reinterpret_cast<uint8_t *>(steps_vec.data()));
+    // Output - optimum point and value:
+    taskDataParallel->outputs.emplace_back(reinterpret_cast<uint8_t *>(&optimum_value));
+  }
+  voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskParallel optimizationMPITaskParallel(
+      taskDataParallel);
+  optimizationMPITaskParallel.validation();
+  optimizationMPITaskParallel.pre_processing();
+  optimizationMPITaskParallel.run();
+  optimizationMPITaskParallel.post_processing();
+
+  boost::mpi::broadcast(comm, optimum_value, 0);
+
+  return optimum_value;
+}
+
+double run_test_seq(std::vector<char> q_vec, int g_count, std::vector<std::vector<char>> g_vec,
+                    std::vector<double> areas_vec, std::vector<int> steps_vec) {
+  std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
+
+  // Criterium-function:
+  taskDataSeq->inputs_count.emplace_back(q_vec.size());
+  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(q_vec.data()));
+  // Count of constraints-functions:
+  taskDataSeq->inputs_count.emplace_back(1);
+  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&g_count));
+  // Constraints-functions:
+  for (int i = 0; i < g_vec.size(); i++) {
+    taskDataSeq->inputs_count.emplace_back(g_vec[i].size());
+    taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(g_vec[i].data()));
+  }
+  // Search area boundaries:
+  taskDataSeq->inputs_count.emplace_back(areas_vec.size());
+  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(areas_vec.data()));
+  // Steps counts (how many points will be used):
+  taskDataSeq->inputs_count.emplace_back(steps_vec.size());
+  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(steps_vec.data()));
+  // Output - optimum point and value:
+  double optimum_value = DBL_MAX;
+  taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(&optimum_value));
+
+  voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskSequential optimizationMPITaskSequential(
+      taskDataSeq);
+  optimizationMPITaskSequential.validation();
+  optimizationMPITaskSequential.pre_processing();
+  optimizationMPITaskSequential.run();
+  optimizationMPITaskSequential.post_processing();
+
+  return optimum_value;
+}
+
+TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_zero_func_without_constraints) {
+  boost::mpi::communicator world;
+
+  // Criterium-function:
+  std::string q_str = "0";
+  std::vector<char> q_vec(q_str.length());
+  std::copy(q_str.begin(), q_str.end(), q_vec.begin());
+
+  // Constraints-functions:
+  std::vector<std::vector<char>> g_vec;
+  int g_count = g_vec.size();
+
+  // Search areas:
+  std::vector<double> areas_vec({-10.0, 10.0, -10.0, 10.0});
+  // Steps counts (how many points will be used):
+  std::vector<int> steps_vec({1000, 1000});
+  // Output value:
+  double optimum_mpi = run_test_mpi(world, q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+  double eps = 0.1;
+
+  ASSERT_NEAR(optimum_mpi, 0.0, eps);
+
+  if (world.rank() == 0) {
+    double optimum_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+    ASSERT_EQ(optimum_seq, optimum_mpi);
+  }
+}
+
+TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_zero_func_with_constraints) {
+  boost::mpi::communicator world;
+
+  // Criterium-function:
+  std::string q_str = "0";
+  std::vector<char> q_vec(q_str.length());
+  std::copy(q_str.begin(), q_str.end(), q_vec.begin());
+
+  // Constraints-functions:
+  std::string g_str1 = "-x^1y^0 +1";  // x >= 1
+  std::vector<char> g_vec1(g_str1.length());
+  std::copy(g_str1.begin(), g_str1.end(), g_vec1.begin());
+  std::string g_str2 = "-x^0y^1 +1";  // y >= 1
+  std::vector<char> g_vec2(g_str2.length());
+  std::copy(g_str2.begin(), g_str2.end(), g_vec2.begin());
+  std::vector<std::vector<char>> g_vec({g_vec1, g_vec2});
+  int g_count = g_vec.size();
+
+  // Search areas:
+  std::vector<double> areas_vec({-10.0, 10.0, -10.0, 10.0});
+  // Steps counts (how many points will be used):
+  std::vector<int> steps_vec({1000, 1000});
+  // Output value:
+  double optimum_mpi = run_test_mpi(world, q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+  double eps = 0.1;
+
+  ASSERT_NEAR(optimum_mpi, 0.0, eps);
+
+  if (world.rank() == 0) {
+    double optimum_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+    ASSERT_EQ(optimum_seq, optimum_mpi);
+  }
+}
+
+TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_paraboloid_without_constraints) {
+  boost::mpi::communicator world;
+
+  // Criterium-function:
+  std::string q_str = "x^2y^0 +x^0y^2";  // paraboloid x^2+y^2, increases from point (0;0)
+  std::vector<char> q_vec(q_str.length());
+  std::copy(q_str.begin(), q_str.end(), q_vec.begin());
+
+  // Constraints-functions:
+  std::vector<std::vector<char>> g_vec;
+  int g_count = g_vec.size();
+
+  // Search areas:
+  std::vector<double> areas_vec({-5.0, 5.0, -5.0, 5.0});
+  // Steps counts (how many points will be used):
+  std::vector<int> steps_vec({1000, 1000});
+  // Output value:
+  double optimum_mpi = run_test_mpi(world, q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+  double eps = 0.1;
+
+  ASSERT_NEAR(optimum_mpi, 0.0, eps);
+
+  if (world.rank() == 0) {
+    double optimum_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+    ASSERT_EQ(optimum_seq, optimum_mpi);
+  }
+}
+
+TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_paraboloid_with_constraints) {
+  boost::mpi::communicator world;
+
+  // Criterium-function:
+  std::string q_str = "x^2y^0 +x^0y^2";  // paraboloid x^2+y^2, increases from point (0;0)
+  std::vector<char> q_vec(q_str.length());
+  std::copy(q_str.begin(), q_str.end(), q_vec.begin());
+
+  // Constraints-functions:
+  std::string g_str1 = "-x^1y^0 +1";  // x >= 1
+  std::vector<char> g_vec1(g_str1.length());
+  std::copy(g_str1.begin(), g_str1.end(), g_vec1.begin());
+  std::string g_str2 = "-x^0y^1 +1";  // y >= 1
+  std::vector<char> g_vec2(g_str2.length());
+  std::copy(g_str2.begin(), g_str2.end(), g_vec2.begin());
+  std::vector<std::vector<char>> g_vec({g_vec1, g_vec2});
+  int g_count = g_vec.size();
+
+  // Search areas:
+  std::vector<double> areas_vec({-5.0, 5.0, -5.0, 5.0});
+  // Steps counts (how many points will be used):
+  std::vector<int> steps_vec({1000, 1000});
+  // Output value:
+  double optimum_mpi = run_test_mpi(world, q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+  double eps = 0.1;
+
+  ASSERT_NEAR(optimum_mpi, 2.0, eps);
+
+  if (world.rank() == 0) {
+    double optimum_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+    ASSERT_EQ(optimum_seq, optimum_mpi);
+  }
+}
+
+TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_paraboloid_minus_number_without_constraints) {
+  boost::mpi::communicator world;
+
+  // Criterium-function:
+  std::string q_str = "x^2y^0 +x^0y^2 -10";  // paraboloid x^2+y^2 minus 10, increases from -10
+  std::vector<char> q_vec(q_str.length());
+  std::copy(q_str.begin(), q_str.end(), q_vec.begin());
+
+  // Constraints-functions:
+  std::vector<std::vector<char>> g_vec;
+  int g_count = g_vec.size();
+
+  // Search areas:
+  std::vector<double> areas_vec({-5.0, 5.0, -5.0, 5.0});
+  // Steps counts (how many points will be used):
+  std::vector<int> steps_vec({1000, 1000});
+  // Output value:
+  double optimum_mpi = run_test_mpi(world, q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+  double eps = 0.1;
+
+  ASSERT_NEAR(optimum_mpi, -10.0, eps);
+
+  if (world.rank() == 0) {
+    double optimum_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+    ASSERT_EQ(optimum_seq, optimum_mpi);
+  }
+}
+
+TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_paraboloid_minus_number_with_constraints) {
+  boost::mpi::communicator world;
+
+  // Criterium-function:
+  std::string q_str = "x^2y^0 +x^0y^2 -10";  // paraboloid x^2+y^2 munus 10 (increases from -10)
+  std::vector<char> q_vec(q_str.length());
+  std::copy(q_str.begin(), q_str.end(), q_vec.begin());
+
+  // Constraints-functions:
+  std::string g_str1 = "-x^1y^0 +1";  // x >= 1
+  std::vector<char> g_vec1(g_str1.length());
+  std::copy(g_str1.begin(), g_str1.end(), g_vec1.begin());
+  std::string g_str2 = "-x^0y^1 +1";  // y >= 1
+  std::vector<char> g_vec2(g_str2.length());
+  std::copy(g_str2.begin(), g_str2.end(), g_vec2.begin());
+  std::vector<std::vector<char>> g_vec({g_vec1, g_vec2});
+  int g_count = g_vec.size();
+
+  // Search areas:
+  std::vector<double> areas_vec({-5.0, 5.0, -5.0, 5.0});
+  // Steps counts (how many points will be used):
+  std::vector<int> steps_vec({1000, 1000});
+  // Output value:
+  double optimum_mpi = run_test_mpi(world, q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+  double eps = 0.1;
+
+  ASSERT_NEAR(optimum_mpi, -8.0, eps);
+
+  if (world.rank() == 0) {
+    double optimum_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+    ASSERT_EQ(optimum_seq, optimum_mpi);
+  }
+}
+
+TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_shifted_paraboloid_without_constraints) {
+  boost::mpi::communicator world;
+
+  // Criterium-function:
+  std::string q_str = "x^2y^0 -12x^1y^0 +x^0y^2 -4x^0y^1";  // shifted paraboloid, increases from about -40
+  std::vector<char> q_vec(q_str.length());
+  std::copy(q_str.begin(), q_str.end(), q_vec.begin());
+
+  // Constraints-functions:
+  std::vector<std::vector<char>> g_vec;
+  int g_count = g_vec.size();
+
+  // Search areas:
+  std::vector<double> areas_vec({-10.0, 10.0, -10.0, 10.0});
+  // Steps counts (how many points will be used):
+  std::vector<int> steps_vec({1000, 1000});
+  // Output value:
+  double optimum_mpi = run_test_mpi(world, q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+  double eps = 0.1;
+
+  ASSERT_NEAR(optimum_mpi, -40.0, eps);
+
+  if (world.rank() == 0) {
+    double optimum_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+    ASSERT_EQ(optimum_seq, optimum_mpi);
+  }
+}
+
+TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_shifted_paraboloid_with_constraints) {
+  boost::mpi::communicator world;
+
+  // Criterium-function:
+  std::string q_str = "x^2y^0 -12x^1y^0 +x^0y^2 -4x^0y^1";  // shifted paraboloid, increases from about -40
+  std::vector<char> q_vec(q_str.length());
+  std::copy(q_str.begin(), q_str.end(), q_vec.begin());
+
+  // Constraints-functions:
+  std::string g_str1 = "x^0y^1 -2x^1y^0 -4";
+  std::vector<char> g_vec1(g_str1.length());
+  std::copy(g_str1.begin(), g_str1.end(), g_vec1.begin());
+  std::string g_str2 = "x^0y^1 +x^1y^0 -4";
+  std::vector<char> g_vec2(g_str2.length());
+  std::copy(g_str2.begin(), g_str2.end(), g_vec2.begin());
+  std::string g_str3 = "0.2x^1y^0 -x^0y^1 +0.4";
+  std::vector<char> g_vec3(g_str3.length());
+  std::copy(g_str3.begin(), g_str3.end(), g_vec3.begin());
+  std::vector<std::vector<char>> g_vec({g_vec1, g_vec2, g_vec3});
+  int g_count = g_vec.size();
+
+  // Search areas:
+  std::vector<double> areas_vec({-10.0, 10.0, -10.0, 10.0});
+  // Steps counts (how many points will be used):
+  std::vector<int> steps_vec({1000, 1000});
+  // Output value:
+  double optimum_mpi = run_test_mpi(world, q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+  double eps = 0.1;
+
+  ASSERT_NEAR(optimum_mpi, -30.0, eps);
+
+  if (world.rank() == 0) {
+    double optimum_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+    ASSERT_EQ(optimum_seq, optimum_mpi);
+  }
+}
+
+TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_large_degrees_without_constraints) {
+  boost::mpi::communicator world;
+
+  // Criterium-function:
+  std::string q_str = "x^256y^0 +x^0y^888 +x^100y^28";  // "box", increases from value 0
+  std::vector<char> q_vec(q_str.length());
+  std::copy(q_str.begin(), q_str.end(), q_vec.begin());
+
+  // Constraints-functions:
+  std::vector<std::vector<char>> g_vec;
+  int g_count = g_vec.size();
+
+  // Search areas:
+  std::vector<double> areas_vec({-2.0, 2.0, -2.0, 2.0});
+  // Steps counts (how many points will be used):
+  std::vector<int> steps_vec({1000, 1000});
+  // Output value:
+  double optimum_mpi = run_test_mpi(world, q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+  double eps = 0.1;
+
+  ASSERT_NEAR(optimum_mpi, 0.0, eps);
+
+  if (world.rank() == 0) {
+    double optimum_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+    ASSERT_EQ(optimum_seq, optimum_mpi);
+  }
+}
+
+TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_large_degrees_with_constraints) {
+  boost::mpi::communicator world;
+
+  // Criterium-function:
+  std::string q_str = "x^256y^0 +x^0y^888 +x^100y^28";  // "box", increases from value 0
+  std::vector<char> q_vec(q_str.length());
+  std::copy(q_str.begin(), q_str.end(), q_vec.begin());
+
+  // Constraints-functions:
+  std::string g_str1 = "-x^1y^0 +0.5";  // x >= 0.5
+  std::vector<char> g_vec1(g_str1.length());
+  std::copy(g_str1.begin(), g_str1.end(), g_vec1.begin());
+  std::string g_str2 = "-x^0y^1 +0.7";  // y >= 0.7
+  std::vector<char> g_vec2(g_str2.length());
+  std::copy(g_str2.begin(), g_str2.end(), g_vec2.begin());
+  std::vector<std::vector<char>> g_vec({g_vec1, g_vec2});
+  int g_count = g_vec.size();
+
+  // Search areas:
+  std::vector<double> areas_vec({-2.0, 2.0, -2.0, 2.0});
+  // Steps counts (how many points will be used):
+  std::vector<int> steps_vec({1000, 1000});
+  // Output value:
+  double optimum_mpi = run_test_mpi(world, q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+  double eps = 0.1;
+
+  ASSERT_NEAR(optimum_mpi, 0.0, eps);
+
+  if (world.rank() == 0) {
+    double optimum_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+    ASSERT_EQ(optimum_seq, optimum_mpi);
+  }
+}
+
+TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_odd_degrees_without_constraints) {
+  boost::mpi::communicator world;
+
+  // Criterium-function:
+  std::string q_str = "x^33y^0 +x^0y^51";  // "increasing-decreasing box", increases from 0 where x > ~0.75 or y > ~0.75
+                                           // decreases from 0 where x < ~-0.75 or y < ~-0.75
+  std::vector<char> q_vec(q_str.length());
+  std::copy(q_str.begin(), q_str.end(), q_vec.begin());
+
+  // Constraints-functions:
+  std::vector<std::vector<char>> g_vec;
+  int g_count = g_vec.size();
+
+  // Search areas:
+  std::vector<double> areas_vec({0.0, 2.0, 0.0, 2.0});  // areas changed to find min!!!
+  // Steps counts (how many points will be used):
+  std::vector<int> steps_vec({1000, 1000});
+  // Output value:
+  double optimum_mpi = run_test_mpi(world, q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+  double eps = 0.1;
+
+  ASSERT_NEAR(optimum_mpi, 0.0, eps);
+
+  if (world.rank() == 0) {
+    double optimum_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+    ASSERT_EQ(optimum_seq, optimum_mpi);
+  }
+}
+
+TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_odd_degrees_with_constraints) {
+  boost::mpi::communicator world;
+
+  // Criterium-function:
+  std::string q_str = "x^33y^0 +x^0y^51";  // "increasing-decreasing box", increases from 0 where x > ~0.75 or y > ~0.75
+                                           // decreases from 0 where x < ~-0.75 or y < ~-0.75
+  std::vector<char> q_vec(q_str.length());
+  std::copy(q_str.begin(), q_str.end(), q_vec.begin());
+
+  // Constraints-functions:
+  std::string g_str1 = "-x^1y^0 -0.5";  // x >= -0.5
+  std::vector<char> g_vec1(g_str1.length());
+  std::copy(g_str1.begin(), g_str1.end(), g_vec1.begin());
+  std::string g_str2 = "-x^0y^1 -0.5";  // y >= -0.5
+  std::vector<char> g_vec2(g_str2.length());
+  std::copy(g_str2.begin(), g_str2.end(), g_vec2.begin());
+  std::vector<std::vector<char>> g_vec({g_vec1, g_vec2});
+  int g_count = g_vec.size();
+
+  // Search areas:
+  std::vector<double> areas_vec({-2.0, 2.0, -2.0, 2.0});
+  // Steps counts (how many points will be used):
+  std::vector<int> steps_vec({1000, 1000});
+  // Output value:
+  double optimum_mpi = run_test_mpi(world, q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+  double eps = 0.1;
+
+  ASSERT_NEAR(optimum_mpi, 0.0, eps);
+
+  if (world.rank() == 0) {
+    double optimum_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+    ASSERT_EQ(optimum_seq, optimum_mpi);
+  }
+}
+
+TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_negative_degree_without_constraints) {
+  boost::mpi::communicator world;
+
+  // Criterium-function:
+  std::string q_str = "x^-2y^0";  // "3D hyperbole" with positive values
+  std::vector<char> q_vec(q_str.length());
+  std::copy(q_str.begin(), q_str.end(), q_vec.begin());
+
+  // Constraints-functions:
+  std::vector<std::vector<char>> g_vec;
+  int g_count = g_vec.size();
+
+  // Search areas:
+  std::vector<double> areas_vec({-15.0, 0.0, -10.0, 10.0});  // areas changed to find min!!!
+  // Steps counts (how many points will be used):
+  std::vector<int> steps_vec({1000, 1000});
+  // Output value:
+  double optimum_mpi = run_test_mpi(world, q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+  double eps = 0.1;
+
+  ASSERT_NEAR(optimum_mpi, 0.0, eps);
+
+  if (world.rank() == 0) {
+    double optimum_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+    ASSERT_EQ(optimum_seq, optimum_mpi);
+  }
+}
+
+TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_negative_degree_with_constraints) {
+  boost::mpi::communicator world;
+
+  // Criterium-function:
+  std::string q_str = "x^-2y^0";  // "3D hyperbole" with positive values
+  std::vector<char> q_vec(q_str.length());
+  std::copy(q_str.begin(), q_str.end(), q_vec.begin());
+
+  // Constraints-functions:
+  std::string g_str1 = "-x^1y^0 -10";  // x >= -10
+  std::vector<char> g_vec1(g_str1.length());
+  std::copy(g_str1.begin(), g_str1.end(), g_vec1.begin());
+  std::string g_str2 = "-x^0y^1 -0.5";  // y >= -0.5
+  std::vector<char> g_vec2(g_str2.length());
+  std::copy(g_str2.begin(), g_str2.end(), g_vec2.begin());
+  std::string g_str3 = "x^0y^1 -0.5";  // y <= 0.5
+  std::vector<char> g_vec3(g_str3.length());
+  std::copy(g_str3.begin(), g_str3.end(), g_vec3.begin());
+  std::vector<std::vector<char>> g_vec({g_vec1, g_vec2, g_vec3});
+  int g_count = g_vec.size();
+
+  // Search areas:
+  std::vector<double> areas_vec({-15.0, 0.0, -10.0, 10.0});  // areas changed to find min!!!
+  // Steps counts (how many points will be used):
+  std::vector<int> steps_vec({1000, 1000});
+  // Output value:
+  double optimum_mpi = run_test_mpi(world, q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+  double eps = 0.1;
+
+  ASSERT_NEAR(optimum_mpi, 0.0, eps);
+
+  if (world.rank() == 0) {
+    double optimum_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+    ASSERT_EQ(optimum_seq, optimum_mpi);
+  }
 }

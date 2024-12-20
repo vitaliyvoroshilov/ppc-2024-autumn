@@ -23,6 +23,12 @@ struct Point {
     x = x_;
     y = y_;
   }
+
+  template <class Archive>
+  void serialize(Archive& ar, unsigned int version) {
+    ar & x;
+    ar & y;
+  }
 };
 
 struct Monomial {
@@ -139,8 +145,7 @@ struct Search_area {
 
 class OptimizationMPITaskSequential : public ppc::core::Task {
  public:
-  explicit OptimizationMPITaskSequential(std::shared_ptr<ppc::core::TaskData> taskData_, std::string ops_)
-      : Task(std::move(taskData_)), ops(std::move(ops_)) {}
+  explicit OptimizationMPITaskSequential(std::shared_ptr<ppc::core::TaskData> taskData_) : Task(std::move(taskData_)) {}
   bool validation() override;
   bool pre_processing() override;
   bool run() override;
@@ -159,8 +164,7 @@ class OptimizationMPITaskSequential : public ppc::core::Task {
 
 class OptimizationMPITaskParallel : public ppc::core::Task {
  public:
-  explicit OptimizationMPITaskParallel(std::shared_ptr<ppc::core::TaskData> taskData_, std::string ops_)
-      : Task(std::move(taskData_)), ops(std::move(ops_)) {}
+  explicit OptimizationMPITaskParallel(std::shared_ptr<ppc::core::TaskData> taskData_) : Task(std::move(taskData_)) {}
   bool validation() override;
   bool pre_processing() override;
   bool run() override;
@@ -173,8 +177,8 @@ class OptimizationMPITaskParallel : public ppc::core::Task {
   Search_area x_area;
   Search_area y_area;
 
-  Point optimum_point;
-  double optimum_value;
+  Point global_optimum_point;
+  double global_optimum_value;
 
   boost::mpi::communicator world;
 };
