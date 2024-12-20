@@ -279,7 +279,7 @@ bool voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskParalle
   std::vector<int> parts(world.size(), part);
   std::vector<int> offsets(world.size());
 
-  for (size_t i = 0; i < world.size(); i++) {
+  for (int i = 0; i < world.size(); i++) {
     if (remainder > 0) {
       parts[i]++;
       remainder--;
@@ -312,7 +312,7 @@ bool voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskParalle
   }
   Point local_optimum_point;
   double local_optimum_value;
-  int first_satisfied = index;  // it is first candidate for optimum
+  size_t first_satisfied = index;  // it is first candidate for optimum
   if (first_satisfied == local_points.size()) {
     local_optimum_point = Point(DBL_MAX, DBL_MAX);
     local_optimum_value = DBL_MAX;
