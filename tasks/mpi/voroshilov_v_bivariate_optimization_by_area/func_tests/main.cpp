@@ -67,7 +67,7 @@ bool validation_test_seq(std::vector<char> q_vec, size_t g_count, std::vector<st
       taskDataSeq);
   return optimizationMPITaskSequential.validation();
 }
-/*
+
 TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_empty_criterium_function) {
   boost::mpi::communicator world;
 
@@ -101,7 +101,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incor
   boost::mpi::communicator world;
 
   // Criterium-function:
-  std::string q_str;
+  std::string q_str = "x^2y^0 +x^0y^2";
   std::vector<char> q_vec(q_str.length());
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
@@ -126,7 +126,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incor
     ASSERT_FALSE(validation_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec));
   }
 }
-*/
+
 TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incorrect_areas) {
   boost::mpi::communicator world;
 
@@ -146,23 +146,23 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incor
   size_t g_count = g_vec.size();
 
   // Search areas:
-  std::vector<double> areas_vec({-10.0, -20.0, -10.0});/////////////////////////////////////////////////
+  std::vector<double> areas_vec({-10.0, -20.0, -10.0, 10.0});
   // Steps counts (how many points will be used):
   std::vector<int> steps_vec({1000, 1000});
 
   ASSERT_FALSE(validation_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec));
-  /*
+  
   if (world.rank() == 0) {
     ASSERT_FALSE(validation_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec));
-  }*/
+  }
 }
 
-/*
+
 TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incorrect_num_of_steps_counts) {
   boost::mpi::communicator world;
 
   // Criterium-function:
-  std::string q_str;
+  std::string q_str = "x^2y^0 +x^0y^2";
   std::vector<char> q_vec(q_str.length());
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
@@ -192,7 +192,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incor
   boost::mpi::communicator world;
 
   // Criterium-function:
-  std::string q_str;
+  std::string q_str = "x^2y^0 +x^0y^2";
   std::vector<char> q_vec(q_str.length());
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
@@ -222,7 +222,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incor
   boost::mpi::communicator world;
 
   // Criterium-function:
-  std::string q_str;
+  std::string q_str = "x^2y^0 +x^0y^2";
   std::vector<char> q_vec(q_str.length());
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
@@ -247,7 +247,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incor
     ASSERT_FALSE(validation_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec));
   }
 }
-*/
+
 
 double run_test_mpi(std::vector<char> q_vec, size_t g_count, std::vector<std::vector<char>> g_vec,
                     std::vector<double> areas_vec, std::vector<int> steps_vec) {

@@ -30,7 +30,7 @@ bool validation_test(std::vector<char> q_vec, std::vector<double> areas_vec, std
   voroshilov_v_bivariate_optimization_by_area_seq::OptimizationTaskSequential optimizationTaskSequential(taskDataSeq);
   return optimizationTaskSequential.validation();
 }
-/*
+
 TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_validation_empty_criterium_function) {
   std::string q_str;
   std::vector<char> q_vec(q_str.length());
@@ -150,7 +150,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_validation_incor
 
   ASSERT_FALSE(validation_test(q_vec, areas_vec, steps_vec, g_count, g_vec));
 }
-*/
+
 std::vector<double> run_test(std::vector<char> q_vec, std::vector<double> areas_vec, std::vector<int> steps_vec,
                              size_t g_count, std::vector<std::vector<char>> g_vec) {
   std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
@@ -184,7 +184,7 @@ std::vector<double> run_test(std::vector<char> q_vec, std::vector<double> areas_
 
   return optimum_vec;
 }
-/*
+
 TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_zero_func_without_constraints) {
   std::string q_str = "0";
   std::vector<char> q_vec(q_str.length());
@@ -562,4 +562,3 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_negativ
   ASSERT_TRUE((-0.5 <= optimum_y) && (optimum_y <= 0.5));
   ASSERT_NEAR(optimum_value, 0.0, eps);
 }
-*/
