@@ -23,7 +23,7 @@ bool validation_test_mpi(std::vector<char> q_vec, size_t g_count, std::vector<st
     taskDataParallel->inputs.emplace_back(reinterpret_cast<uint8_t *>(g_vec[i].data()));
   }
   double optimum_value = DBL_MAX;
-  if (comm.rank() == 0) {
+  //if (comm.rank() == 0) {
     // Search area boundaries:
     taskDataParallel->inputs_count.emplace_back(areas_vec.size());
     taskDataParallel->inputs.emplace_back(reinterpret_cast<uint8_t *>(areas_vec.data()));
@@ -32,7 +32,7 @@ bool validation_test_mpi(std::vector<char> q_vec, size_t g_count, std::vector<st
     taskDataParallel->inputs.emplace_back(reinterpret_cast<uint8_t *>(steps_vec.data()));
     // Output - optimum point and value:
     taskDataParallel->outputs.emplace_back(reinterpret_cast<uint8_t *>(&optimum_value));
-  }
+  //}
   voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskParallel optimizationMPITaskParallel(
       taskDataParallel);
   return optimizationMPITaskParallel.validation();
