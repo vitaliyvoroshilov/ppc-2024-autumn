@@ -46,6 +46,7 @@ struct Monomial {
   }
 
   Monomial(std::vector<char> monom) {
+    coef = 0.0;
     deg_x = 0;
     deg_y = 0;
     size_t i = 0;

@@ -5,9 +5,10 @@
 
 #include "mpi/voroshilov_v_bivariate_optimization_by_area/include/ops_mpi.hpp"
 
-bool validation_test_mpi(const boost::mpi::communicator &comm, std::vector<char> q_vec, size_t g_count,
-                         std::vector<std::vector<char>> g_vec, std::vector<double> areas_vec,
-                         std::vector<int> steps_vec) {
+bool validation_test_mpi(std::vector<char> q_vec, size_t g_count, std::vector<std::vector<char>> g_vec,
+                         std::vector<double> areas_vec, std::vector<int> steps_vec) {
+  boost::mpi::communicator comm;
+
   std::shared_ptr<ppc::core::TaskData> taskDataParallel = std::make_shared<ppc::core::TaskData>();
 
   // Criterium-function:
@@ -90,7 +91,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_empty
   // Steps counts (how many points will be used):
   std::vector<int> steps_vec({1000, 1000});
 
-  ASSERT_FALSE(validation_test_mpi(world, q_vec, g_count, g_vec, areas_vec, steps_vec));
+  ASSERT_FALSE(validation_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec));
 
   if (world.rank() == 0) {
     ASSERT_FALSE(validation_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec));
@@ -120,7 +121,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incor
   // Steps counts (how many points will be used):
   std::vector<int> steps_vec({1000, 1000});
 
-  ASSERT_FALSE(validation_test_mpi(world, q_vec, g_count, g_vec, areas_vec, steps_vec));
+  ASSERT_FALSE(validation_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec));
 
   if (world.rank() == 0) {
     ASSERT_FALSE(validation_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec));
@@ -150,7 +151,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incor
   // Steps counts (how many points will be used):
   std::vector<int> steps_vec({1000, 1000});
 
-  ASSERT_FALSE(validation_test_mpi(world, q_vec, g_count, g_vec, areas_vec, steps_vec));
+  ASSERT_FALSE(validation_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec));
 
   if (world.rank() == 0) {
     ASSERT_FALSE(validation_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec));
@@ -180,7 +181,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incor
   // Steps counts (how many points will be used):
   std::vector<int> steps_vec({1000});
 
-  ASSERT_FALSE(validation_test_mpi(world, q_vec, g_count, g_vec, areas_vec, steps_vec));
+  ASSERT_FALSE(validation_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec));
 
   if (world.rank() == 0) {
     ASSERT_FALSE(validation_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec));
@@ -210,7 +211,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incor
   // Steps counts (how many points will be used):
   std::vector<int> steps_vec({0, 1000});
 
-  ASSERT_FALSE(validation_test_mpi(world, q_vec, g_count, g_vec, areas_vec, steps_vec));
+  ASSERT_FALSE(validation_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec));
 
   if (world.rank() == 0) {
     ASSERT_FALSE(validation_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec));
@@ -240,15 +241,17 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incor
   // Steps counts (how many points will be used):
   std::vector<int> steps_vec({1000, 1000});
 
-  ASSERT_FALSE(validation_test_mpi(world, q_vec, g_count, g_vec, areas_vec, steps_vec));
+  ASSERT_FALSE(validation_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec));
 
   if (world.rank() == 0) {
     ASSERT_FALSE(validation_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec));
   }
 }
 
-double run_test_mpi(const boost::mpi::communicator &comm, std::vector<char> q_vec, size_t g_count,
-                    std::vector<std::vector<char>> g_vec, std::vector<double> areas_vec, std::vector<int> steps_vec) {
+double run_test_mpi(std::vector<char> q_vec, size_t g_count, std::vector<std::vector<char>> g_vec,
+                    std::vector<double> areas_vec, std::vector<int> steps_vec) {
+  boost::mpi::communicator comm;
+
   std::shared_ptr<ppc::core::TaskData> taskDataParallel = std::make_shared<ppc::core::TaskData>();
 
   // Criterium-function:
@@ -337,7 +340,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_zero_fu
   // Steps counts (how many points will be used):
   std::vector<int> steps_vec({1000, 1000});
   // Output value:
-  double optimum_mpi = run_test_mpi(world, q_vec, g_count, g_vec, areas_vec, steps_vec);
+  double optimum_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
   double eps = 0.1;
 
@@ -373,7 +376,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_zero_fu
   // Steps counts (how many points will be used):
   std::vector<int> steps_vec({1000, 1000});
   // Output value:
-  double optimum_mpi = run_test_mpi(world, q_vec, g_count, g_vec, areas_vec, steps_vec);
+  double optimum_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
   double eps = 0.1;
 
@@ -403,7 +406,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_parabol
   // Steps counts (how many points will be used):
   std::vector<int> steps_vec({1000, 1000});
   // Output value:
-  double optimum_mpi = run_test_mpi(world, q_vec, g_count, g_vec, areas_vec, steps_vec);
+  double optimum_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
   double eps = 0.1;
 
@@ -439,7 +442,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_parabol
   // Steps counts (how many points will be used):
   std::vector<int> steps_vec({1000, 1000});
   // Output value:
-  double optimum_mpi = run_test_mpi(world, q_vec, g_count, g_vec, areas_vec, steps_vec);
+  double optimum_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
   double eps = 0.1;
 
@@ -469,7 +472,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_parabol
   // Steps counts (how many points will be used):
   std::vector<int> steps_vec({1000, 1000});
   // Output value:
-  double optimum_mpi = run_test_mpi(world, q_vec, g_count, g_vec, areas_vec, steps_vec);
+  double optimum_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
   double eps = 0.1;
 
@@ -505,7 +508,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_parabol
   // Steps counts (how many points will be used):
   std::vector<int> steps_vec({1000, 1000});
   // Output value:
-  double optimum_mpi = run_test_mpi(world, q_vec, g_count, g_vec, areas_vec, steps_vec);
+  double optimum_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
   double eps = 0.1;
 
@@ -535,7 +538,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_shifted
   // Steps counts (how many points will be used):
   std::vector<int> steps_vec({1000, 1000});
   // Output value:
-  double optimum_mpi = run_test_mpi(world, q_vec, g_count, g_vec, areas_vec, steps_vec);
+  double optimum_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
   double eps = 0.1;
 
@@ -574,7 +577,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_shifted
   // Steps counts (how many points will be used):
   std::vector<int> steps_vec({1000, 1000});
   // Output value:
-  double optimum_mpi = run_test_mpi(world, q_vec, g_count, g_vec, areas_vec, steps_vec);
+  double optimum_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
   double eps = 0.1;
 
@@ -604,7 +607,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_large_d
   // Steps counts (how many points will be used):
   std::vector<int> steps_vec({1000, 1000});
   // Output value:
-  double optimum_mpi = run_test_mpi(world, q_vec, g_count, g_vec, areas_vec, steps_vec);
+  double optimum_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
   double eps = 0.1;
 
@@ -640,7 +643,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_large_d
   // Steps counts (how many points will be used):
   std::vector<int> steps_vec({1000, 1000});
   // Output value:
-  double optimum_mpi = run_test_mpi(world, q_vec, g_count, g_vec, areas_vec, steps_vec);
+  double optimum_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
   double eps = 0.1;
 
@@ -671,7 +674,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_odd_deg
   // Steps counts (how many points will be used):
   std::vector<int> steps_vec({1000, 1000});
   // Output value:
-  double optimum_mpi = run_test_mpi(world, q_vec, g_count, g_vec, areas_vec, steps_vec);
+  double optimum_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
   double eps = 0.1;
 
@@ -708,7 +711,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_odd_deg
   // Steps counts (how many points will be used):
   std::vector<int> steps_vec({1000, 1000});
   // Output value:
-  double optimum_mpi = run_test_mpi(world, q_vec, g_count, g_vec, areas_vec, steps_vec);
+  double optimum_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
   double eps = 0.1;
 
@@ -738,7 +741,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_negativ
   // Steps counts (how many points will be used):
   std::vector<int> steps_vec({1000, 1000});
   // Output value:
-  double optimum_mpi = run_test_mpi(world, q_vec, g_count, g_vec, areas_vec, steps_vec);
+  double optimum_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
   double eps = 0.1;
 
@@ -777,7 +780,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_negativ
   // Steps counts (how many points will be used):
   std::vector<int> steps_vec({1000, 1000});
   // Output value:
-  double optimum_mpi = run_test_mpi(world, q_vec, g_count, g_vec, areas_vec, steps_vec);
+  double optimum_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
   double eps = 0.1;
 
