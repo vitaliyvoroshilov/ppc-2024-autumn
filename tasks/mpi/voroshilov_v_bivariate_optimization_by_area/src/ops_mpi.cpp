@@ -1,5 +1,12 @@
 #include "mpi/voroshilov_v_bivariate_optimization_by_area/include/ops_mpi.hpp"
 
+#include <algorithm>
+#include <cmath>
+#include <functional>
+#include <string>
+#include <thread>
+#include <vector>
+
 // Sequentional:
 
 bool voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskSequential::validation() {
