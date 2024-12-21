@@ -172,7 +172,7 @@ bool voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskSequent
 bool voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskParallel::validation() {
   internal_order_test();
 
-  //if (world.rank() == 0) {
+  if (world.rank() == 0) {
     // criterium-function length <= 0:
     if (taskData->inputs_count[0] <= 0) {
       return false;
@@ -215,7 +215,7 @@ bool voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskParalle
     if (y_steps <= 0) {
       return false;
     }*/
-  //}
+  }
   return true;
 }
 
