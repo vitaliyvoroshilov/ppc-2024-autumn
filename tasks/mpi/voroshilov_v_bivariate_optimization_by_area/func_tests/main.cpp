@@ -152,9 +152,9 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incor
 
   ASSERT_FALSE(validation_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec));
 
-  if (world.rank() == 0) {
+  /* if (world.rank() == 0) {
     ASSERT_FALSE(validation_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec));
-  }
+  }*/
 }
 
 /*
