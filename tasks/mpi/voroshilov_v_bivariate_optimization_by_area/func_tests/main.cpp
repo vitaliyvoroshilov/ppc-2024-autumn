@@ -146,7 +146,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incor
   size_t g_count = g_vec.size();
 
   // Search areas:
-  std::vector<double> areas_vec({-10.0, -20.0, -10.0, 10.0});
+  std::vector<double> areas_vec({-10.0, -20.0, -10.0});/////////////////////////////////////////////////
   // Steps counts (how many points will be used):
   std::vector<int> steps_vec({1000, 1000});
 
