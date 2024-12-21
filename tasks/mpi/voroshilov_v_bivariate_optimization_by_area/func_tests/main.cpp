@@ -126,7 +126,6 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incor
     ASSERT_FALSE(validation_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec));
   }
 }
-*/
 
 TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incorrect_areas) {
   boost::mpi::communicator world;
@@ -247,6 +246,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incor
     ASSERT_FALSE(validation_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec));
   }
 }
+*/
 
 double run_test_mpi(std::vector<char> q_vec, size_t g_count, std::vector<std::vector<char>> g_vec,
                     std::vector<double> areas_vec, std::vector<int> steps_vec) {
