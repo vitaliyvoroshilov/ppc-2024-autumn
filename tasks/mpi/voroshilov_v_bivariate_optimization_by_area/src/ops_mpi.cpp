@@ -181,12 +181,12 @@ bool voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskParalle
     size_t g_count = *reinterpret_cast<size_t*>(taskData->inputs[1]);
     if (g_count != (taskData->inputs).size() - 4) {
       return false;
-    } 
-    /*
+    }
     // incorrect number of search areas:
     if (taskData->inputs_count[2 + g_count] != 4) {
       return false;
     }
+    /*
     // search areas:
     auto* d_ptr = reinterpret_cast<double*>(taskData->inputs[2 + g_count]);
     double x_min = *d_ptr++;
