@@ -131,7 +131,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incor
   boost::mpi::communicator world;
 
   // Criterium-function:
-  std::string q_str;
+  std::string q_str = "0";
   std::vector<char> q_vec(q_str.length());
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
@@ -150,10 +150,10 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incor
   // Steps counts (how many points will be used):
   std::vector<int> steps_vec({1000, 1000});
 
-  ASSERT_EQ(false, validation_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec));
+  ASSERT_FALSE(validation_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec));
 
   if (world.rank() == 0) {
-    ASSERT_EQ(false, validation_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec));
+    ASSERT_FALSE(validation_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec));
   }
 }
 
