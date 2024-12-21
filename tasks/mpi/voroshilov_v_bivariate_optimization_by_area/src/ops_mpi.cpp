@@ -172,7 +172,6 @@ bool voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskSequent
 bool voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskParallel::validation() {
   internal_order_test();
 
-  if (world.rank() == 0) {
     // criterium-function length <= 0:
     if (taskData->inputs_count[0] <= 0) {
       return false;
@@ -182,6 +181,7 @@ bool voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskParalle
     if (g_count != (taskData->inputs).size() - 4) {
       return false;
     }
+  if (world.rank() == 0) {
     // incorrect number of search areas:
     if (taskData->inputs_count[2 + g_count] != 4) {
       return false;
