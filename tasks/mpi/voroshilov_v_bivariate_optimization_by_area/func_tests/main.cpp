@@ -131,7 +131,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incor
   boost::mpi::communicator world;
 
   // Criterium-function:
-  std::string q_str = "0";
+  std::string q_str = "x^2y^0 +x^0y^2";
   std::vector<char> q_vec(q_str.length());
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
