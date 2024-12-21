@@ -1,8 +1,5 @@
 #include <gtest/gtest.h>
 
-#include <boost/mpi/communicator.hpp>
-#include <boost/mpi/environment.hpp>
-
 #include "mpi/voroshilov_v_bivariate_optimization_by_area/include/ops_mpi.hpp"
 
 bool validation_test_mpi(std::vector<char> q_vec, size_t g_count, std::vector<std::vector<char>> g_vec,
@@ -102,7 +99,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incor
   boost::mpi::communicator world;
 
   // Criterium-function:
-  std::string q_str;
+  std::string q_str = "x^2y^0 +x^0y^2";
   std::vector<char> q_vec(q_str.length());
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
@@ -132,7 +129,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incor
   boost::mpi::communicator world;
 
   // Criterium-function:
-  std::string q_str;
+  std::string q_str = "x^2y^0 +x^0y^2";
   std::vector<char> q_vec(q_str.length());
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
@@ -162,7 +159,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incor
   boost::mpi::communicator world;
 
   // Criterium-function:
-  std::string q_str;
+  std::string q_str = "x^2y^0 +x^0y^2";
   std::vector<char> q_vec(q_str.length());
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
@@ -192,7 +189,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incor
   boost::mpi::communicator world;
 
   // Criterium-function:
-  std::string q_str;
+  std::string q_str = "x^2y^0 +x^0y^2";
   std::vector<char> q_vec(q_str.length());
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
@@ -222,7 +219,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incor
   boost::mpi::communicator world;
 
   // Criterium-function:
-  std::string q_str;
+  std::string q_str = "x^2y^0 +x^0y^2";
   std::vector<char> q_vec(q_str.length());
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
