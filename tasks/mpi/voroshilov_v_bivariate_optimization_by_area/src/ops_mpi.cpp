@@ -169,16 +169,21 @@ bool voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskParalle
     if (taskData->inputs_count[0] <= 0) {
       return false;
     }
+    // constraints count is not equal as it is:
+    size_t g_count = *reinterpret_cast<size_t*>(taskData->inputs[1]);
+    if (g_count != (taskData->inputs).size() - 4) {
+      return false;
+    }
     // incorrect number of search areas:
-    if (taskData->inputs_count[1] != 4) {
+    if (taskData->inputs_count[2 + g_count] != 4) {
       return false;
     }
     // search areas:
-    auto* d_ptr = reinterpret_cast<double*>(taskData->inputs[1]);
+    auto* d_ptr = reinterpret_cast<double*>(taskData->inputs[2 + g_count]);
     double x_min = *d_ptr++;
     double x_max = *d_ptr++;
     double y_min = *d_ptr++;
-    double y_max = *d_ptr++;
+    double y_max = *d_ptr;
     if (x_min > x_max) {
       return false;
     }
@@ -186,20 +191,22 @@ bool voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskParalle
       return false;
     }
     // incorrect number of steps count:
-    if (taskData->inputs_count[2] != 2) {
+    if (taskData->inputs_count[2 + g_count + 1] != 2) {
       return false;
     }
+    // steps counts:
+    auto* s_ptr = reinterpret_cast<int*>(taskData->inputs[2 + g_count + 1]);
+    int x_steps = *s_ptr++;
+    int y_steps = *s_ptr;
     // steps_count x:
-    if (taskData->inputs[2][0] <= 0) {
+    if (x_steps <= 0) {
       return false;
     }
     // steps_count y:
-    if (taskData->inputs[2][1] <= 0) {
+    if (y_steps <= 0) {
       return false;
     }
-    // constraints count is not equal as it is:
-    size_t g_count = *reinterpret_cast<size_t*>(taskData->inputs[3]);
-    return g_count == (taskData->inputs).size() - 4;
+    
   }
   return true;
 }
