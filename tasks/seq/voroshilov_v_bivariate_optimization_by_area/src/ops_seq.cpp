@@ -12,7 +12,7 @@ bool voroshilov_v_bivariate_optimization_by_area_seq::OptimizationTaskSequential
     return false;
   }
   // search areas:
-  double* d_ptr = reinterpret_cast<double*>(taskData->inputs[1]);
+  auto* d_ptr = reinterpret_cast<double*>(taskData->inputs[1]);
   double x_min = *d_ptr++;
   double x_max = *d_ptr++;
   double y_min = *d_ptr++;
@@ -54,7 +54,7 @@ bool voroshilov_v_bivariate_optimization_by_area_seq::OptimizationTaskSequential
   q = Polynomial(q_vec);
 
   // search area:
-  double* d_ptr = reinterpret_cast<double*>(taskData->inputs[1]);
+  auto* d_ptr = reinterpret_cast<double*>(taskData->inputs[1]);
   double x_min = *d_ptr++;
   double x_max = *d_ptr++;
   double y_min = *d_ptr++;
@@ -107,7 +107,7 @@ bool voroshilov_v_bivariate_optimization_by_area_seq::OptimizationTaskSequential
   // Find first point satisfied constraints:
   size_t index = 0;
   bool flag_in_area = false;
-  while ((index < points.size()) && (flag_in_area == false)) {
+  while ((index < points.size()) && (!flag_in_area)) {
     // Check if constraints is satisfied:
     flag_in_area = true;
     for (size_t j = 0; j < g.size(); j++) {
@@ -134,7 +134,7 @@ bool voroshilov_v_bivariate_optimization_by_area_seq::OptimizationTaskSequential
       }
     }
     // Check if current < optimum
-    if (flag_in_area == true) {
+    if (flag_in_area) {
       if (current_value < optimum_value) {
         optimum_value = current_value;
         optimum_point.x = points[i].x;

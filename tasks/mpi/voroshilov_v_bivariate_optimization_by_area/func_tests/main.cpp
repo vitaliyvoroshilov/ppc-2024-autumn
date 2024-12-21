@@ -5,7 +5,7 @@
 
 #include "mpi/voroshilov_v_bivariate_optimization_by_area/include/ops_mpi.hpp"
 
-bool validation_test_mpi(boost::mpi::communicator comm, std::vector<char> q_vec, size_t g_count,
+bool validation_test_mpi(const boost::mpi::communicator &comm, std::vector<char> q_vec, size_t g_count,
                          std::vector<std::vector<char>> g_vec, std::vector<double> areas_vec,
                          std::vector<int> steps_vec) {
   std::shared_ptr<ppc::core::TaskData> taskDataParallel = std::make_shared<ppc::core::TaskData>();
@@ -71,7 +71,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_empty
   boost::mpi::communicator world;
 
   // Criterium-function:
-  std::string q_str = "";
+  std::string q_str;
   std::vector<char> q_vec(q_str.length());
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
@@ -101,7 +101,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incor
   boost::mpi::communicator world;
 
   // Criterium-function:
-  std::string q_str = "";
+  std::string q_str;
   std::vector<char> q_vec(q_str.length());
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
@@ -131,7 +131,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incor
   boost::mpi::communicator world;
 
   // Criterium-function:
-  std::string q_str = "";
+  std::string q_str;
   std::vector<char> q_vec(q_str.length());
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
@@ -161,7 +161,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incor
   boost::mpi::communicator world;
 
   // Criterium-function:
-  std::string q_str = "";
+  std::string q_str;
   std::vector<char> q_vec(q_str.length());
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
@@ -191,7 +191,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incor
   boost::mpi::communicator world;
 
   // Criterium-function:
-  std::string q_str = "";
+  std::string q_str;
   std::vector<char> q_vec(q_str.length());
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
@@ -221,7 +221,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incor
   boost::mpi::communicator world;
 
   // Criterium-function:
-  std::string q_str = "";
+  std::string q_str;
   std::vector<char> q_vec(q_str.length());
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
@@ -247,7 +247,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incor
   }
 }
 
-double run_test_mpi(boost::mpi::communicator comm, std::vector<char> q_vec, size_t g_count,
+double run_test_mpi(const boost::mpi::communicator &comm, std::vector<char> q_vec, size_t g_count,
                     std::vector<std::vector<char>> g_vec, std::vector<double> areas_vec, std::vector<int> steps_vec) {
   std::shared_ptr<ppc::core::TaskData> taskDataParallel = std::make_shared<ppc::core::TaskData>();
 

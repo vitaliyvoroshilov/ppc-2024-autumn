@@ -32,13 +32,15 @@ struct Monomial {
   }
 
   Monomial(std::vector<char> monom) {
+    deg_x = 0;
+    deg_y = 0;
     size_t i = 0;
-    std::string str_coef = "";
+    std::string str_coef;
     while ((i < monom.size()) && (monom[i] != 'x')) {
       str_coef += monom[i];
       i++;
     }
-    if (str_coef.length() > 0) {
+    if (!str_coef.empty()) {
       if (str_coef == "-") {
         coef = -1.0;
       } else if (str_coef == "+") {
@@ -47,16 +49,13 @@ struct Monomial {
         coef = std::stod(str_coef);
       }
     }
-    if (str_coef.length() == 0) {
+    if (str_coef.empty()) {
       coef = 1.0;
     }
 
-    if (i == monom.size()) {
-      deg_x = 0;
-      deg_y = 0;
-    } else {
+    if (i != monom.size()) {
       i += 2;
-      std::string str_degx = "";
+      std::string str_degx;
       while (monom[i] != 'y') {
         str_degx += monom[i];
         i++;
@@ -64,7 +63,7 @@ struct Monomial {
       deg_x = std::stoi(str_degx);
 
       i += 2;
-      std::string str_degy = "";
+      std::string str_degy;
       while (i < monom.size()) {
         str_degy += monom[i];
         i++;
@@ -73,7 +72,7 @@ struct Monomial {
     }
   }
 
-  double calculate(Point point) {
+  double calculate(Point point) const {
     double res = coef * pow(point.x, deg_x) * pow(point.y, deg_y);
     return res;
   }
@@ -85,11 +84,6 @@ struct Polynomial {
   std::vector<Monomial> monomials;
 
   Polynomial() { length = 0; }
-
-  Polynomial(size_t length_, std::vector<Monomial> monomials_) {
-    length = length_;
-    monomials = monomials_;
-  }
 
   Polynomial(std::vector<char> polynom) {
     length = 0;

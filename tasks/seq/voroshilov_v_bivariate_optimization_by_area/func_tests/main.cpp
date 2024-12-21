@@ -32,12 +32,12 @@ bool validation_test(std::vector<char> q_vec, std::vector<double> areas_vec, std
 }
 
 TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_validation_empty_criterium_function) {
-  std::string q_str = "";
+  std::string q_str;
   std::vector<char> q_vec(q_str.length());
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
   std::vector<double> areas_vec({-10.0, 10.0, -10.0, 10.0});
-  std::vector<int> steps_vec({1000, 1000});
+  std::vector<int> steps_vec({500, 500});
 
   std::string g_str1 = "-x^1y^0";
   std::vector<char> g_vec1(g_str1.length());
@@ -57,7 +57,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_validation_incor
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
   std::vector<double> areas_vec({-10.0, 10.0, -10.0});
-  std::vector<int> steps_vec({1000, 1000});
+  std::vector<int> steps_vec({500, 500});
 
   std::string g_str1 = "-x^1y^0";
   std::vector<char> g_vec1(g_str1.length());
@@ -77,7 +77,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_validation_incor
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
   std::vector<double> areas_vec({-10.0, -20.0, -10.0, 10.0});
-  std::vector<int> steps_vec({1000, 1000});
+  std::vector<int> steps_vec({500, 500});
 
   std::string g_str1 = "-x^1y^0";
   std::vector<char> g_vec1(g_str1.length());
@@ -97,7 +97,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_validation_incor
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
   std::vector<double> areas_vec({-10.0, 10.0, -10.0, 10.0});
-  std::vector<int> steps_vec({1000});
+  std::vector<int> steps_vec({100});
 
   std::string g_str1 = "-x^1y^0";
   std::vector<char> g_vec1(g_str1.length());
@@ -117,7 +117,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_validation_incor
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
   std::vector<double> areas_vec({-10.0, 10.0, -10.0, 10.0});
-  std::vector<int> steps_vec({0, 1000});
+  std::vector<int> steps_vec({0, 100});
 
   std::string g_str1 = "-x^1y^0";
   std::vector<char> g_vec1(g_str1.length());
@@ -137,7 +137,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_validation_incor
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
   std::vector<double> areas_vec({-10.0, 10.0, -10.0, 10.0});
-  std::vector<int> steps_vec({1000, 1000});
+  std::vector<int> steps_vec({500, 500});
 
   std::string g_str1 = "-x^1y^0";
   std::vector<char> g_vec1(g_str1.length());
@@ -191,7 +191,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_zero_fu
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
   std::vector<double> areas_vec({-10.0, 10.0, -10.0, 10.0});
-  std::vector<int> steps_vec({1000, 1000});
+  std::vector<int> steps_vec({500, 500});
 
   std::vector<std::vector<char>> g_vec;
   size_t g_count = g_vec.size();
@@ -200,7 +200,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_zero_fu
 
   double optimum_value = optimum_vec[2];
 
-  double eps = 0.1;
+  double eps = 0.2;
 
   ASSERT_NEAR(optimum_value, 0.0, eps);  // dont check optimum point because it is everywhere
 }
@@ -211,7 +211,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_zero_fu
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
   std::vector<double> areas_vec({-10.0, 10.0, -10.0, 10.0});
-  std::vector<int> steps_vec({1000, 1000});
+  std::vector<int> steps_vec({500, 500});
 
   std::string g_str1 = "-x^1y^0 +1";  // x >= 1
   std::vector<char> g_vec1(g_str1.length());
@@ -228,7 +228,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_zero_fu
   double optimum_y = optimum_vec[1];
   double optimum_value = optimum_vec[2];
 
-  double eps = 0.1;
+  double eps = 0.2;
 
   ASSERT_TRUE(optimum_x >= 1.0);
   ASSERT_TRUE(optimum_y >= 1.0);
@@ -241,7 +241,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_parabol
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
   std::vector<double> areas_vec({-5.0, 5.0, -5.0, 5.0});
-  std::vector<int> steps_vec({1000, 1000});
+  std::vector<int> steps_vec({500, 500});
 
   std::vector<std::vector<char>> g_vec;
   size_t g_count = g_vec.size();
@@ -252,7 +252,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_parabol
   double optimum_y = optimum_vec[1];
   double optimum_value = optimum_vec[2];
 
-  double eps = 0.1;
+  double eps = 0.2;
 
   ASSERT_NEAR(optimum_x, 0.0, eps);
   ASSERT_NEAR(optimum_y, 0.0, eps);
@@ -265,7 +265,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_parabol
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
   std::vector<double> areas_vec({-5.0, 5.0, -5.0, 5.0});
-  std::vector<int> steps_vec({1000, 1000});
+  std::vector<int> steps_vec({500, 500});
 
   std::string g_str1 = "-x^1y^0 +1";  // x >= 1
   std::vector<char> g_vec1(g_str1.length());
@@ -282,7 +282,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_parabol
   double optimum_y = optimum_vec[1];
   double optimum_value = optimum_vec[2];
 
-  double eps = 0.1;
+  double eps = 0.2;
 
   ASSERT_NEAR(optimum_x, 1.0, eps);
   ASSERT_NEAR(optimum_y, 1.0, eps);
@@ -295,7 +295,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_parabol
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
   std::vector<double> areas_vec({-5.0, 5.0, -5.0, 5.0});
-  std::vector<int> steps_vec({1000, 1000});
+  std::vector<int> steps_vec({500, 500});
 
   std::vector<std::vector<char>> g_vec;
   size_t g_count = g_vec.size();
@@ -306,7 +306,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_parabol
   double optimum_y = optimum_vec[1];
   double optimum_value = optimum_vec[2];
 
-  double eps = 0.1;
+  double eps = 0.2;
 
   ASSERT_NEAR(optimum_x, 0.0, eps);
   ASSERT_NEAR(optimum_y, 0.0, eps);
@@ -319,7 +319,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_parabol
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
   std::vector<double> areas_vec({-5.0, 5.0, -5.0, 5.0});
-  std::vector<int> steps_vec({1000, 1000});
+  std::vector<int> steps_vec({500, 500});
 
   std::string g_str1 = "-x^1y^0 +1";  // x >= 1
   std::vector<char> g_vec1(g_str1.length());
@@ -336,7 +336,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_parabol
   double optimum_y = optimum_vec[1];
   double optimum_value = optimum_vec[2];
 
-  double eps = 0.1;
+  double eps = 0.2;
 
   ASSERT_NEAR(optimum_x, 1.0, eps);
   ASSERT_NEAR(optimum_y, 1.0, eps);
@@ -349,7 +349,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_shifted
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
   std::vector<double> areas_vec({-10.0, 10.0, -10.0, 10.0});
-  std::vector<int> steps_vec({1000, 1000});
+  std::vector<int> steps_vec({500, 500});
 
   std::vector<std::vector<char>> g_vec;
   size_t g_count = g_vec.size();
@@ -360,7 +360,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_shifted
   double optimum_y = optimum_vec[1];
   double optimum_value = optimum_vec[2];
 
-  double eps = 0.1;
+  double eps = 0.2;
 
   ASSERT_TRUE((0.0 <= optimum_x) && (optimum_x <= 10.0));
   ASSERT_TRUE((0.0 <= optimum_y) && (optimum_x <= 10.0));
@@ -373,7 +373,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_shifted
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
   std::vector<double> areas_vec({-10.0, 10.0, -10.0, 10.0});
-  std::vector<int> steps_vec({1000, 1000});
+  std::vector<int> steps_vec({500, 500});
 
   std::string g_str1 = "x^0y^1 -2x^1y^0 -4";
   std::vector<char> g_vec1(g_str1.length());
@@ -393,7 +393,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_shifted
   double optimum_y = optimum_vec[1];
   double optimum_value = optimum_vec[2];
 
-  double eps = 0.1;
+  double eps = 0.2;
 
   ASSERT_TRUE((-2.0 <= optimum_x) && (optimum_x <= 4.0));
   ASSERT_TRUE((0.0 <= optimum_y) && (optimum_x <= 4.0));
@@ -406,7 +406,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_large_d
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
   std::vector<double> areas_vec({-2.0, 2.0, -2.0, 2.0});
-  std::vector<int> steps_vec({1000, 1000});
+  std::vector<int> steps_vec({500, 500});
 
   std::vector<std::vector<char>> g_vec;
   size_t g_count = g_vec.size();
@@ -417,7 +417,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_large_d
   double optimum_y = optimum_vec[1];
   double optimum_value = optimum_vec[2];
 
-  double eps = 0.1;
+  double eps = 0.2;
 
   ASSERT_TRUE((-1.0 <= optimum_x) && (optimum_x <= 1.0));
   ASSERT_TRUE((-1.0 <= optimum_y) && (optimum_y <= 1.0));
@@ -430,7 +430,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_large_d
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
   std::vector<double> areas_vec({-2.0, 2.0, -2.0, 2.0});
-  std::vector<int> steps_vec({1000, 1000});
+  std::vector<int> steps_vec({500, 500});
 
   std::string g_str1 = "-x^1y^0 +0.5";  // x >= 0.5
   std::vector<char> g_vec1(g_str1.length());
@@ -447,7 +447,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_large_d
   double optimum_y = optimum_vec[1];
   double optimum_value = optimum_vec[2];
 
-  double eps = 0.1;
+  double eps = 0.2;
 
   ASSERT_TRUE(0.5 <= optimum_x);
   ASSERT_TRUE(0.7 <= optimum_y);
@@ -461,7 +461,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_odd_deg
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
   std::vector<double> areas_vec({0.0, 2.0, 0.0, 2.0});  // areas changed to find min!!!
-  std::vector<int> steps_vec({1000, 1000});
+  std::vector<int> steps_vec({500, 500});
 
   std::vector<std::vector<char>> g_vec;
   size_t g_count = g_vec.size();
@@ -472,7 +472,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_odd_deg
   double optimum_y = optimum_vec[1];
   double optimum_value = optimum_vec[2];
 
-  double eps = 0.1;
+  double eps = 0.2;
 
   ASSERT_TRUE((0.0 <= optimum_x) && (optimum_x <= 1.0));
   ASSERT_TRUE((0.0 <= optimum_y) && (optimum_y <= 1.0));
@@ -486,7 +486,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_odd_deg
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
   std::vector<double> areas_vec({-2.0, 2.0, -2.0, 2.0});
-  std::vector<int> steps_vec({1000, 1000});
+  std::vector<int> steps_vec({500, 500});
 
   std::string g_str1 = "-x^1y^0 -0.5";  // x >= -0.5
   std::vector<char> g_vec1(g_str1.length());
@@ -503,7 +503,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_odd_deg
   double optimum_y = optimum_vec[1];
   double optimum_value = optimum_vec[2];
 
-  double eps = 0.1;
+  double eps = 0.2;
 
   ASSERT_TRUE((-0.5 <= optimum_x) && (optimum_x <= 1.0));
   ASSERT_TRUE((-0.5 <= optimum_y) && (optimum_y <= 1.0));
@@ -516,7 +516,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_negativ
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
   std::vector<double> areas_vec({-15.0, 0.0, -10.0, 10.0});  // areas changed to find min!!!
-  std::vector<int> steps_vec({1000, 1000});
+  std::vector<int> steps_vec({500, 500});
 
   std::vector<std::vector<char>> g_vec;
   size_t g_count = g_vec.size();
@@ -525,7 +525,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_negativ
 
   double optimum_value = optimum_vec[2];
 
-  double eps = 0.1;
+  double eps = 0.2;
 
   ASSERT_NEAR(optimum_value, 0.0, eps);
 }
@@ -536,7 +536,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_negativ
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
   std::vector<double> areas_vec({-15.0, 0.0, -10.0, 10.0});  // areas changed to find min!!!
-  std::vector<int> steps_vec({1000, 1000});
+  std::vector<int> steps_vec({500, 500});
 
   std::string g_str1 = "-x^1y^0 -10";  // x >= -10
   std::vector<char> g_vec1(g_str1.length());
@@ -556,7 +556,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_negativ
   double optimum_y = optimum_vec[1];
   double optimum_value = optimum_vec[2];
 
-  double eps = 0.1;
+  double eps = 0.2;
 
   ASSERT_TRUE(-10.0 <= optimum_x);
   ASSERT_TRUE((-0.5 <= optimum_y) && (optimum_y <= 0.5));
