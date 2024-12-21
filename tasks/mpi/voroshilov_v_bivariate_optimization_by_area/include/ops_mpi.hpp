@@ -67,7 +67,7 @@ struct Monomial {
       coef = 1.0;
     }
 
-    if (i != monom.size()) {
+    if (i < monom.size()) {
       i += 2;
       std::string str_degx;
       while (monom[i] != 'y') {

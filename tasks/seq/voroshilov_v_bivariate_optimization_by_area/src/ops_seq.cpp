@@ -37,11 +37,7 @@ bool voroshilov_v_bivariate_optimization_by_area_seq::OptimizationTaskSequential
   }
   // constraints count is not equal as it is:
   size_t g_count = *reinterpret_cast<int*>(taskData->inputs[3]);
-  if (g_count != (taskData->inputs).size() - 4) {
-    return false;
-  }
-
-  return true;
+  return g_count == (taskData->inputs).size() - 4;
 }
 
 bool voroshilov_v_bivariate_optimization_by_area_seq::OptimizationTaskSequential::pre_processing() {
