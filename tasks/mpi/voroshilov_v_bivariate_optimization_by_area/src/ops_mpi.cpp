@@ -241,6 +241,8 @@ bool voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskParalle
   internal_order_test();
 
   std::vector<Point> points;
+  std::vector<double> x_coords;
+  std::vector<double> y_coords;
 
   if (world.rank() == 0) {
     // Preparing vector of points:
@@ -253,6 +255,8 @@ bool voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskParalle
     while (current_point.y <= y_area.max_value) {
       while (current_point.x <= x_area.max_value) {
         points.push_back(current_point);
+        x_coords.push_back(current_point.x);
+        y_coords.push_back(current_point.y);
         current_point.x += x_step;
       }
       current_point.x = x_area.min_value;
@@ -285,8 +289,16 @@ bool voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskParalle
     }
   }
 
-  std::vector<Point> local_points(parts[world.rank()]);
-  boost::mpi::scatterv(world, points.data(), parts, offsets, local_points.data(), parts[world.rank()], 0);
+  std::vector<double> local_x_coords(parts[world.rank()]);
+  std::vector<double> local_y_coords(parts[world.rank()]);
+  boost::mpi::scatterv(world, x_coords.data(), parts, offsets, local_x_coords.data(), parts[world.rank()], 0);
+  boost::mpi::scatterv(world, y_coords.data(), parts, offsets, local_y_coords.data(), parts[world.rank()], 0);
+
+  std::vector<Point> local_points;
+  for (size_t i = 0; i < local_x_coords.size(); i++) {
+    Point current_point(local_x_coords[i], local_y_coords[i]);
+    local_points.push_back(current_point);
+  }
 
   // Finding minimum in local vector of points:
 

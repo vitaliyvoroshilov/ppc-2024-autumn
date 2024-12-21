@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/communicator.hpp>
-#include <boost/serialization/serialization.hpp>
 #include <cmath>
 #include <functional>
 #include <memory>
@@ -27,12 +26,6 @@ struct Point {
   Point(double x_ = 0, double y_ = 0) {
     x = x_;
     y = y_;
-  }
-
-  template <class Archive>
-  void serialize(Archive& ar, unsigned int version) {
-    ar & x;
-    ar & y;
   }
 };
 
