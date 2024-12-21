@@ -176,7 +176,7 @@ bool voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskParalle
     // criterium-function length <= 0:
     if (taskData->inputs_count[0] <= 0) {
       return false;
-    }
+    } /*
     // constraints count is not equal as it is:
     size_t g_count = *reinterpret_cast<size_t*>(taskData->inputs[1]);
     if (g_count != (taskData->inputs).size() - 4) {
@@ -213,7 +213,7 @@ bool voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskParalle
     // steps_count y:
     if (y_steps <= 0) {
       return false;
-    }
+    }*/
   }
   return true;
 }
