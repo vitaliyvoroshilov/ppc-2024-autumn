@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/communicator.hpp>
+#include <boost/mpi/environment.hpp>
 #include <cmath>
 #include <memory>
 #include <numeric>

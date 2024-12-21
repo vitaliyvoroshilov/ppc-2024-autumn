@@ -1,8 +1,5 @@
 #include <gtest/gtest.h>
 
-#include <boost/mpi/communicator.hpp>
-#include <boost/mpi/environment.hpp>
-
 #include "mpi/voroshilov_v_bivariate_optimization_by_area/include/ops_mpi.hpp"
 
 bool validation_test_mpi(std::vector<char> q_vec, size_t g_count, std::vector<std::vector<char>> g_vec,
@@ -97,6 +94,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_empty
     ASSERT_FALSE(validation_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec));
   }
 }
+
 TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incorrect_num_of_areas) {
   boost::mpi::communicator world;
 
@@ -151,12 +149,11 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incor
   std::vector<int> steps_vec({1000, 1000});
 
   ASSERT_FALSE(validation_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec));
-  
+
   if (world.rank() == 0) {
     ASSERT_FALSE(validation_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec));
   }
 }
-
 
 TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incorrect_num_of_steps_counts) {
   boost::mpi::communicator world;
@@ -247,7 +244,6 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incor
     ASSERT_FALSE(validation_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec));
   }
 }
-
 
 double run_test_mpi(std::vector<char> q_vec, size_t g_count, std::vector<std::vector<char>> g_vec,
                     std::vector<double> areas_vec, std::vector<int> steps_vec) {
