@@ -67,7 +67,7 @@ bool validation_test_seq(std::vector<char> q_vec, size_t g_count, std::vector<st
       taskDataSeq);
   return optimizationMPITaskSequential.validation();
 }
-/*
+
 TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_empty_criterium_function) {
   boost::mpi::communicator world;
 
@@ -97,6 +97,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_empty
     ASSERT_FALSE(validation_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec));
   }
 }
+/*
 TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incorrect_num_of_areas) {
   boost::mpi::communicator world;
 
