@@ -5,9 +5,9 @@
 
 #include "mpi/voroshilov_v_bivariate_optimization_by_area/include/ops_mpi.hpp"
 
-bool validation_test_mpi(std::vector<char> q_vec, size_t g_count, std::vector<std::vector<char>> g_vec,
+bool validation_test_mpi(boost::mpi::communicator comm, std::vector<char> q_vec, size_t g_count, std::vector<std::vector<char>> g_vec,
                          std::vector<double> areas_vec, std::vector<int> steps_vec) {
-  boost::mpi::communicator comm;
+  //boost::mpi::communicator comm;
 
   std::shared_ptr<ppc::core::TaskData> taskDataParallel = std::make_shared<ppc::core::TaskData>();
 
@@ -23,7 +23,7 @@ bool validation_test_mpi(std::vector<char> q_vec, size_t g_count, std::vector<st
     taskDataParallel->inputs.emplace_back(reinterpret_cast<uint8_t *>(g_vec[i].data()));
   }
   double optimum_value = DBL_MAX;
-  //if (comm.rank() == 0) {
+  if (comm.rank() == 0) {
     // Search area boundaries:
     taskDataParallel->inputs_count.emplace_back(areas_vec.size());
     taskDataParallel->inputs.emplace_back(reinterpret_cast<uint8_t *>(areas_vec.data()));
@@ -32,7 +32,7 @@ bool validation_test_mpi(std::vector<char> q_vec, size_t g_count, std::vector<st
     taskDataParallel->inputs.emplace_back(reinterpret_cast<uint8_t *>(steps_vec.data()));
     // Output - optimum point and value:
     taskDataParallel->outputs.emplace_back(reinterpret_cast<uint8_t *>(&optimum_value));
-  //}
+  }
   voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskParallel optimizationMPITaskParallel(
       taskDataParallel);
   return optimizationMPITaskParallel.validation();
@@ -150,7 +150,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incor
   // Steps counts (how many points will be used):
   std::vector<int> steps_vec({1000, 1000});
 
-  ASSERT_FALSE(validation_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec));
+  ASSERT_FALSE(validation_test_mpi(world, q_vec, g_count, g_vec, areas_vec, steps_vec));
   /*
   if (world.rank() == 0) {
     ASSERT_FALSE(validation_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec));
