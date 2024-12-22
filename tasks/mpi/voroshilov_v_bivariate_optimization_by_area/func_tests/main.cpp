@@ -452,6 +452,42 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_parabol
   }
 }
 
+TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_paraboloid_degree_of_2) {
+  boost::mpi::communicator world;
+
+  // Criterium-function:
+  std::string q_str = "x^2y^0 +x^0y^2";  // paraboloid x^2+y^2, increases from point (0;0)
+  std::vector<char> q_vec(q_str.length());
+  std::copy(q_str.begin(), q_str.end(), q_vec.begin());
+
+  // Constraints-functions:
+  std::string g_str1 = "-x^1y^0 +1";  // x >= 1
+  std::vector<char> g_vec1(g_str1.length());
+  std::copy(g_str1.begin(), g_str1.end(), g_vec1.begin());
+  std::string g_str2 = "-x^0y^1 +1";  // y >= 1
+  std::vector<char> g_vec2(g_str2.length());
+  std::copy(g_str2.begin(), g_str2.end(), g_vec2.begin());
+  std::vector<std::vector<char>> g_vec({g_vec1, g_vec2});
+  size_t g_count = g_vec.size();
+
+  // Search areas:
+  std::vector<double> areas_vec({-5.0, 5.0, -5.0, 5.0});
+  // Steps counts (how many points will be used):
+  std::vector<int> steps_vec({256, 256});
+  // Output value:
+  double optimum_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+  double eps = 0.2;
+
+  ASSERT_NEAR(optimum_mpi, 2.0, eps);
+
+  if (world.rank() == 0) {
+    double optimum_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+    ASSERT_EQ(optimum_seq, optimum_mpi);
+  }
+}
+
 TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_paraboloid_minus_number_without_constraints) {
   boost::mpi::communicator world;
 
@@ -504,6 +540,42 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_parabol
   std::vector<double> areas_vec({-5.0, 5.0, -5.0, 5.0});
   // Steps counts (how many points will be used):
   std::vector<int> steps_vec({250, 250});
+  // Output value:
+  double optimum_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+  double eps = 0.2;
+
+  ASSERT_NEAR(optimum_mpi, -8.0, eps);
+
+  if (world.rank() == 0) {
+    double optimum_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+    ASSERT_EQ(optimum_seq, optimum_mpi);
+  }
+}
+
+TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_paraboloid_minus_number_different_steps) {
+  boost::mpi::communicator world;
+
+  // Criterium-function:
+  std::string q_str = "x^2y^0 +x^0y^2 -10";  // paraboloid x^2+y^2 munus 10 (increases from -10)
+  std::vector<char> q_vec(q_str.length());
+  std::copy(q_str.begin(), q_str.end(), q_vec.begin());
+
+  // Constraints-functions:
+  std::string g_str1 = "-x^1y^0 +1";  // x >= 1
+  std::vector<char> g_vec1(g_str1.length());
+  std::copy(g_str1.begin(), g_str1.end(), g_vec1.begin());
+  std::string g_str2 = "-x^0y^1 +1";  // y >= 1
+  std::vector<char> g_vec2(g_str2.length());
+  std::copy(g_str2.begin(), g_str2.end(), g_vec2.begin());
+  std::vector<std::vector<char>> g_vec({g_vec1, g_vec2});
+  size_t g_count = g_vec.size();
+
+  // Search areas:
+  std::vector<double> areas_vec({-5.0, 5.0, -5.0, 5.0});
+  // Steps counts (how many points will be used):
+  std::vector<int> steps_vec({240, 260});
   // Output value:
   double optimum_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
@@ -587,6 +659,45 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_shifted
   }
 }
 
+TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_shifted_paraboloid_prime_num_steps) {
+  boost::mpi::communicator world;
+
+  // Criterium-function:
+  std::string q_str = "x^2y^0 -12x^1y^0 +x^0y^2 -4x^0y^1";  // shifted paraboloid, increases from about -40
+  std::vector<char> q_vec(q_str.length());
+  std::copy(q_str.begin(), q_str.end(), q_vec.begin());
+
+  // Constraints-functions:
+  std::string g_str1 = "x^0y^1 -2x^1y^0 -4";
+  std::vector<char> g_vec1(g_str1.length());
+  std::copy(g_str1.begin(), g_str1.end(), g_vec1.begin());
+  std::string g_str2 = "x^0y^1 +x^1y^0 -4";
+  std::vector<char> g_vec2(g_str2.length());
+  std::copy(g_str2.begin(), g_str2.end(), g_vec2.begin());
+  std::string g_str3 = "0.2x^1y^0 -x^0y^1 +0.4";
+  std::vector<char> g_vec3(g_str3.length());
+  std::copy(g_str3.begin(), g_str3.end(), g_vec3.begin());
+  std::vector<std::vector<char>> g_vec({g_vec1, g_vec2, g_vec3});
+  size_t g_count = g_vec.size();
+
+  // Search areas:
+  std::vector<double> areas_vec({0.0, 5.0, 0.0, 5.0});
+  // Steps counts (how many points will be used):
+  std::vector<int> steps_vec({251, 251}); // prime numbers
+  // Output value:
+  double optimum_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+  double eps = 0.2;
+
+  ASSERT_NEAR(optimum_mpi, -30.0, eps);
+
+  if (world.rank() == 0) {
+    double optimum_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+    ASSERT_EQ(optimum_seq, optimum_mpi);
+  }
+}
+
 TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_large_degrees_without_constraints) {
   boost::mpi::communicator world;
 
@@ -639,6 +750,42 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_large_d
   std::vector<double> areas_vec({-2.0, 2.0, -2.0, 2.0});
   // Steps counts (how many points will be used):
   std::vector<int> steps_vec({250, 250});
+  // Output value:
+  double optimum_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+  double eps = 0.2;
+
+  ASSERT_NEAR(optimum_mpi, 0.0, eps);
+
+  if (world.rank() == 0) {
+    double optimum_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+    ASSERT_EQ(optimum_seq, optimum_mpi);
+  }
+}
+
+TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_large_degrees_degree2_prime_num) {
+  boost::mpi::communicator world;
+
+  // Criterium-function:
+  std::string q_str = "x^256y^0 +x^0y^888 +x^100y^28";  // "box", increases from value 0
+  std::vector<char> q_vec(q_str.length());
+  std::copy(q_str.begin(), q_str.end(), q_vec.begin());
+
+  // Constraints-functions:
+  std::string g_str1 = "-x^1y^0 +0.5";  // x >= 0.5
+  std::vector<char> g_vec1(g_str1.length());
+  std::copy(g_str1.begin(), g_str1.end(), g_vec1.begin());
+  std::string g_str2 = "-x^0y^1 +0.7";  // y >= 0.7
+  std::vector<char> g_vec2(g_str2.length());
+  std::copy(g_str2.begin(), g_str2.end(), g_vec2.begin());
+  std::vector<std::vector<char>> g_vec({g_vec1, g_vec2});
+  size_t g_count = g_vec.size();
+
+  // Search areas:
+  std::vector<double> areas_vec({-2.0, 2.0, -2.0, 2.0});
+  // Steps counts (how many points will be used):
+  std::vector<int> steps_vec({256, 251}); // 2^8 and prime number
   // Output value:
   double optimum_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
