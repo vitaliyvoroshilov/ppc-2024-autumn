@@ -35,7 +35,7 @@ bool voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskSequent
   auto* s_ptr = reinterpret_cast<int*>(taskData->inputs[2 + g_count + 1]);
   int x_steps = *s_ptr++;
   int y_steps = *s_ptr;
-  return !((x_steps <= 0) || (y_steps <= 0));
+  return (x_steps <= 0) && (y_steps <= 0);
 }
 
 bool voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskSequential::pre_processing() {
