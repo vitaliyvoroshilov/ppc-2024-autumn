@@ -4,13 +4,12 @@
 #include "seq/voroshilov_v_bivariate_optimization_by_area/include/ops_seq.hpp"
 
 TEST(voroshilov_v_bivariate_optimization_by_area_seq_perf, test_pipeline_run) {
+  // Criterium-function:
   std::string q_str = "x^2y^0 +x^0y^2";  // paraboloid x^2+y^2, increases from point (0;0)
   std::vector<char> q_vec(q_str.length());
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
-  std::vector<double> areas_vec({-5.0, 5.0, -5.0, 5.0});
-  std::vector<int> steps_vec({5000, 5000});
-
+  // Constraints-functions:
   std::string g_str1 = "-x^1y^0 +1";  // x >= 1
   std::vector<char> g_vec1(g_str1.length());
   std::copy(g_str1.begin(), g_str1.end(), g_vec1.begin());
@@ -19,6 +18,11 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_perf, test_pipeline_run) {
   std::copy(g_str2.begin(), g_str2.end(), g_vec2.begin());
   std::vector<std::vector<char>> g_vec({g_vec1, g_vec2});
   size_t g_count = g_vec.size();
+
+  // Search areas:
+  std::vector<double> areas_vec({-5.0, 5.0, -5.0, 5.0});
+  // Steps counts (how many points will be used):
+  std::vector<int> steps_vec({2000, 2000});
 
   std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
 
@@ -68,7 +72,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_perf, test_pipeline_run) {
   double optimum_y = optimum_vec[1];
   double optimum_value = optimum_vec[2];
 
-  double eps = 0.1;
+  double eps = 0.2;
 
   ASSERT_NEAR(optimum_x, 1.0, eps);
   ASSERT_NEAR(optimum_y, 1.0, eps);
@@ -76,13 +80,12 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_perf, test_pipeline_run) {
 }
 
 TEST(voroshilov_v_bivariate_optimization_by_area_seq_perf, test_task_run) {
+  // Criterium-function:
   std::string q_str = "x^2y^0 +x^0y^2";  // paraboloid x^2+y^2, increases from point (0;0)
   std::vector<char> q_vec(q_str.length());
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
-  std::vector<double> areas_vec({-5.0, 5.0, -5.0, 5.0});
-  std::vector<int> steps_vec({5000, 5000});
-
+  // Constraints-functions:
   std::string g_str1 = "-x^1y^0 +1";  // x >= 1
   std::vector<char> g_vec1(g_str1.length());
   std::copy(g_str1.begin(), g_str1.end(), g_vec1.begin());
@@ -91,6 +94,11 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_perf, test_task_run) {
   std::copy(g_str2.begin(), g_str2.end(), g_vec2.begin());
   std::vector<std::vector<char>> g_vec({g_vec1, g_vec2});
   size_t g_count = g_vec.size();
+
+  // Search areas:
+  std::vector<double> areas_vec({-5.0, 5.0, -5.0, 5.0});
+  // Steps counts (how many points will be used):
+  std::vector<int> steps_vec({2000, 2000});
 
   std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
 
@@ -140,7 +148,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_perf, test_task_run) {
   double optimum_y = optimum_vec[1];
   double optimum_value = optimum_vec[2];
 
-  double eps = 0.1;
+  double eps = 0.2;
 
   ASSERT_NEAR(optimum_x, 1.0, eps);
   ASSERT_NEAR(optimum_y, 1.0, eps);

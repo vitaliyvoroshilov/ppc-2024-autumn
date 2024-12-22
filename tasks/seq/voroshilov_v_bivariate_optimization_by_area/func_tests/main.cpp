@@ -3,7 +3,7 @@
 #include "seq/voroshilov_v_bivariate_optimization_by_area/include/ops_seq.hpp"
 
 bool validation_test(std::vector<char> q_vec, size_t g_count, std::vector<std::vector<char>> g_vec,
-                         std::vector<double> areas_vec, std::vector<int> steps_vec) {
+                     std::vector<double> areas_vec, std::vector<int> steps_vec) {
   std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
 
   // Criterium-function:
@@ -27,13 +27,11 @@ bool validation_test(std::vector<char> q_vec, size_t g_count, std::vector<std::v
   std::vector<double> optimum_vec(3);
   taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(optimum_vec.data()));
 
-  voroshilov_v_bivariate_optimization_by_area_seq::OptimizationTaskSequential optimizationTaskSequential(
-      taskDataSeq);
+  voroshilov_v_bivariate_optimization_by_area_seq::OptimizationTaskSequential optimizationTaskSequential(taskDataSeq);
   return optimizationTaskSequential.validation();
 }
 
 TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_validation_empty_criterium_function) {
-  
   // Criterium-function:
   std::string q_str;
   std::vector<char> q_vec(q_str.length());
@@ -58,7 +56,6 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_validation_empty
 }
 
 TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_validation_incorrect_num_of_areas) {
-  
   // Criterium-function:
   std::string q_str = "x^2y^0 +x^0y^2";
   std::vector<char> q_vec(q_str.length());
@@ -83,7 +80,6 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_validation_incor
 }
 
 TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_validation_incorrect_areas) {
-  
   // Criterium-function:
   std::string q_str = "x^2y^0 +x^0y^2";
   std::vector<char> q_vec(q_str.length());
@@ -108,7 +104,6 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_validation_incor
 }
 
 TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_validation_incorrect_num_of_steps_counts) {
-  
   // Criterium-function:
   std::string q_str = "x^2y^0 +x^0y^2";
   std::vector<char> q_vec(q_str.length());
@@ -133,7 +128,6 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_validation_incor
 }
 
 TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_validation_incorrect_steps_counts) {
-  
   // Criterium-function:
   std::string q_str = "x^2y^0 +x^0y^2";
   std::vector<char> q_vec(q_str.length());
@@ -158,7 +152,6 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_validation_incor
 }
 
 TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_validation_incorrect_g_count) {
-  
   // Criterium-function:
   std::string q_str = "x^2y^0 +x^0y^2";
   std::vector<char> q_vec(q_str.length());
@@ -217,7 +210,6 @@ std::vector<double> run_test(std::vector<char> q_vec, size_t g_count, std::vecto
 }
 
 TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_zero_func_without_constraints) {
-  
   // Criterium-function:
   std::string q_str = "0";
   std::vector<char> q_vec(q_str.length());
@@ -242,13 +234,12 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_zero_fu
 }
 
 TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_zero_func_with_constraints) {
+  // Criterium-function:
   std::string q_str = "0";
   std::vector<char> q_vec(q_str.length());
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
-  std::vector<double> areas_vec({-10.0, 10.0, -10.0, 10.0});
-  std::vector<int> steps_vec({250, 250});
-
+  // Constraints-functions:
   std::string g_str1 = "-x^1y^0 +1";  // x >= 1
   std::vector<char> g_vec1(g_str1.length());
   std::copy(g_str1.begin(), g_str1.end(), g_vec1.begin());
@@ -258,6 +249,11 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_zero_fu
   std::vector<std::vector<char>> g_vec({g_vec1, g_vec2});
   size_t g_count = g_vec.size();
 
+  // Search areas:
+  std::vector<double> areas_vec({-10.0, 10.0, -10.0, 10.0});
+  // Steps counts (how many points will be used):
+  std::vector<int> steps_vec({250, 250});
+  // Output value:
   std::vector<double> optimum_vec = run_test(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
   double optimum_x = optimum_vec[0];
@@ -272,16 +268,20 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_zero_fu
 }
 
 TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_paraboloid_without_constraints) {
+  // Criterium-function:
   std::string q_str = "x^2y^0 +x^0y^2";  // paraboloid x^2+y^2, increases from point (0;0)
   std::vector<char> q_vec(q_str.length());
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
-  std::vector<double> areas_vec({-5.0, 5.0, -5.0, 5.0});
-  std::vector<int> steps_vec({250, 250});
-
+  // Constraints-functions:
   std::vector<std::vector<char>> g_vec;
   size_t g_count = g_vec.size();
 
+  // Search areas:
+  std::vector<double> areas_vec({-5.0, 5.0, -5.0, 5.0});
+  // Steps counts (how many points will be used):
+  std::vector<int> steps_vec({250, 250});
+  // Output value:
   std::vector<double> optimum_vec = run_test(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
   double optimum_x = optimum_vec[0];
@@ -296,13 +296,12 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_parabol
 }
 
 TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_paraboloid_with_constraints) {
+  // Criterium-function:
   std::string q_str = "x^2y^0 +x^0y^2";  // paraboloid x^2+y^2, increases from point (0;0)
   std::vector<char> q_vec(q_str.length());
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
-  std::vector<double> areas_vec({-5.0, 5.0, -5.0, 5.0});
-  std::vector<int> steps_vec({250, 250});
-
+  // Constraints-functions:
   std::string g_str1 = "-x^1y^0 +1";  // x >= 1
   std::vector<char> g_vec1(g_str1.length());
   std::copy(g_str1.begin(), g_str1.end(), g_vec1.begin());
@@ -312,6 +311,11 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_parabol
   std::vector<std::vector<char>> g_vec({g_vec1, g_vec2});
   size_t g_count = g_vec.size();
 
+  // Search areas:
+  std::vector<double> areas_vec({-5.0, 5.0, -5.0, 5.0});
+  // Steps counts (how many points will be used):
+  std::vector<int> steps_vec({250, 250});
+  // Output value:
   std::vector<double> optimum_vec = run_test(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
   double optimum_x = optimum_vec[0];
@@ -326,16 +330,20 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_parabol
 }
 
 TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_paraboloid_minus_number_without_constraints) {
-  std::string q_str = "x^2y^0 +x^0y^2 -10";  // paraboloid x^2+y^2 minus 10 (increases from -10)
+  // Criterium-function:
+  std::string q_str = "x^2y^0 +x^0y^2 -10";  // paraboloid x^2+y^2 minus 10, increases from -10
   std::vector<char> q_vec(q_str.length());
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
-  std::vector<double> areas_vec({-5.0, 5.0, -5.0, 5.0});
-  std::vector<int> steps_vec({250, 250});
-
+  // Constraints-functions:
   std::vector<std::vector<char>> g_vec;
   size_t g_count = g_vec.size();
 
+  // Search areas:
+  std::vector<double> areas_vec({-5.0, 5.0, -5.0, 5.0});
+  // Steps counts (how many points will be used):
+  std::vector<int> steps_vec({250, 250});
+  // Output value:
   std::vector<double> optimum_vec = run_test(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
   double optimum_x = optimum_vec[0];
@@ -350,13 +358,12 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_parabol
 }
 
 TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_paraboloid_minus_number_with_constraints) {
+  // Criterium-function:
   std::string q_str = "x^2y^0 +x^0y^2 -10";  // paraboloid x^2+y^2 munus 10 (increases from -10)
   std::vector<char> q_vec(q_str.length());
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
-  std::vector<double> areas_vec({-5.0, 5.0, -5.0, 5.0});
-  std::vector<int> steps_vec({250, 250});
-
+  // Constraints-functions:
   std::string g_str1 = "-x^1y^0 +1";  // x >= 1
   std::vector<char> g_vec1(g_str1.length());
   std::copy(g_str1.begin(), g_str1.end(), g_vec1.begin());
@@ -366,6 +373,11 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_parabol
   std::vector<std::vector<char>> g_vec({g_vec1, g_vec2});
   size_t g_count = g_vec.size();
 
+  // Search areas:
+  std::vector<double> areas_vec({-5.0, 5.0, -5.0, 5.0});
+  // Steps counts (how many points will be used):
+  std::vector<int> steps_vec({250, 250});
+  // Output value:
   std::vector<double> optimum_vec = run_test(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
   double optimum_x = optimum_vec[0];
@@ -380,16 +392,20 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_parabol
 }
 
 TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_shifted_paraboloid_without_constraints) {
+  // Criterium-function:
   std::string q_str = "x^2y^0 -12x^1y^0 +x^0y^2 -4x^0y^1";  // shifted paraboloid, increases from about -40
   std::vector<char> q_vec(q_str.length());
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
-  std::vector<double> areas_vec({-10.0, 10.0, -10.0, 10.0});
-  std::vector<int> steps_vec({250, 250});
-
+  // Constraints-functions:
   std::vector<std::vector<char>> g_vec;
   size_t g_count = g_vec.size();
 
+  // Search areas:
+  std::vector<double> areas_vec({-10.0, 10.0, -10.0, 10.0});
+  // Steps counts (how many points will be used):
+  std::vector<int> steps_vec({250, 250});
+  // Output value:
   std::vector<double> optimum_vec = run_test(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
   double optimum_x = optimum_vec[0];
@@ -404,13 +420,12 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_shifted
 }
 
 TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_shifted_paraboloid_with_constraints) {
+  // Criterium-function:
   std::string q_str = "x^2y^0 -12x^1y^0 +x^0y^2 -4x^0y^1";  // shifted paraboloid, increases from about -40
   std::vector<char> q_vec(q_str.length());
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
-  std::vector<double> areas_vec({0.0, 5.0, 0.0, 5.0});
-  std::vector<int> steps_vec({250, 250});
-
+  // Constraints-functions:
   std::string g_str1 = "x^0y^1 -2x^1y^0 -4";
   std::vector<char> g_vec1(g_str1.length());
   std::copy(g_str1.begin(), g_str1.end(), g_vec1.begin());
@@ -423,6 +438,11 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_shifted
   std::vector<std::vector<char>> g_vec({g_vec1, g_vec2, g_vec3});
   size_t g_count = g_vec.size();
 
+  // Search areas:
+  std::vector<double> areas_vec({0.0, 5.0, 0.0, 5.0});
+  // Steps counts (how many points will be used):
+  std::vector<int> steps_vec({250, 250});
+  // Output value:
   std::vector<double> optimum_vec = run_test(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
   double optimum_x = optimum_vec[0];
@@ -437,16 +457,20 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_shifted
 }
 
 TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_large_degrees_without_constraints) {
+  // Criterium-function:
   std::string q_str = "x^256y^0 +x^0y^888 +x^100y^28";  // "box", increases from value 0
   std::vector<char> q_vec(q_str.length());
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
-  std::vector<double> areas_vec({-2.0, 2.0, -2.0, 2.0});
-  std::vector<int> steps_vec({250, 250});
-
+  // Constraints-functions:
   std::vector<std::vector<char>> g_vec;
   size_t g_count = g_vec.size();
 
+  // Search areas:
+  std::vector<double> areas_vec({-2.0, 2.0, -2.0, 2.0});
+  // Steps counts (how many points will be used):
+  std::vector<int> steps_vec({250, 250});
+  // Output value:
   std::vector<double> optimum_vec = run_test(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
   double optimum_x = optimum_vec[0];
@@ -461,13 +485,12 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_large_d
 }
 
 TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_large_degrees_with_constraints) {
+  // Criterium-function:
   std::string q_str = "x^256y^0 +x^0y^888 +x^100y^28";  // "box", increases from value 0
   std::vector<char> q_vec(q_str.length());
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
-  std::vector<double> areas_vec({-2.0, 2.0, -2.0, 2.0});
-  std::vector<int> steps_vec({250, 250});
-
+  // Constraints-functions:
   std::string g_str1 = "-x^1y^0 +0.5";  // x >= 0.5
   std::vector<char> g_vec1(g_str1.length());
   std::copy(g_str1.begin(), g_str1.end(), g_vec1.begin());
@@ -477,6 +500,11 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_large_d
   std::vector<std::vector<char>> g_vec({g_vec1, g_vec2});
   size_t g_count = g_vec.size();
 
+  // Search areas:
+  std::vector<double> areas_vec({-2.0, 2.0, -2.0, 2.0});
+  // Steps counts (how many points will be used):
+  std::vector<int> steps_vec({250, 250});
+  // Output value:
   std::vector<double> optimum_vec = run_test(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
   double optimum_x = optimum_vec[0];
@@ -491,17 +519,21 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_large_d
 }
 
 TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_odd_degrees_without_constraints) {
+  // Criterium-function:
   std::string q_str = "x^33y^0 +x^0y^51";  // "increasing-decreasing box", increases from 0 where x > ~0.75 or y > ~0.75
                                            // decreases from 0 where x < ~-0.75 or y < ~-0.75
   std::vector<char> q_vec(q_str.length());
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
-  std::vector<double> areas_vec({0.0, 2.0, 0.0, 2.0});  // areas changed to find min!!!
-  std::vector<int> steps_vec({250, 250});
-
+  // Constraints-functions:
   std::vector<std::vector<char>> g_vec;
   size_t g_count = g_vec.size();
 
+  // Search areas:
+  std::vector<double> areas_vec({0.0, 2.0, 0.0, 2.0});  // areas changed to find min!!!
+  // Steps counts (how many points will be used):
+  std::vector<int> steps_vec({250, 250});
+  // Output value:
   std::vector<double> optimum_vec = run_test(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
   double optimum_x = optimum_vec[0];
@@ -516,14 +548,13 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_odd_deg
 }
 
 TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_odd_degrees_with_constraints) {
+  // Criterium-function:
   std::string q_str = "x^33y^0 +x^0y^51";  // "increasing-decreasing box", increases from 0 where x > ~0.75 or y > ~0.75
                                            // decreases from 0 where x < ~-0.75 or y < ~-0.75
   std::vector<char> q_vec(q_str.length());
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
-  std::vector<double> areas_vec({-2.0, 2.0, -2.0, 2.0});
-  std::vector<int> steps_vec({250, 250});
-
+  // Constraints-functions:
   std::string g_str1 = "-x^1y^0 -0.5";  // x >= -0.5
   std::vector<char> g_vec1(g_str1.length());
   std::copy(g_str1.begin(), g_str1.end(), g_vec1.begin());
@@ -533,6 +564,11 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_odd_deg
   std::vector<std::vector<char>> g_vec({g_vec1, g_vec2});
   size_t g_count = g_vec.size();
 
+  // Search areas:
+  std::vector<double> areas_vec({-2.0, 2.0, -2.0, 2.0});
+  // Steps counts (how many points will be used):
+  std::vector<int> steps_vec({250, 250});
+  // Output value:
   std::vector<double> optimum_vec = run_test(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
   double optimum_x = optimum_vec[0];
@@ -547,16 +583,20 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_odd_deg
 }
 
 TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_negative_degree_without_constraints) {
+  // Criterium-function:
   std::string q_str = "x^-2y^0";  // "3D hyperbole" with positive values
   std::vector<char> q_vec(q_str.length());
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
-  std::vector<double> areas_vec({-15.0, 0.0, -10.0, 10.0});  // areas changed to find min!!!
-  std::vector<int> steps_vec({250, 250});
-
+  // Constraints-functions:
   std::vector<std::vector<char>> g_vec;
   size_t g_count = g_vec.size();
 
+  // Search areas:
+  std::vector<double> areas_vec({-15.0, 0.0, -10.0, 10.0});  // areas changed to find min!!!
+  // Steps counts (how many points will be used):
+  std::vector<int> steps_vec({250, 250});
+  // Output value:
   std::vector<double> optimum_vec = run_test(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
   double optimum_value = optimum_vec[2];
@@ -567,13 +607,12 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_negativ
 }
 
 TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_negative_degree_with_constraints) {
+  // Criterium-function:
   std::string q_str = "x^-2y^0";  // "3D hyperbole" with positive values
   std::vector<char> q_vec(q_str.length());
   std::copy(q_str.begin(), q_str.end(), q_vec.begin());
 
-  std::vector<double> areas_vec({-15.0, 0.0, -10.0, 10.0});  // areas changed to find min!!!
-  std::vector<int> steps_vec({250, 250});
-
+  // Constraints-functions:
   std::string g_str1 = "-x^1y^0 -10";  // x >= -10
   std::vector<char> g_vec1(g_str1.length());
   std::copy(g_str1.begin(), g_str1.end(), g_vec1.begin());
@@ -586,6 +625,11 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_negativ
   std::vector<std::vector<char>> g_vec({g_vec1, g_vec2, g_vec3});
   size_t g_count = g_vec.size();
 
+  // Search areas:
+  std::vector<double> areas_vec({-15.0, 0.0, -10.0, 10.0});  // areas changed to find min!!!
+  // Steps counts (how many points will be used):
+  std::vector<int> steps_vec({250, 250});
+  // Output value:
   std::vector<double> optimum_vec = run_test(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
   double optimum_x = optimum_vec[0];

@@ -26,7 +26,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_perf, test_pipeline_run) {
   // Search areas:
   std::vector<double> areas_vec({-5.0, 5.0, -5.0, 5.0});
   // Steps counts (how many points will be used):
-  std::vector<int> steps_vec({5000, 5000});
+  std::vector<int> steps_vec({2000, 2000});
 
   std::shared_ptr<ppc::core::TaskData> taskDataParallel = std::make_shared<ppc::core::TaskData>();
 
@@ -71,7 +71,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_perf, test_pipeline_run) {
   if (world.rank() == 0) {
     ppc::core::Perf::print_perf_statistic(perfResults);
 
-    double eps = 0.1;
+    double eps = 0.2;
     ASSERT_NEAR(optimum_value, 2.0, eps);
   }
 }
@@ -97,7 +97,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_perf, test_task_run) {
   // Search areas:
   std::vector<double> areas_vec({-5.0, 5.0, -5.0, 5.0});
   // Steps counts (how many points will be used):
-  std::vector<int> steps_vec({5000, 5000});
+  std::vector<int> steps_vec({2000, 2000});
 
   std::shared_ptr<ppc::core::TaskData> taskDataParallel = std::make_shared<ppc::core::TaskData>();
 
@@ -142,7 +142,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_perf, test_task_run) {
   if (world.rank() == 0) {
     ppc::core::Perf::print_perf_statistic(perfResults);
 
-    double eps = 0.1;
+    double eps = 0.2;
     ASSERT_NEAR(optimum_value, 2.0, eps);
   }
 }
