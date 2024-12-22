@@ -15,7 +15,6 @@
 namespace voroshilov_v_bivariate_optimization_by_area_mpi {
 
 struct Point {
- public:
   double x;
   double y;
 
@@ -26,7 +25,6 @@ struct Point {
 };
 
 struct Monomial {
- public:
   double coef;
   int deg_x;
   int deg_y;
@@ -86,7 +84,6 @@ struct Monomial {
 };
 
 struct Polynomial {
- public:
   size_t length;
   std::vector<Monomial> monomials;
 
@@ -120,7 +117,6 @@ struct Polynomial {
 };
 
 struct Search_area {
- public:
   double min_value;
   double max_value;
   int steps_count;

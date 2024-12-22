@@ -7,37 +7,37 @@ bool voroshilov_v_bivariate_optimization_by_area_seq::OptimizationTaskSequential
   if (taskData->inputs_count[0] <= 0) {
     return false;
   }
+  // constraints count is not equal as it is:
+  size_t g_count = *reinterpret_cast<size_t*>(taskData->inputs[1]);
+  if (g_count != (taskData->inputs).size() - 4) {
+    return false;
+  }
   // incorrect number of search areas:
-  if (taskData->inputs_count[1] != 4) {
+  if (taskData->inputs_count[2 + g_count] != 4) {
     return false;
   }
   // search areas:
-  auto* d_ptr = reinterpret_cast<double*>(taskData->inputs[1]);
+  auto* d_ptr = reinterpret_cast<double*>(taskData->inputs[2 + g_count]);
   double x_min = *d_ptr++;
   double x_max = *d_ptr++;
   double y_min = *d_ptr++;
-  double y_max = *d_ptr++;
-  if (x_min > x_max) {
-    return false;
-  }
-  if (y_min > y_max) {
+  double y_max = *d_ptr;
+  if ((x_min > x_max) || (y_min > y_max)) {
     return false;
   }
   // incorrect number of steps count:
-  if (taskData->inputs_count[2] != 2) {
+  if (taskData->inputs_count[2 + g_count + 1] != 2) {
     return false;
   }
-  // steps_count x:
-  if (taskData->inputs[2][0] <= 0) {
+  // steps counts:
+  auto* s_ptr = reinterpret_cast<int*>(taskData->inputs[2 + g_count + 1]);
+  int x_steps = *s_ptr++;
+  int y_steps = *s_ptr;
+  if ((x_steps <= 0) || (y_steps <= 0)) {
     return false;
   }
-  // steps_count y:
-  if (taskData->inputs[2][1] <= 0) {
-    return false;
-  }
-  // constraints count is not equal as it is:
-  size_t g_count = *reinterpret_cast<int*>(taskData->inputs[3]);
-  return g_count == (taskData->inputs).size() - 4;
+
+  return true;
 }
 
 bool voroshilov_v_bivariate_optimization_by_area_seq::OptimizationTaskSequential::pre_processing() {
@@ -49,31 +49,31 @@ bool voroshilov_v_bivariate_optimization_by_area_seq::OptimizationTaskSequential
   std::copy(q_ptr, q_ptr + taskData->inputs_count[0], q_vec.begin());
   q = Polynomial(q_vec);
 
-  // search area:
-  auto* d_ptr = reinterpret_cast<double*>(taskData->inputs[1]);
-  double x_min = *d_ptr++;
-  double x_max = *d_ptr++;
-  double y_min = *d_ptr++;
-  double y_max = *d_ptr++;
-
-  // steps counts:
-  int* s_ptr = reinterpret_cast<int*>(taskData->inputs[2]);
-  int x_steps = *s_ptr++;
-  int y_steps = *s_ptr;
-
-  x_area = Search_area(x_min, x_max, x_steps);
-  y_area = Search_area(y_min, y_max, y_steps);
-
-  size_t g_count = *reinterpret_cast<int*>(taskData->inputs[3]);
+  size_t g_count = *reinterpret_cast<int*>(taskData->inputs[1]);
 
   // constraints-functions:
-  for (size_t i = 4; i < 4 + g_count; i++) {
+  for (size_t i = 2; i < 2 + g_count; i++) {
     char* g_ptr = reinterpret_cast<char*>(taskData->inputs[i]);
     std::vector<char> current_g_vec(taskData->inputs_count[i]);
     std::copy(g_ptr, g_ptr + taskData->inputs_count[i], current_g_vec.begin());
     Polynomial current_g_pol(current_g_vec);
     g.push_back(current_g_pol);
   }
+
+  // search area:
+  auto* d_ptr = reinterpret_cast<double*>(taskData->inputs[2 + g_count]);
+  double x_min = *d_ptr++;
+  double x_max = *d_ptr++;
+  double y_min = *d_ptr++;
+  double y_max = *d_ptr++;
+
+  // steps counts:
+  int* s_ptr = reinterpret_cast<int*>(taskData->inputs[2 + g_count + 1]);
+  int x_steps = *s_ptr++;
+  int y_steps = *s_ptr;
+
+  x_area = Search_area(x_min, x_max, x_steps);
+  y_area = Search_area(y_min, y_max, y_steps);
 
   return true;
 }

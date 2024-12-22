@@ -25,12 +25,6 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_perf, test_pipeline_run) {
   // Criterium-function:
   taskDataSeq->inputs_count.emplace_back(q_vec.size());
   taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(q_vec.data()));
-  // Search area boundaries:
-  taskDataSeq->inputs_count.emplace_back(areas_vec.size());
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(areas_vec.data()));
-  // Steps counts (how many points will be used):
-  taskDataSeq->inputs_count.emplace_back(steps_vec.size());
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(steps_vec.data()));
   // Count of constraints-functions:
   taskDataSeq->inputs_count.emplace_back(1);
   taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&g_count));
@@ -39,6 +33,12 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_perf, test_pipeline_run) {
     taskDataSeq->inputs_count.emplace_back(g_vec[i].size());
     taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(g_vec[i].data()));
   }
+  // Search area boundaries:
+  taskDataSeq->inputs_count.emplace_back(areas_vec.size());
+  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(areas_vec.data()));
+  // Steps counts (how many points will be used):
+  taskDataSeq->inputs_count.emplace_back(steps_vec.size());
+  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(steps_vec.data()));
   // Output - optimum point and value:
   std::vector<double> optimum_vec(3);
   taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(optimum_vec.data()));
@@ -97,12 +97,6 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_perf, test_task_run) {
   // Criterium-function:
   taskDataSeq->inputs_count.emplace_back(q_vec.size());
   taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(q_vec.data()));
-  // Search area boundaries:
-  taskDataSeq->inputs_count.emplace_back(areas_vec.size());
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(areas_vec.data()));
-  // Steps counts (how many points will be used):
-  taskDataSeq->inputs_count.emplace_back(steps_vec.size());
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(steps_vec.data()));
   // Count of constraints-functions:
   taskDataSeq->inputs_count.emplace_back(1);
   taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&g_count));
@@ -111,6 +105,12 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_perf, test_task_run) {
     taskDataSeq->inputs_count.emplace_back(g_vec[i].size());
     taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(g_vec[i].data()));
   }
+  // Search area boundaries:
+  taskDataSeq->inputs_count.emplace_back(areas_vec.size());
+  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(areas_vec.data()));
+  // Steps counts (how many points will be used):
+  taskDataSeq->inputs_count.emplace_back(steps_vec.size());
+  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(steps_vec.data()));
   // Output - optimum point and value:
   std::vector<double> optimum_vec(3);
   taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(optimum_vec.data()));
