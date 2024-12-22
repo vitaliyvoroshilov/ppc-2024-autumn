@@ -147,7 +147,9 @@ bool voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskSequent
 bool voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskSequential::post_processing() {
   internal_order_test();
 
-  reinterpret_cast<double*>(taskData->outputs[0])[0] = optimum_value;
+  reinterpret_cast<double*>(taskData->outputs[0])[0] = optimum_point.x;
+  reinterpret_cast<double*>(taskData->outputs[0])[1] = optimum_point.y;
+  reinterpret_cast<double*>(taskData->outputs[0])[2] = optimum_value;
 
   return true;
 }
@@ -314,8 +316,7 @@ bool voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskParalle
     }
     index++;
   }
-  Point local_optimum_point;
-  double local_optimum_value;
+
   size_t first_satisfied = index;  // it is first candidate for optimum
   if (first_satisfied == local_points.size()) {
     local_optimum_point = Point(DBL_MAX, DBL_MAX);
@@ -346,7 +347,32 @@ bool voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskParalle
     }
   }
 
-  boost::mpi::reduce(world, local_optimum_value, global_optimum_value, boost::mpi::minimum<double>(), 0);
+  if (world.rank() != 0) {
+    boost::mpi::gather(world, local_optimum_point.x, 0);
+    boost::mpi::gather(world, local_optimum_point.y, 0);
+    boost::mpi::gather(world, local_optimum_value, 0);
+  }
+  if (world.rank() == 0) {
+    std::vector<double> x_mins;
+    std::vector<double> y_mins;
+    std::vector<double> mins;
+    boost::mpi::gather(world, local_optimum_point.x, x_mins, 0);
+    boost::mpi::gather(world, local_optimum_point.y, y_mins, 0);
+    boost::mpi::gather(world, local_optimum_value, mins, 0);
+
+    local_optimum_point.x = x_mins[0];
+    local_optimum_point.y = y_mins[0];
+    local_optimum_value = mins[0];
+    for (size_t i = 1; i < mins.size(); i++) {
+      if (mins[i] < local_optimum_value) {
+        local_optimum_point.x = x_mins[i];
+        local_optimum_point.y = y_mins[i];
+        local_optimum_value = mins[i];
+      }
+    }
+  }
+
+  // boost::mpi::reduce(world, local_optimum_value, global_optimum_value, boost::mpi::minimum<double>(), 0);
 
   return true;
 }
@@ -355,7 +381,9 @@ bool voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskParalle
   internal_order_test();
 
   if (world.rank() == 0) {
-    reinterpret_cast<double*>(taskData->outputs[0])[0] = global_optimum_value;
+    reinterpret_cast<double*>(taskData->outputs[0])[0] = local_optimum_point.x;
+    reinterpret_cast<double*>(taskData->outputs[0])[1] = local_optimum_point.y;
+    reinterpret_cast<double*>(taskData->outputs[0])[2] = local_optimum_value;
   }
   return true;
 }

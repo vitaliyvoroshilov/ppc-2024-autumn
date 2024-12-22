@@ -245,8 +245,8 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_validation_incor
   }
 }
 
-double run_test_mpi(std::vector<char> q_vec, size_t g_count, std::vector<std::vector<char>> g_vec,
-                    std::vector<double> areas_vec, std::vector<int> steps_vec) {
+std::vector<double> run_test_mpi(std::vector<char> q_vec, size_t g_count, std::vector<std::vector<char>> g_vec,
+                                 std::vector<double> areas_vec, std::vector<int> steps_vec) {
   boost::mpi::communicator comm;
 
   std::shared_ptr<ppc::core::TaskData> taskDataParallel = std::make_shared<ppc::core::TaskData>();
@@ -262,7 +262,7 @@ double run_test_mpi(std::vector<char> q_vec, size_t g_count, std::vector<std::ve
     taskDataParallel->inputs_count.emplace_back(g_vec[i].size());
     taskDataParallel->inputs.emplace_back(reinterpret_cast<uint8_t *>(g_vec[i].data()));
   }
-  double optimum_value = DBL_MAX;
+  std::vector<double> optimum_vec(3);
   if (comm.rank() == 0) {
     // Search area boundaries:
     taskDataParallel->inputs_count.emplace_back(areas_vec.size());
@@ -271,7 +271,7 @@ double run_test_mpi(std::vector<char> q_vec, size_t g_count, std::vector<std::ve
     taskDataParallel->inputs_count.emplace_back(steps_vec.size());
     taskDataParallel->inputs.emplace_back(reinterpret_cast<uint8_t *>(steps_vec.data()));
     // Output - optimum point and value:
-    taskDataParallel->outputs.emplace_back(reinterpret_cast<uint8_t *>(&optimum_value));
+    taskDataParallel->outputs.emplace_back(reinterpret_cast<uint8_t *>(optimum_vec.data()));
   }
   voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskParallel optimizationMPITaskParallel(
       taskDataParallel);
@@ -280,13 +280,13 @@ double run_test_mpi(std::vector<char> q_vec, size_t g_count, std::vector<std::ve
   optimizationMPITaskParallel.run();
   optimizationMPITaskParallel.post_processing();
 
-  boost::mpi::broadcast(comm, optimum_value, 0);
+  boost::mpi::broadcast(comm, optimum_vec.data(), optimum_vec.size(), 0);
 
-  return optimum_value;
+  return optimum_vec;
 }
 
-double run_test_seq(std::vector<char> q_vec, size_t g_count, std::vector<std::vector<char>> g_vec,
-                    std::vector<double> areas_vec, std::vector<int> steps_vec) {
+std::vector<double> run_test_seq(std::vector<char> q_vec, size_t g_count, std::vector<std::vector<char>> g_vec,
+                                 std::vector<double> areas_vec, std::vector<int> steps_vec) {
   std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
 
   // Criterium-function:
@@ -307,8 +307,8 @@ double run_test_seq(std::vector<char> q_vec, size_t g_count, std::vector<std::ve
   taskDataSeq->inputs_count.emplace_back(steps_vec.size());
   taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(steps_vec.data()));
   // Output - optimum point and value:
-  double optimum_value = DBL_MAX;
-  taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(&optimum_value));
+  std::vector<double> optimum_vec(3);
+  taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(optimum_vec.data()));
 
   voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskSequential optimizationMPITaskSequential(
       taskDataSeq);
@@ -317,7 +317,7 @@ double run_test_seq(std::vector<char> q_vec, size_t g_count, std::vector<std::ve
   optimizationMPITaskSequential.run();
   optimizationMPITaskSequential.post_processing();
 
-  return optimum_value;
+  return optimum_vec;
 }
 
 TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_zero_func_without_constraints) {
@@ -337,16 +337,20 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_zero_fu
   // Steps counts (how many points will be used):
   std::vector<int> steps_vec({250, 250});
   // Output value:
-  double optimum_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
+  std::vector<double> optimum_vec_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+  double optimum_value_mpi = optimum_vec_mpi[2];
 
   double eps = 0.2;
 
-  ASSERT_NEAR(optimum_mpi, 0.0, eps);
+  ASSERT_NEAR(optimum_value_mpi, 0.0, eps);  // dont check optimum point because it is everywhere
 
   if (world.rank() == 0) {
-    double optimum_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
+    std::vector<double> optimum_vec_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
-    ASSERT_EQ(optimum_seq, optimum_mpi);
+    double optimum_value_seq = optimum_vec_seq[2];
+
+    ASSERT_EQ(optimum_value_seq, optimum_value_mpi);
   }
 }
 
@@ -373,16 +377,28 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_zero_fu
   // Steps counts (how many points will be used):
   std::vector<int> steps_vec({250, 250});
   // Output value:
-  double optimum_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
+  std::vector<double> optimum_vec_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+  double optimum_x_mpi = optimum_vec_mpi[0];
+  double optimum_y_mpi = optimum_vec_mpi[1];
+  double optimum_value_mpi = optimum_vec_mpi[2];
 
   double eps = 0.2;
 
-  ASSERT_NEAR(optimum_mpi, 0.0, eps);
+  ASSERT_TRUE(optimum_x_mpi >= 1.0);
+  ASSERT_TRUE(optimum_y_mpi >= 1.0);
+  ASSERT_NEAR(optimum_value_mpi, 0.0, eps);
 
   if (world.rank() == 0) {
-    double optimum_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
+    std::vector<double> optimum_vec_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
-    ASSERT_EQ(optimum_seq, optimum_mpi);
+    double optimum_x_seq = optimum_vec_seq[0];
+    double optimum_y_seq = optimum_vec_seq[1];
+    double optimum_value_seq = optimum_vec_seq[2];
+
+    ASSERT_EQ(optimum_x_seq, optimum_x_mpi);
+    ASSERT_EQ(optimum_y_seq, optimum_y_mpi);
+    ASSERT_EQ(optimum_value_seq, optimum_value_mpi);
   }
 }
 
@@ -403,16 +419,28 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_parabol
   // Steps counts (how many points will be used):
   std::vector<int> steps_vec({250, 250});
   // Output value:
-  double optimum_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
+  std::vector<double> optimum_vec_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+  double optimum_x_mpi = optimum_vec_mpi[0];
+  double optimum_y_mpi = optimum_vec_mpi[1];
+  double optimum_value_mpi = optimum_vec_mpi[2];
 
   double eps = 0.2;
 
-  ASSERT_NEAR(optimum_mpi, 0.0, eps);
+  ASSERT_NEAR(optimum_x_mpi, 0.0, eps);
+  ASSERT_NEAR(optimum_y_mpi, 0.0, eps);
+  ASSERT_NEAR(optimum_value_mpi, 0.0, eps);
 
   if (world.rank() == 0) {
-    double optimum_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
+    std::vector<double> optimum_vec_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
-    ASSERT_EQ(optimum_seq, optimum_mpi);
+    double optimum_x_seq = optimum_vec_seq[0];
+    double optimum_y_seq = optimum_vec_seq[1];
+    double optimum_value_seq = optimum_vec_seq[2];
+
+    ASSERT_EQ(optimum_x_seq, optimum_x_mpi);
+    ASSERT_EQ(optimum_y_seq, optimum_y_mpi);
+    ASSERT_EQ(optimum_value_seq, optimum_value_mpi);
   }
 }
 
@@ -439,16 +467,28 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_parabol
   // Steps counts (how many points will be used):
   std::vector<int> steps_vec({250, 250});
   // Output value:
-  double optimum_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
+  std::vector<double> optimum_vec_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+  double optimum_x_mpi = optimum_vec_mpi[0];
+  double optimum_y_mpi = optimum_vec_mpi[1];
+  double optimum_value_mpi = optimum_vec_mpi[2];
 
   double eps = 0.2;
 
-  ASSERT_NEAR(optimum_mpi, 2.0, eps);
+  ASSERT_NEAR(optimum_x_mpi, 1.0, eps);
+  ASSERT_NEAR(optimum_y_mpi, 1.0, eps);
+  ASSERT_NEAR(optimum_value_mpi, 2.0, eps);
 
   if (world.rank() == 0) {
-    double optimum_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
+    std::vector<double> optimum_vec_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
-    ASSERT_EQ(optimum_seq, optimum_mpi);
+    double optimum_x_seq = optimum_vec_seq[0];
+    double optimum_y_seq = optimum_vec_seq[1];
+    double optimum_value_seq = optimum_vec_seq[2];
+
+    ASSERT_EQ(optimum_x_seq, optimum_x_mpi);
+    ASSERT_EQ(optimum_y_seq, optimum_y_mpi);
+    ASSERT_EQ(optimum_value_seq, optimum_value_mpi);
   }
 }
 
@@ -475,16 +515,28 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_parabol
   // Steps counts (how many points will be used):
   std::vector<int> steps_vec({256, 256});
   // Output value:
-  double optimum_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
+  std::vector<double> optimum_vec_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+  double optimum_x_mpi = optimum_vec_mpi[0];
+  double optimum_y_mpi = optimum_vec_mpi[1];
+  double optimum_value_mpi = optimum_vec_mpi[2];
 
   double eps = 0.2;
 
-  ASSERT_NEAR(optimum_mpi, 2.0, eps);
+  ASSERT_NEAR(optimum_x_mpi, 1.0, eps);
+  ASSERT_NEAR(optimum_y_mpi, 1.0, eps);
+  ASSERT_NEAR(optimum_value_mpi, 2.0, eps);
 
   if (world.rank() == 0) {
-    double optimum_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
+    std::vector<double> optimum_vec_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
-    ASSERT_EQ(optimum_seq, optimum_mpi);
+    double optimum_x_seq = optimum_vec_seq[0];
+    double optimum_y_seq = optimum_vec_seq[1];
+    double optimum_value_seq = optimum_vec_seq[2];
+
+    ASSERT_EQ(optimum_x_seq, optimum_x_mpi);
+    ASSERT_EQ(optimum_y_seq, optimum_y_mpi);
+    ASSERT_EQ(optimum_value_seq, optimum_value_mpi);
   }
 }
 
@@ -505,16 +557,28 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_parabol
   // Steps counts (how many points will be used):
   std::vector<int> steps_vec({250, 250});
   // Output value:
-  double optimum_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
+  std::vector<double> optimum_vec_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+  double optimum_x_mpi = optimum_vec_mpi[0];
+  double optimum_y_mpi = optimum_vec_mpi[1];
+  double optimum_value_mpi = optimum_vec_mpi[2];
 
   double eps = 0.2;
 
-  ASSERT_NEAR(optimum_mpi, -10.0, eps);
+  ASSERT_NEAR(optimum_x_mpi, 0.0, eps);
+  ASSERT_NEAR(optimum_y_mpi, 0.0, eps);
+  ASSERT_NEAR(optimum_value_mpi, -10.0, eps);
 
   if (world.rank() == 0) {
-    double optimum_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
+    std::vector<double> optimum_vec_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
-    ASSERT_EQ(optimum_seq, optimum_mpi);
+    double optimum_x_seq = optimum_vec_seq[0];
+    double optimum_y_seq = optimum_vec_seq[1];
+    double optimum_value_seq = optimum_vec_seq[2];
+
+    ASSERT_EQ(optimum_x_seq, optimum_x_mpi);
+    ASSERT_EQ(optimum_y_seq, optimum_y_mpi);
+    ASSERT_EQ(optimum_value_seq, optimum_value_mpi);
   }
 }
 
@@ -541,16 +605,28 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_parabol
   // Steps counts (how many points will be used):
   std::vector<int> steps_vec({250, 250});
   // Output value:
-  double optimum_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
+  std::vector<double> optimum_vec_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+  double optimum_x_mpi = optimum_vec_mpi[0];
+  double optimum_y_mpi = optimum_vec_mpi[1];
+  double optimum_value_mpi = optimum_vec_mpi[2];
 
   double eps = 0.2;
 
-  ASSERT_NEAR(optimum_mpi, -8.0, eps);
+  ASSERT_NEAR(optimum_x_mpi, 1.0, eps);
+  ASSERT_NEAR(optimum_y_mpi, 1.0, eps);
+  ASSERT_NEAR(optimum_value_mpi, -8.0, eps);
 
   if (world.rank() == 0) {
-    double optimum_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
+    std::vector<double> optimum_vec_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
-    ASSERT_EQ(optimum_seq, optimum_mpi);
+    double optimum_x_seq = optimum_vec_seq[0];
+    double optimum_y_seq = optimum_vec_seq[1];
+    double optimum_value_seq = optimum_vec_seq[2];
+
+    ASSERT_EQ(optimum_x_seq, optimum_x_mpi);
+    ASSERT_EQ(optimum_y_seq, optimum_y_mpi);
+    ASSERT_EQ(optimum_value_seq, optimum_value_mpi);
   }
 }
 
@@ -577,16 +653,28 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_parabol
   // Steps counts (how many points will be used):
   std::vector<int> steps_vec({240, 260});
   // Output value:
-  double optimum_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
+  std::vector<double> optimum_vec_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+  double optimum_x_mpi = optimum_vec_mpi[0];
+  double optimum_y_mpi = optimum_vec_mpi[1];
+  double optimum_value_mpi = optimum_vec_mpi[2];
 
   double eps = 0.2;
 
-  ASSERT_NEAR(optimum_mpi, -8.0, eps);
+  ASSERT_NEAR(optimum_x_mpi, 1.0, eps);
+  ASSERT_NEAR(optimum_y_mpi, 1.0, eps);
+  ASSERT_NEAR(optimum_value_mpi, -8.0, eps);
 
   if (world.rank() == 0) {
-    double optimum_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
+    std::vector<double> optimum_vec_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
-    ASSERT_EQ(optimum_seq, optimum_mpi);
+    double optimum_x_seq = optimum_vec_seq[0];
+    double optimum_y_seq = optimum_vec_seq[1];
+    double optimum_value_seq = optimum_vec_seq[2];
+
+    ASSERT_EQ(optimum_x_seq, optimum_x_mpi);
+    ASSERT_EQ(optimum_y_seq, optimum_y_mpi);
+    ASSERT_EQ(optimum_value_seq, optimum_value_mpi);
   }
 }
 
@@ -607,16 +695,28 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_shifted
   // Steps counts (how many points will be used):
   std::vector<int> steps_vec({250, 250});
   // Output value:
-  double optimum_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
+  std::vector<double> optimum_vec_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+  double optimum_x_mpi = optimum_vec_mpi[0];
+  double optimum_y_mpi = optimum_vec_mpi[1];
+  double optimum_value_mpi = optimum_vec_mpi[2];
 
   double eps = 0.2;
 
-  ASSERT_NEAR(optimum_mpi, -40.0, eps);
+  ASSERT_TRUE((0.0 <= optimum_x_mpi) && (optimum_x_mpi <= 10.0));
+  ASSERT_TRUE((0.0 <= optimum_y_mpi) && (optimum_x_mpi <= 10.0));
+  ASSERT_NEAR(optimum_value_mpi, -40.0, eps);
 
   if (world.rank() == 0) {
-    double optimum_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
+    std::vector<double> optimum_vec_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
-    ASSERT_EQ(optimum_seq, optimum_mpi);
+    double optimum_x_seq = optimum_vec_seq[0];
+    double optimum_y_seq = optimum_vec_seq[1];
+    double optimum_value_seq = optimum_vec_seq[2];
+
+    ASSERT_EQ(optimum_x_seq, optimum_x_mpi);
+    ASSERT_EQ(optimum_y_seq, optimum_y_mpi);
+    ASSERT_EQ(optimum_value_seq, optimum_value_mpi);
   }
 }
 
@@ -646,16 +746,28 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_shifted
   // Steps counts (how many points will be used):
   std::vector<int> steps_vec({250, 250});
   // Output value:
-  double optimum_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
+  std::vector<double> optimum_vec_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+  double optimum_x_mpi = optimum_vec_mpi[0];
+  double optimum_y_mpi = optimum_vec_mpi[1];
+  double optimum_value_mpi = optimum_vec_mpi[2];
 
   double eps = 0.2;
 
-  ASSERT_NEAR(optimum_mpi, -30.0, eps);
+  ASSERT_TRUE((-2.0 <= optimum_x_mpi) && (optimum_x_mpi <= 4.0));
+  ASSERT_TRUE((0.0 <= optimum_y_mpi) && (optimum_x_mpi <= 4.0));
+  ASSERT_NEAR(optimum_value_mpi, -30.0, eps);
 
   if (world.rank() == 0) {
-    double optimum_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
+    std::vector<double> optimum_vec_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
-    ASSERT_EQ(optimum_seq, optimum_mpi);
+    double optimum_x_seq = optimum_vec_seq[0];
+    double optimum_y_seq = optimum_vec_seq[1];
+    double optimum_value_seq = optimum_vec_seq[2];
+
+    ASSERT_EQ(optimum_x_seq, optimum_x_mpi);
+    ASSERT_EQ(optimum_y_seq, optimum_y_mpi);
+    ASSERT_EQ(optimum_value_seq, optimum_value_mpi);
   }
 }
 
@@ -683,18 +795,30 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_shifted
   // Search areas:
   std::vector<double> areas_vec({0.0, 5.0, 0.0, 5.0});
   // Steps counts (how many points will be used):
-  std::vector<int> steps_vec({251, 251}); // prime numbers
+  std::vector<int> steps_vec({251, 251});  // prime numbers
   // Output value:
-  double optimum_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
+  std::vector<double> optimum_vec_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+  double optimum_x_mpi = optimum_vec_mpi[0];
+  double optimum_y_mpi = optimum_vec_mpi[1];
+  double optimum_value_mpi = optimum_vec_mpi[2];
 
   double eps = 0.2;
 
-  ASSERT_NEAR(optimum_mpi, -30.0, eps);
+  ASSERT_TRUE((-2.0 <= optimum_x_mpi) && (optimum_x_mpi <= 4.0));
+  ASSERT_TRUE((0.0 <= optimum_y_mpi) && (optimum_x_mpi <= 4.0));
+  ASSERT_NEAR(optimum_value_mpi, -30.0, eps);
 
   if (world.rank() == 0) {
-    double optimum_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
+    std::vector<double> optimum_vec_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
-    ASSERT_EQ(optimum_seq, optimum_mpi);
+    double optimum_x_seq = optimum_vec_seq[0];
+    double optimum_y_seq = optimum_vec_seq[1];
+    double optimum_value_seq = optimum_vec_seq[2];
+
+    ASSERT_EQ(optimum_x_seq, optimum_x_mpi);
+    ASSERT_EQ(optimum_y_seq, optimum_y_mpi);
+    ASSERT_EQ(optimum_value_seq, optimum_value_mpi);
   }
 }
 
@@ -715,16 +839,28 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_large_d
   // Steps counts (how many points will be used):
   std::vector<int> steps_vec({250, 250});
   // Output value:
-  double optimum_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
+  std::vector<double> optimum_vec_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+  double optimum_x_mpi = optimum_vec_mpi[0];
+  double optimum_y_mpi = optimum_vec_mpi[1];
+  double optimum_value_mpi = optimum_vec_mpi[2];
 
   double eps = 0.2;
 
-  ASSERT_NEAR(optimum_mpi, 0.0, eps);
+  ASSERT_TRUE((-1.0 <= optimum_x_mpi) && (optimum_x_mpi <= 1.0));
+  ASSERT_TRUE((-1.0 <= optimum_y_mpi) && (optimum_x_mpi <= 1.0));
+  ASSERT_NEAR(optimum_value_mpi, 0.0, eps);
 
   if (world.rank() == 0) {
-    double optimum_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
+    std::vector<double> optimum_vec_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
-    ASSERT_EQ(optimum_seq, optimum_mpi);
+    double optimum_x_seq = optimum_vec_seq[0];
+    double optimum_y_seq = optimum_vec_seq[1];
+    double optimum_value_seq = optimum_vec_seq[2];
+
+    ASSERT_EQ(optimum_x_seq, optimum_x_mpi);
+    ASSERT_EQ(optimum_y_seq, optimum_y_mpi);
+    ASSERT_EQ(optimum_value_seq, optimum_value_mpi);
   }
 }
 
@@ -751,16 +887,28 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_large_d
   // Steps counts (how many points will be used):
   std::vector<int> steps_vec({250, 250});
   // Output value:
-  double optimum_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
+  std::vector<double> optimum_vec_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+  double optimum_x_mpi = optimum_vec_mpi[0];
+  double optimum_y_mpi = optimum_vec_mpi[1];
+  double optimum_value_mpi = optimum_vec_mpi[2];
 
   double eps = 0.2;
 
-  ASSERT_NEAR(optimum_mpi, 0.0, eps);
+  ASSERT_TRUE(0.5 <= optimum_x_mpi);
+  ASSERT_TRUE(0.7 <= optimum_y_mpi);
+  ASSERT_NEAR(optimum_value_mpi, 0.0, eps);
 
   if (world.rank() == 0) {
-    double optimum_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
+    std::vector<double> optimum_vec_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
-    ASSERT_EQ(optimum_seq, optimum_mpi);
+    double optimum_x_seq = optimum_vec_seq[0];
+    double optimum_y_seq = optimum_vec_seq[1];
+    double optimum_value_seq = optimum_vec_seq[2];
+
+    ASSERT_EQ(optimum_x_seq, optimum_x_mpi);
+    ASSERT_EQ(optimum_y_seq, optimum_y_mpi);
+    ASSERT_EQ(optimum_value_seq, optimum_value_mpi);
   }
 }
 
@@ -785,18 +933,30 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_large_d
   // Search areas:
   std::vector<double> areas_vec({-2.0, 2.0, -2.0, 2.0});
   // Steps counts (how many points will be used):
-  std::vector<int> steps_vec({256, 251}); // 2^8 and prime number
+  std::vector<int> steps_vec({256, 251});  // 2^8 and prime number
   // Output value:
-  double optimum_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
+  std::vector<double> optimum_vec_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+  double optimum_x_mpi = optimum_vec_mpi[0];
+  double optimum_y_mpi = optimum_vec_mpi[1];
+  double optimum_value_mpi = optimum_vec_mpi[2];
 
   double eps = 0.2;
 
-  ASSERT_NEAR(optimum_mpi, 0.0, eps);
+  ASSERT_TRUE(0.5 <= optimum_x_mpi);
+  ASSERT_TRUE(0.7 <= optimum_y_mpi);
+  ASSERT_NEAR(optimum_value_mpi, 0.0, eps);
 
   if (world.rank() == 0) {
-    double optimum_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
+    std::vector<double> optimum_vec_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
-    ASSERT_EQ(optimum_seq, optimum_mpi);
+    double optimum_x_seq = optimum_vec_seq[0];
+    double optimum_y_seq = optimum_vec_seq[1];
+    double optimum_value_seq = optimum_vec_seq[2];
+
+    ASSERT_EQ(optimum_x_seq, optimum_x_mpi);
+    ASSERT_EQ(optimum_y_seq, optimum_y_mpi);
+    ASSERT_EQ(optimum_value_seq, optimum_value_mpi);
   }
 }
 
@@ -818,16 +978,28 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_odd_deg
   // Steps counts (how many points will be used):
   std::vector<int> steps_vec({250, 250});
   // Output value:
-  double optimum_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
+  std::vector<double> optimum_vec_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+  double optimum_x_mpi = optimum_vec_mpi[0];
+  double optimum_y_mpi = optimum_vec_mpi[1];
+  double optimum_value_mpi = optimum_vec_mpi[2];
 
   double eps = 0.2;
 
-  ASSERT_NEAR(optimum_mpi, 0.0, eps);
+  ASSERT_TRUE((0.0 <= optimum_x_mpi) && (optimum_x_mpi <= 1.0));
+  ASSERT_TRUE((0.0 <= optimum_y_mpi) && (optimum_x_mpi <= 1.0));
+  ASSERT_NEAR(optimum_value_mpi, 0.0, eps);
 
   if (world.rank() == 0) {
-    double optimum_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
+    std::vector<double> optimum_vec_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
-    ASSERT_EQ(optimum_seq, optimum_mpi);
+    double optimum_x_seq = optimum_vec_seq[0];
+    double optimum_y_seq = optimum_vec_seq[1];
+    double optimum_value_seq = optimum_vec_seq[2];
+
+    ASSERT_EQ(optimum_x_seq, optimum_x_mpi);
+    ASSERT_EQ(optimum_y_seq, optimum_y_mpi);
+    ASSERT_EQ(optimum_value_seq, optimum_value_mpi);
   }
 }
 
@@ -855,16 +1027,28 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_odd_deg
   // Steps counts (how many points will be used):
   std::vector<int> steps_vec({250, 250});
   // Output value:
-  double optimum_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
+  std::vector<double> optimum_vec_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+  double optimum_x_mpi = optimum_vec_mpi[0];
+  double optimum_y_mpi = optimum_vec_mpi[1];
+  double optimum_value_mpi = optimum_vec_mpi[2];
 
   double eps = 0.2;
 
-  ASSERT_NEAR(optimum_mpi, 0.0, eps);
+  ASSERT_TRUE((-0.5 <= optimum_x_mpi) && (optimum_x_mpi <= 1.0));
+  ASSERT_TRUE((-0.5 <= optimum_y_mpi) && (optimum_x_mpi <= 1.0));
+  ASSERT_NEAR(optimum_value_mpi, 0.0, eps);
 
   if (world.rank() == 0) {
-    double optimum_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
+    std::vector<double> optimum_vec_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
-    ASSERT_EQ(optimum_seq, optimum_mpi);
+    double optimum_x_seq = optimum_vec_seq[0];
+    double optimum_y_seq = optimum_vec_seq[1];
+    double optimum_value_seq = optimum_vec_seq[2];
+
+    ASSERT_EQ(optimum_x_seq, optimum_x_mpi);
+    ASSERT_EQ(optimum_y_seq, optimum_y_mpi);
+    ASSERT_EQ(optimum_value_seq, optimum_value_mpi);
   }
 }
 
@@ -885,16 +1069,20 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_negativ
   // Steps counts (how many points will be used):
   std::vector<int> steps_vec({250, 250});
   // Output value:
-  double optimum_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
+  std::vector<double> optimum_vec_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+  double optimum_value_mpi = optimum_vec_mpi[2];
 
   double eps = 0.2;
 
-  ASSERT_NEAR(optimum_mpi, 0.0, eps);
+  ASSERT_NEAR(optimum_value_mpi, 0.0, eps);
 
   if (world.rank() == 0) {
-    double optimum_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
+    std::vector<double> optimum_vec_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
-    ASSERT_EQ(optimum_seq, optimum_mpi);
+    double optimum_value_seq = optimum_vec_seq[2];
+
+    ASSERT_EQ(optimum_value_seq, optimum_value_mpi);
   }
 }
 
@@ -924,15 +1112,27 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_func, test_task_run_negativ
   // Steps counts (how many points will be used):
   std::vector<int> steps_vec({250, 250});
   // Output value:
-  double optimum_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
+  std::vector<double> optimum_vec_mpi = run_test_mpi(q_vec, g_count, g_vec, areas_vec, steps_vec);
+
+  double optimum_x_mpi = optimum_vec_mpi[0];
+  double optimum_y_mpi = optimum_vec_mpi[1];
+  double optimum_value_mpi = optimum_vec_mpi[2];
 
   double eps = 0.2;
 
-  ASSERT_NEAR(optimum_mpi, 0.0, eps);
+  ASSERT_TRUE(-10.0 <= optimum_x_mpi);
+  ASSERT_TRUE((-0.5 <= optimum_y_mpi) && (optimum_x_mpi <= 0.5));
+  ASSERT_NEAR(optimum_value_mpi, 0.0, eps);
 
   if (world.rank() == 0) {
-    double optimum_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
+    std::vector<double> optimum_vec_seq = run_test_seq(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
-    ASSERT_EQ(optimum_seq, optimum_mpi);
+    double optimum_x_seq = optimum_vec_seq[0];
+    double optimum_y_seq = optimum_vec_seq[1];
+    double optimum_value_seq = optimum_vec_seq[2];
+
+    ASSERT_EQ(optimum_x_seq, optimum_x_mpi);
+    ASSERT_EQ(optimum_y_seq, optimum_y_mpi);
+    ASSERT_EQ(optimum_value_seq, optimum_value_mpi);
   }
 }

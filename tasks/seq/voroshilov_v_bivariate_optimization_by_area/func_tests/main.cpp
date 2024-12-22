@@ -444,7 +444,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_parabol
   // Search areas:
   std::vector<double> areas_vec({-5.0, 5.0, -5.0, 5.0});
   // Steps counts (how many points will be used):
-  std::vector<int> steps_vec({240, 260}); // different steps counts
+  std::vector<int> steps_vec({240, 260});  // different steps counts
   // Output value:
   std::vector<double> optimum_vec = run_test(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
@@ -546,7 +546,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_shifted
   // Search areas:
   std::vector<double> areas_vec({0.0, 5.0, 0.0, 5.0});
   // Steps counts (how many points will be used):
-  std::vector<int> steps_vec({251, 251}); // prime numbers 
+  std::vector<int> steps_vec({251, 251});  // prime numbers
   // Output value:
   std::vector<double> optimum_vec = run_test(q_vec, g_count, g_vec, areas_vec, steps_vec);
 
@@ -642,7 +642,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_seq_func, test_task_run_large_d
   // Search areas:
   std::vector<double> areas_vec({-2.0, 2.0, -2.0, 2.0});
   // Steps counts (how many points will be used):
-  std::vector<int> steps_vec({256, 251}); // 2^8 and prime number
+  std::vector<int> steps_vec({256, 251});  // 2^8 and prime number
   // Output value:
   std::vector<double> optimum_vec = run_test(q_vec, g_count, g_vec, areas_vec, steps_vec);
 

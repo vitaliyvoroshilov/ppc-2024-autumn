@@ -41,7 +41,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_perf, test_pipeline_run) {
     taskDataParallel->inputs_count.emplace_back(g_vec[i].size());
     taskDataParallel->inputs.emplace_back(reinterpret_cast<uint8_t *>(g_vec[i].data()));
   }
-  double optimum_value = DBL_MAX;
+  std::vector<double> optimum_vec(3);
   if (world.rank() == 0) {
     // Search area boundaries:
     taskDataParallel->inputs_count.emplace_back(areas_vec.size());
@@ -50,7 +50,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_perf, test_pipeline_run) {
     taskDataParallel->inputs_count.emplace_back(steps_vec.size());
     taskDataParallel->inputs.emplace_back(reinterpret_cast<uint8_t *>(steps_vec.data()));
     // Output - optimum point and value:
-    taskDataParallel->outputs.emplace_back(reinterpret_cast<uint8_t *>(&optimum_value));
+    taskDataParallel->outputs.emplace_back(reinterpret_cast<uint8_t *>(optimum_vec.data()));
   }
 
   auto optimizationMPITaskParallel =
@@ -71,8 +71,15 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_perf, test_pipeline_run) {
   if (world.rank() == 0) {
     ppc::core::Perf::print_perf_statistic(perfResults);
 
+    double optimum_x_mpi = optimum_vec[0];
+    double optimum_y_mpi = optimum_vec[1];
+    double optimum_value_mpi = optimum_vec[2];
+
     double eps = 0.2;
-    ASSERT_NEAR(optimum_value, 2.0, eps);
+
+    ASSERT_NEAR(optimum_x_mpi, 1.0, eps);
+    ASSERT_NEAR(optimum_y_mpi, 1.0, eps);
+    ASSERT_NEAR(optimum_value_mpi, 2.0, eps);
   }
 }
 
@@ -112,7 +119,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_perf, test_task_run) {
     taskDataParallel->inputs_count.emplace_back(g_vec[i].size());
     taskDataParallel->inputs.emplace_back(reinterpret_cast<uint8_t *>(g_vec[i].data()));
   }
-  double optimum_value = DBL_MAX;
+  std::vector<double> optimum_vec(3);
   if (world.rank() == 0) {
     // Search area boundaries:
     taskDataParallel->inputs_count.emplace_back(areas_vec.size());
@@ -121,7 +128,7 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_perf, test_task_run) {
     taskDataParallel->inputs_count.emplace_back(steps_vec.size());
     taskDataParallel->inputs.emplace_back(reinterpret_cast<uint8_t *>(steps_vec.data()));
     // Output - optimum point and value:
-    taskDataParallel->outputs.emplace_back(reinterpret_cast<uint8_t *>(&optimum_value));
+    taskDataParallel->outputs.emplace_back(reinterpret_cast<uint8_t *>(optimum_vec.data()));
   }
 
   auto optimizationMPITaskParallel =
@@ -142,7 +149,14 @@ TEST(voroshilov_v_bivariate_optimization_by_area_mpi_perf, test_task_run) {
   if (world.rank() == 0) {
     ppc::core::Perf::print_perf_statistic(perfResults);
 
+    double optimum_x_mpi = optimum_vec[0];
+    double optimum_y_mpi = optimum_vec[1];
+    double optimum_value_mpi = optimum_vec[2];
+
     double eps = 0.2;
-    ASSERT_NEAR(optimum_value, 2.0, eps);
+
+    ASSERT_NEAR(optimum_x_mpi, 1.0, eps);
+    ASSERT_NEAR(optimum_y_mpi, 1.0, eps);
+    ASSERT_NEAR(optimum_value_mpi, 2.0, eps);
   }
 }

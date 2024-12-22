@@ -162,8 +162,8 @@ class OptimizationMPITaskParallel : public ppc::core::Task {
   Search_area x_area;
   Search_area y_area;
 
-  Point global_optimum_point;
-  double global_optimum_value;
+  Point local_optimum_point;
+  double local_optimum_value;
 
   boost::mpi::communicator world;
 };
