@@ -24,10 +24,7 @@ bool voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskSequent
   double x_max = *d_ptr++;
   double y_min = *d_ptr++;
   double y_max = *d_ptr;
-  if (x_min > x_max) {
-    return false;
-  }
-  if (y_min > y_max) {
+  if ((x_min > x_max) || (y_min > y_max)) {
     return false;
   }
   // incorrect number of steps count:
@@ -38,12 +35,7 @@ bool voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskSequent
   auto* s_ptr = reinterpret_cast<int*>(taskData->inputs[2 + g_count + 1]);
   int x_steps = *s_ptr++;
   int y_steps = *s_ptr;
-  // steps_count x:
-  if (x_steps <= 0) {
-    return false;
-  }
-  // steps_count y:
-  if (y_steps <= 0) {
+  if ((x_steps <= 0) || (y_steps <= 0)) {
     return false;
   }
 
@@ -185,10 +177,7 @@ bool voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskParalle
     double x_max = *d_ptr++;
     double y_min = *d_ptr++;
     double y_max = *d_ptr;
-    if (x_min > x_max) {
-      return false;
-    }
-    if (y_min > y_max) {
+    if ((x_min > x_max) || (y_min > y_max)) {
       return false;
     }
     // incorrect number of steps count:
@@ -199,12 +188,7 @@ bool voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskParalle
     auto* s_ptr = reinterpret_cast<int*>(taskData->inputs[2 + g_count + 1]);
     int x_steps = *s_ptr++;
     int y_steps = *s_ptr;
-    // steps_count x:
-    if (x_steps <= 0) {
-      return false;
-    }
-    // steps_count y:
-    if (y_steps <= 0) {
+    if ((x_steps <= 0) || (y_steps <= 0)) {
       return false;
     }
   }
