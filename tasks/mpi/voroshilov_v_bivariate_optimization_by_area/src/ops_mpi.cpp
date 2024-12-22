@@ -147,7 +147,9 @@ bool voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskSequent
 bool voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskSequential::post_processing() {
   internal_order_test();
 
-  reinterpret_cast<double*>(taskData->outputs[0])[0] = optimum_value;
+  reinterpret_cast<double*>(taskData->outputs[0])[0] = optimum_point.x;
+  reinterpret_cast<double*>(taskData->outputs[0])[1] = optimum_point.y;
+  reinterpret_cast<double*>(taskData->outputs[0])[2] = optimum_value;
 
   return true;
 }
@@ -302,15 +304,13 @@ bool voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskParalle
     }
     index++;
   }
-  Point local_optimum_point;
-  double local_optimum_value;
   size_t first_satisfied = index;  // it is first candidate for optimum
   if (first_satisfied == local_points.size()) {
-    local_optimum_point = Point(DBL_MAX, DBL_MAX);
-    local_optimum_value = DBL_MAX;
+    local_optimum_point = PointWithValue(DBL_MAX, DBL_MAX, DBL_MAX);
   } else {
-    local_optimum_point = local_points[first_satisfied];
-    local_optimum_value = q.calculate(local_points[first_satisfied]);
+    local_optimum_point.x = local_points[first_satisfied].x;
+    local_optimum_point.y = local_points[first_satisfied].y;
+    local_optimum_point.value = q.calculate(local_points[first_satisfied]);
   }
 
   // Start search from this point:
@@ -326,15 +326,28 @@ bool voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskParalle
     }
     // Check if current < optimum
     if (flag_in_area) {
-      if (current_value < local_optimum_value) {
-        local_optimum_value = current_value;
+      if (current_value < local_optimum_point.value) {
         local_optimum_point.x = local_points[i].x;
         local_optimum_point.y = local_points[i].y;
+        local_optimum_point.value = current_value;
       }
     }
   }
 
-  boost::mpi::reduce(world, local_optimum_value, global_optimum_value, boost::mpi::minimum<double>(), 0);
+  if (world.rank() != 0) {
+    boost::mpi::gather(world, local_optimum_point, 0);
+  }
+  if (world.rank() == 0) {
+    std::vector<PointWithValue> optimum_points_vec;
+    boost::mpi::gather(world, local_optimum_point, optimum_points_vec, 0);
+
+    local_optimum_point = optimum_points_vec[0];
+    for (size_t i = 1; i < optimum_points_vec.size(); i++) {
+      if (optimum_points_vec[i].value < local_optimum_point.value) {
+        local_optimum_point = optimum_points_vec[i];
+      }
+    }
+  }
 
   return true;
 }
@@ -343,7 +356,9 @@ bool voroshilov_v_bivariate_optimization_by_area_mpi::OptimizationMPITaskParalle
   internal_order_test();
 
   if (world.rank() == 0) {
-    reinterpret_cast<double*>(taskData->outputs[0])[0] = global_optimum_value;
+    reinterpret_cast<double*>(taskData->outputs[0])[0] = local_optimum_point.x;
+    reinterpret_cast<double*>(taskData->outputs[0])[1] = local_optimum_point.y;
+    reinterpret_cast<double*>(taskData->outputs[0])[2] = local_optimum_point.value;
   }
   return true;
 }

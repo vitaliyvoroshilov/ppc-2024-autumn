@@ -31,6 +31,25 @@ struct Point {
   }
 };
 
+struct PointWithValue {
+  double x;
+  double y;
+  double value;
+
+  PointWithValue(double x_ = 0, double y_ = 0, double value_ = 0) {
+    x = x_;
+    y = y_;
+    value = value_;
+  }
+
+  template <class Archive>
+  void serialize(Archive& ar, unsigned int version) {
+    ar & x;
+    ar & y;
+    ar & value;
+  }
+};
+
 struct Monomial {
   double coef;
   int deg_x;
@@ -169,8 +188,7 @@ class OptimizationMPITaskParallel : public ppc::core::Task {
   Search_area x_area;
   Search_area y_area;
 
-  Point global_optimum_point;
-  double global_optimum_value;
+  PointWithValue local_optimum_point;
 
   boost::mpi::communicator world;
 };
